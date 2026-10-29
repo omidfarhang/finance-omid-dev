@@ -1,0 +1,20 @@
+{
+  "name": "finance-omid",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "dev:api": "pnpm --filter @finance/api start:dev",
+    "dev:web": "pnpm --filter @finance/web start",
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test",
+    "test:api": "pnpm --filter @finance/api test",
+    "lint": "pnpm -r run lint",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @finance/api prisma:migrate",
+    "db:generate": "pnpm --filter @finance/api prisma:generate"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

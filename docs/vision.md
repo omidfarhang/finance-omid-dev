@@ -16,7 +16,7 @@ The application prioritizes usefulness, transparency, and user control over feat
 
 - Self-hosted deployment
 - Iranian bank statement imports (CSV / Excel; formats differ per bank)
-- IRR as the canonical stored currency, with toman-oriented presentation
+- Per-account ISO currency as integer minor units (IRR with optional toman presentation; other currencies such as USD allowed; no FX / no cross-currency net worth in MVP)
 - Persian and Gregorian date handling
 - Manual transaction entry and recurring cash-flow forecasting
 - Recipe and ingredient unit costing (post-MVP unless explicitly pulled forward)

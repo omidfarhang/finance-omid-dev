@@ -13,13 +13,16 @@ Keep the living overview in [`../design.md`](../design.md) aligned when acceptin
 | [DEC-001](DEC-001-client-server-split.md) | Client/server split (REST API + Angular PWA) | Accepted |
 | [DEC-002](DEC-002-stack.md) | Stack (NestJS, PostgreSQL, Prisma, Zod, Angular, PrimeNG) | Accepted |
 | [DEC-003](DEC-003-pwa-scope.md) | PWA scope (installable, online-only money data) | Accepted |
-| [DEC-004](DEC-004-money-storage-display.md) | IRR storage vs toman presentation | Accepted |
+| [DEC-004](DEC-004-money-storage-display.md) | IRR storage vs toman presentation | Superseded by DEC-006 |
+| [DEC-005](DEC-005-wallets-and-accounts.md) | Separate wallets + optional shared accounts; transfer/shared-expense MVP rules | Accepted |
+| [DEC-006](DEC-006-money-multi-currency.md) | Per-account currency; minor units; no FX / no cross-currency net worth | Accepted |
+| [DEC-007](DEC-007-auth.md) | Register/login; httpOnly cookie sessions; optional TOTP 2FA; profile | Accepted |
 
 Likely early candidates (create when deciding, not before):
 
 - Privacy / data location (self-hosted defaults)
 - Import adapter model
-- Household ledger vs separate wallets
+- Shared-expense settlement / reimbursement ledger
 
 ## Decision record template
 

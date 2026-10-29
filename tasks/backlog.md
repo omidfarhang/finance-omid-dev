@@ -24,7 +24,12 @@ Potential future work. Nothing here is a commitment.
 - Household sharing with a partner
   - **Problem:** Shared life, shared money visibility.
   - **Expected outcome:** Useful household ledger without a complex distributed system.
-  - **Dependencies:** Decision on single ledger vs wallets (see MVP open questions).
+  - **Dependencies:** Wallets + optional shared accounts ([DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md)); auth.
+
+- Shared-expense settlement / reimbursement ledger
+  - **Problem:** “I paid, we share” needs clearer partner settlement than an optional mark + manual transfer.
+  - **Expected outcome:** Deterministic split/reimbursement model that does not break bank-aligned balances.
+  - **Dependencies:** More product thought; MVP shared mark is enough for now ([DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md)).
 
 - Public release readiness
   - **Problem:** Personal tool may become a product.

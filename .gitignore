@@ -29,6 +29,17 @@ node_modules/
 dist/
 build/
 coverage/
+.angular/
+.nestjs/
+*.tsbuildinfo
 .venv/
 __pycache__/
 *.pyc
+
+# Prisma
+apps/api/prisma/*.db
+apps/api/prisma/*.db-journal
+
+# Generated / local
+*.log
+.turbo/

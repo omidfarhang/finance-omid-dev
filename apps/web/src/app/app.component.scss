@@ -1,0 +1,24 @@
+.shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(20, 120, 110, 0.12), transparent 40%),
+    linear-gradient(180deg, #f7faf9 0%, #eef3f1 100%);
+  color: #1c2a27;
+}
+
+.topbar {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(28, 42, 39, 0.08);
+}
+
+.brand {
+  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+}
+
+main {
+  padding-bottom: 3rem;
+}

@@ -1,0 +1,38 @@
+<section class="auth-page">
+  <h1>Create account</h1>
+  <p class="lede">Register to manage your wallets and accounts.</p>
+
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="block" />
+  }
+
+  <form (ngSubmit)="submit()" class="auth-form">
+    <label>
+      Display name
+      <input pInputText name="displayName" [(ngModel)]="displayName" required autocomplete="name" />
+    </label>
+    <label>
+      Email
+      <input pInputText type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+    </label>
+    <label>
+      Password
+      <p-password
+        [(ngModel)]="password"
+        name="password"
+        toggleMask
+        required
+        autocomplete="new-password"
+        styleClass="w-full"
+        inputStyleClass="w-full"
+      />
+    </label>
+
+    <p-button type="submit" label="Create account" [loading]="loading()" />
+  </form>
+
+  <p class="footer">
+    Already registered?
+    <a routerLink="/login">Sign in</a>
+  </p>
+</section>

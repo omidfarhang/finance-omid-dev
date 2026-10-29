@@ -1,0 +1,62 @@
+<section class="profile-page">
+  <header class="profile-header">
+    <div>
+      <h1>Profile</h1>
+      <p class="lede">{{ auth.user()?.email }}</p>
+    </div>
+    <p-button label="Sign out" severity="secondary" (onClick)="logout()" />
+  </header>
+
+  @if (message()) {
+    <p-message severity="success" [text]="message()!" styleClass="block" />
+  }
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="block" />
+  }
+
+  <form (ngSubmit)="saveProfile()" class="panel">
+    <h2>Account details</h2>
+    <label>
+      Display name
+      <input pInputText name="displayName" [(ngModel)]="displayName" required />
+    </label>
+    <label>
+      Locale
+      <input pInputText name="locale" [(ngModel)]="locale" placeholder="e.g. fa-IR" />
+    </label>
+    <label>
+      Time zone
+      <input pInputText name="timeZone" [(ngModel)]="timeZone" placeholder="e.g. Asia/Tehran" />
+    </label>
+    <p-button type="submit" label="Save profile" [loading]="loading()" />
+  </form>
+
+  <section class="panel">
+    <h2>Two-factor authentication</h2>
+    <p class="lede">
+      Status:
+      <strong>{{ auth.user()?.totpEnabled ? 'Enabled' : 'Optional — not enabled' }}</strong>
+    </p>
+
+    @if (!auth.user()?.totpEnabled) {
+      @if (!qrDataUrl()) {
+        <p-button label="Set up authenticator" (onClick)="start2fa()" />
+      } @else {
+        <p>Scan this QR code with your authenticator app, then enter a code to confirm.</p>
+        <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
+        <p class="secret">Secret: {{ totpSecret() }}</p>
+        <label>
+          Confirmation code
+          <input pInputText name="totpCode" [(ngModel)]="totpCode" inputmode="numeric" />
+        </label>
+        <p-button label="Confirm 2FA" (onClick)="confirm2fa()" />
+      }
+    } @else {
+      <label>
+        Code to disable 2FA
+        <input pInputText name="disableCode" [(ngModel)]="disableCode" inputmode="numeric" />
+      </label>
+      <p-button label="Disable 2FA" severity="danger" (onClick)="disable2fa()" />
+    }
+  </section>
+</section>

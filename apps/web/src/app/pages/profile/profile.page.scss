@@ -1,0 +1,44 @@
+.profile-page {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.lede {
+  color: var(--p-text-muted-color, #5b6472);
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.qr {
+  width: 12rem;
+  height: 12rem;
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.secret {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}

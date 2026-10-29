@@ -24,9 +24,8 @@ Capture first. Classify later. Brainstorm items are not approved requirements.
 
 ## Questions
 
-- Which banks and export formats will be used first?
-- Single household ledger or separate wallets for partners?
-- How should rial storage and toman presentation work in the UI day to day?
+- (Settled → MVP / DEC-005–007) wallets vs single ledger; money/currency; auth.
+- Which real banks and anonymized column layouts to add after the generic CSV adapter?
 
 ## Observations
 

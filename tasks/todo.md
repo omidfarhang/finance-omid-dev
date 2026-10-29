@@ -8,14 +8,19 @@ Work that is ready to be done.
 
 ## Next
 
-- Scaffold application monorepo when ready: `apps/api` (NestJS + Prisma), `apps/web` (Angular + PrimeNG PWA), `packages/shared` (Zod); choose package manager and local Postgres approach then (see [docs/design.md](../docs/design.md))
+- Wallets and accounts (personal + optional shared; per-account currency) — [DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md), [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md)
+- Manual transactions and same-currency transfers
+- Generic/synthetic CSV import adapter + deduplication
+- Recurrings and next-month forecast (per currency)
 - Capture real day-to-day money workflows and annoyances in [docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md)
 - List banks you use and note anonymized statement column layouts (no real statements in git)
 - Triage inbox items into backlog, parked, or rejected
-- Resolve MVP open questions (household ledger model, first bank adapter) into [docs/plans/mvp.md](../docs/plans/mvp.md) or a decision record
 
 ## Done recently
 
+- Scaffold pnpm monorepo (`apps/api`, `apps/web`, `packages/shared`) + Docker Compose Postgres
+- Auth milestone: register, login, logout, optional TOTP 2FA, profile ([DEC-007](../docs/decisions/DEC-007-auth.md))
+- Resolve MVP open questions: wallets ([DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md)), money ([DEC-006](../docs/decisions/DEC-006-money-multi-currency.md)), auth ([DEC-007](../docs/decisions/DEC-007-auth.md))
 - Record architecture decisions DEC-001–004 and living [docs/design.md](../docs/design.md)
 - Establish documentation workspace (vision, MVP, inbox, backlog, decisions, AGENTS)
 

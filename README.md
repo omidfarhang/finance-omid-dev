@@ -2,13 +2,36 @@
 
 A personal finance application for understanding balances, recording income and expenses, importing bank statements, forecasting cash flow, and calculating the real cost of everyday things.
 
-**Status:** documentation and planning — no application code yet. Architecture for a NestJS REST API and Angular + PrimeNG PWA is recorded in [docs/design.md](docs/design.md) and [docs/decisions/](docs/decisions/).
+**Status:** monorepo scaffolded; auth (register / login / optional TOTP / profile) is the first implementation milestone. Architecture lives in [docs/design.md](docs/design.md) and [docs/decisions/](docs/decisions/).
 
 ## Who it is for
 
 - Personal use by the creator first
 - Household use with a partner later
 - Possible public release after the core workflows are solid
+
+## Repository layout
+
+```text
+apps/api          NestJS + Prisma REST API
+apps/web          Angular + PrimeNG PWA
+packages/shared   Zod HTTP DTOs / shared types
+```
+
+## Local development
+
+Prerequisites: Node 20+, [pnpm](https://pnpm.io), Docker.
+
+```bash
+cp .env.example .env
+cp .env apps/api/.env
+pnpm install
+pnpm db:up
+pnpm --filter @finance/shared build
+pnpm db:migrate
+pnpm dev:api    # http://localhost:3000/api/v1
+pnpm dev:web    # http://localhost:4200
+```
 
 ## Documentation map
 

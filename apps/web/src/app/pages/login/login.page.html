@@ -1,0 +1,50 @@
+<section class="auth-page">
+  <h1>Sign in</h1>
+  <p class="lede">Use your account for this self-hosted finance app.</p>
+
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="block" />
+  }
+
+  <form (ngSubmit)="submit()" class="auth-form">
+    @if (!pendingToken()) {
+      <label>
+        Email
+        <input pInputText type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+      </label>
+      <label>
+        Password
+        <p-password
+          [(ngModel)]="password"
+          name="password"
+          [feedback]="false"
+          toggleMask
+          required
+          autocomplete="current-password"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+      </label>
+    } @else {
+      <p>Enter the 6-digit code from your authenticator app.</p>
+      <label>
+        Authentication code
+        <input
+          pInputText
+          name="totpCode"
+          [(ngModel)]="totpCode"
+          required
+          inputmode="numeric"
+          autocomplete="one-time-code"
+        />
+      </label>
+    }
+
+    <p-button type="submit" [label]="pendingToken() ? 'Verify' : 'Sign in'" [loading]="loading()" />
+  </form>
+
+  <p class="footer">
+    No account?
+    <a routerLink="/register">Create one</a>
+  </p>
+</section>

@@ -1,7 +1,8 @@
 # DEC-004: IRR storage and toman presentation
 
-- **Status:** Accepted
+- **Status:** Superseded by [DEC-006](DEC-006-money-multi-currency.md)
 - **Date:** 2026-10-29
+- **Superseded:** 2026-10-29
 
 ## Context
 
@@ -29,3 +30,7 @@ Iranian users often think in toman while banks and legal units use rial (1 toman
 ## Revisit when
 
 Multi-currency beyond IRR becomes in scope, or regulatory/display conventions require a different canonical unit.
+
+## Supersession note
+
+Accounts may use currencies other than IRR (e.g. USD). Canonical storage is integer minor units of each account’s currency. IRR toman display remains valid for IRR accounts only. See [DEC-006](DEC-006-money-multi-currency.md).
