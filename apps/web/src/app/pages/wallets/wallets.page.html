@@ -1,0 +1,171 @@
+<section class="wallets-page" *transloco="let t">
+  <header class="wallets-header">
+    <div>
+      <h1>{{ t('wallets.title') }}</h1>
+      <p class="lede">{{ t('wallets.lede') }}</p>
+    </div>
+    <p-button
+      [label]="showToman() ? t('wallets.showRials') : t('wallets.showToman')"
+      severity="secondary"
+      (onClick)="toggleToman()"
+    />
+  </header>
+
+  @if (message()) {
+    <p-message severity="success" [text]="message()!" styleClass="block" />
+  }
+  @if (error()) {
+    <p-message severity="error" [text]="error()!" styleClass="block" />
+  }
+
+  @if (loading()) {
+    <p class="lede">{{ t('wallets.loading') }}</p>
+  }
+
+  <div class="panel">
+    <h2>{{ t('wallets.yourWallets') }}</h2>
+    @if (wallets().length === 0) {
+      <p class="lede">{{ t('wallets.empty') }}</p>
+    }
+    @for (wallet of wallets(); track wallet.id) {
+      <article class="wallet-block">
+        <h3>{{ wallet.name }}</h3>
+        <ul class="account-list">
+          @for (account of accountsFor(wallet.id); track account.id) {
+            <li>
+              <div class="account-row">
+                <span class="account-name">
+                  {{ account.name }}
+                  @if (account.isShared) {
+                    <span class="badge">{{ t('wallets.shared') }}</span>
+                  }
+                </span>
+                <span class="balance">{{ formatBalance(account) }}</span>
+              </div>
+              <p class="meta">
+                {{ account.currency }} ·
+                {{ t('wallets.opening') }}:
+                {{ account.openingBalanceMinor }}
+                {{ minorUnitLabel(account.currency) }}
+              </p>
+              @if (account.members.length > 1) {
+                <p class="meta">
+                  {{ t('wallets.members') }}:
+                  @for (member of account.members; track member.userId; let last = $last) {
+                    {{ member.displayName }}@if (!last) {, }
+                  }
+                </p>
+              }
+            </li>
+          } @empty {
+            <li class="lede">{{ t('wallets.noAccounts') }}</li>
+          }
+        </ul>
+      </article>
+    }
+
+    @if (externalAccounts().length > 0) {
+      <article class="wallet-block">
+        <h3>{{ t('wallets.sharedWithYou') }}</h3>
+        <ul class="account-list">
+          @for (account of externalAccounts(); track account.id) {
+            <li>
+              <div class="account-row">
+                <span class="account-name">
+                  {{ account.name }}
+                  <span class="badge">{{ t('wallets.shared') }}</span>
+                </span>
+                <span class="balance">{{ formatBalance(account) }}</span>
+              </div>
+              <p class="meta">
+                {{ account.currency }} ·
+                {{ t('wallets.opening') }}:
+                {{ account.openingBalanceMinor }}
+                {{ minorUnitLabel(account.currency) }}
+              </p>
+            </li>
+          }
+        </ul>
+      </article>
+    }
+  </div>
+
+  <form (ngSubmit)="createWallet()" class="panel">
+    <h2>{{ t('wallets.createWallet') }}</h2>
+    <label>
+      {{ t('wallets.walletName') }}
+      <input pInputText name="walletName" [(ngModel)]="walletName" required />
+    </label>
+    <p-button type="submit" [label]="t('wallets.createWallet')" />
+  </form>
+
+  <form (ngSubmit)="createAccount()" class="panel">
+    <h2>{{ t('wallets.createAccount') }}</h2>
+    <label>
+      {{ t('wallets.wallet') }}
+      <select name="accountWalletId" [(ngModel)]="accountWalletId" required>
+        @for (wallet of wallets(); track wallet.id) {
+          <option [value]="wallet.id">{{ wallet.name }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ t('wallets.accountName') }}
+      <input pInputText name="accountName" [(ngModel)]="accountName" required />
+    </label>
+    <label>
+      {{ t('wallets.currency') }}
+      <select name="accountCurrency" [(ngModel)]="accountCurrency" required>
+        @for (code of currencies; track code) {
+          <option [value]="code">{{ code }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ t('wallets.openingBalance') }}
+      <span class="hint">{{ t('wallets.openingHint', { unit: minorUnitLabel(accountCurrency) }) }}</span>
+      <input
+        pInputText
+        name="openingBalanceMinor"
+        [(ngModel)]="openingBalanceMinor"
+        inputmode="numeric"
+        required
+      />
+    </label>
+    <label class="checkbox-row">
+      <p-checkbox
+        [(ngModel)]="isShared"
+        [binary]="true"
+        inputId="isShared"
+        name="isShared"
+      />
+      <span>{{ t('wallets.sharedAccount') }}</span>
+    </label>
+    <p-button type="submit" [label]="t('wallets.createAccount')" />
+  </form>
+
+  @if (sharedAccounts().length > 0) {
+    <form (ngSubmit)="addMember()" class="panel">
+      <h2>{{ t('wallets.addMember') }}</h2>
+      <label>
+        {{ t('wallets.sharedAccountSelect') }}
+        <select name="memberAccountId" [(ngModel)]="memberAccountId" required>
+          @for (account of sharedAccounts(); track account.id) {
+            <option [value]="account.id">{{ account.name }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        {{ t('wallets.memberEmail') }}
+        <input
+          pInputText
+          type="email"
+          name="memberEmail"
+          [(ngModel)]="memberEmail"
+          required
+        />
+      </label>
+      <p-button type="submit" [label]="t('wallets.addMember')" />
+    </form>
+  }
+</section>

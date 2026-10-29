@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented as first coding milestone; UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
+**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented; wallets/accounts milestone done ([plans/wallets-accounts.md](plans/wallets-accounts.md), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md)); UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 

@@ -21,10 +21,10 @@ export const guestGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (auth.loaded() && auth.user()) {
-    return router.createUrlTree(['/profile']);
+    return router.createUrlTree(['/wallets']);
   }
 
   return auth.refreshSession().pipe(
-    map((user) => (user ? router.createUrlTree(['/profile']) : true)),
+    map((user) => (user ? router.createUrlTree(['/wallets']) : true)),
   );
 };

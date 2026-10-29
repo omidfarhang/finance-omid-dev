@@ -2,7 +2,7 @@
 
 A personal finance application for understanding balances, recording income and expenses, importing bank statements, forecasting cash flow, and calculating the real cost of everyday things.
 
-**Status:** monorepo scaffolded; auth (register / login / optional TOTP / profile) is the first implementation milestone. Architecture lives in [docs/design.md](docs/design.md) and [docs/decisions/](docs/decisions/).
+**Status:** monorepo scaffolded; auth and wallets/accounts milestones implemented. Architecture lives in [docs/design.md](docs/design.md) and [docs/decisions/](docs/decisions/).
 
 ## Who it is for
 

@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum AccountMemberRole {
+  OWNER
+  MEMBER
+}
+
 model User {
   id           String   @id @default(uuid()) @db.Uuid
   email        String   @unique
@@ -19,8 +24,52 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  sessions      Session[]
-  pendingLogins PendingLogin[]
+  sessions       Session[]
+  pendingLogins  PendingLogin[]
+  wallets        Wallet[]
+  accountMembers AccountMember[]
+}
+
+model Wallet {
+  id          String   @id @default(uuid()) @db.Uuid
+  ownerUserId String   @db.Uuid
+  owner       User     @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  accounts Account[]
+
+  @@index([ownerUserId])
+}
+
+model Account {
+  id                   String   @id @default(uuid()) @db.Uuid
+  walletId             String   @db.Uuid
+  wallet               Wallet   @relation(fields: [walletId], references: [id], onDelete: Restrict)
+  name                 String
+  currency             String   @db.Char(3)
+  openingBalanceMinor  BigInt
+  isShared             Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  members AccountMember[]
+
+  @@index([walletId])
+}
+
+model AccountMember {
+  id        String            @id @default(uuid()) @db.Uuid
+  accountId String            @db.Uuid
+  account   Account           @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  userId    String            @db.Uuid
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      AccountMemberRole
+  createdAt DateTime          @default(now())
+
+  @@unique([accountId, userId])
+  @@index([userId])
 }
 
 model Session {

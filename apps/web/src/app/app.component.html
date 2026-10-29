@@ -5,6 +5,7 @@
       <nav class="nav">
         <a routerLink="/status">{{ t('app.nav.status') }}</a>
         @if (auth.user()) {
+          <a routerLink="/wallets">{{ t('app.nav.wallets') }}</a>
           <a routerLink="/profile">{{ t('app.nav.profile') }}</a>
         } @else {
           <a routerLink="/login">{{ t('app.nav.signIn') }}</a>

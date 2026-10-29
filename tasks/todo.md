@@ -8,7 +8,6 @@ Work that is ready to be done.
 
 ## Next
 
-- Wallets and accounts (personal + optional shared; per-account currency) — [DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md), [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md)
 - Manual transactions and same-currency transfers
 - Generic/synthetic CSV import adapter + deduplication
 - Recurrings and next-month forecast (per currency)
@@ -18,6 +17,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Wallets and accounts (personal + optional shared; per-account currency) — [DEC-005](../docs/decisions/DEC-005-wallets-and-accounts.md), [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md), [docs/plans/wallets-accounts.md](../docs/plans/wallets-accounts.md)
 - UI i18n: English + Farsi (Transloco, RTL, language switcher, profile locale) — [DEC-009](../docs/decisions/DEC-009-i18n.md)
 - Self-hosted Docker Compose deploy (postgres + api + web) for finance.omid.dev ([DEC-008](../docs/decisions/DEC-008-self-hosted-docker.md))
 - Scaffold pnpm monorepo (`apps/api`, `apps/web`, `packages/shared`) + Docker Compose Postgres
