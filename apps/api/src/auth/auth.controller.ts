@@ -34,6 +34,11 @@ import { SESSION_COOKIE, SESSION_TTL_MS } from './session.constants';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('auth/registration-status')
+  async registrationStatus() {
+    return this.authService.getRegistrationStatus();
+  }
+
   @Post('auth/register')
   async register(
     @Body(new ZodValidationPipe(registerSchema)) body: RegisterDto,

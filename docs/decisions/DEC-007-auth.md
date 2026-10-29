@@ -30,4 +30,4 @@ The API is the system of record for personal financial data. Even for self-hoste
 
 ## Revisit when
 
-Mandatory 2FA, OAuth/OIDC, multi-device session management, or partner invite flows require a different identity model.
+Mandatory 2FA, OAuth/OIDC, multi-device session management, or partner invite flows require a different identity model. Instance admin roles and registration control are covered by [DEC-010](DEC-010-instance-admin.md).

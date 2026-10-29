@@ -28,3 +28,17 @@ export const guestGuard: CanActivateFn = () => {
     map((user) => (user ? router.createUrlTree(['/wallets']) : true)),
   );
 };
+
+export const adminGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+
+  const allowAdmin = (user: ReturnType<AuthService['user']>) =>
+    user?.role === 'ADMIN' ? true : router.createUrlTree(['/wallets']);
+
+  if (auth.loaded()) {
+    return allowAdmin(auth.user());
+  }
+
+  return auth.refreshSession().pipe(map((user) => allowAdmin(user)));
+};

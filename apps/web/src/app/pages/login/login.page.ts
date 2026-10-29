@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -23,17 +23,27 @@ import { AuthService } from '../../core/auth.service';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   email = '';
   password = '';
   totpCode = '';
   pendingToken = signal<string | null>(null);
   error = signal<string | null>(null);
   loading = signal(false);
+  registrationAllowed = signal(false);
 
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly i18n = inject(TranslocoService);
+
+  ngOnInit() {
+    this.auth.registrationStatus().subscribe({
+      next: (status) => {
+        this.registrationAllowed.set(status.open || status.bootstrapAllowed);
+      },
+      error: () => this.registrationAllowed.set(false),
+    });
+  }
 
   submit() {
     this.error.set(null);

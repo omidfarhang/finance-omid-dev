@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
-import { PublicUser } from '@finance/shared';
+import { Injectable, computed, signal } from '@angular/core';
+import type { PublicUser, RegistrationStatus } from '@finance/shared';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -12,8 +12,16 @@ type LoginResult = AuthResponse | TotpChallenge;
 export class AuthService {
   readonly user = signal<PublicUser | null>(null);
   readonly loaded = signal(false);
+  readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
 
   constructor(private readonly http: HttpClient) {}
+
+  registrationStatus(): Observable<RegistrationStatus> {
+    return this.http.get<RegistrationStatus>(
+      `${environment.apiBaseUrl}/auth/registration-status`,
+      { withCredentials: true },
+    );
+  }
 
   refreshSession(): Observable<PublicUser | null> {
     return this.http.get<AuthResponse>(`${environment.apiBaseUrl}/auth/me`, {

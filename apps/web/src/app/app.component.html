@@ -7,6 +7,9 @@
         @if (auth.user()) {
           <a routerLink="/wallets">{{ t('app.nav.wallets') }}</a>
           <a routerLink="/profile">{{ t('app.nav.profile') }}</a>
+          @if (auth.isAdmin()) {
+            <a routerLink="/admin">{{ t('app.nav.admin') }}</a>
+          }
         } @else {
           <a routerLink="/login">{{ t('app.nav.signIn') }}</a>
         }

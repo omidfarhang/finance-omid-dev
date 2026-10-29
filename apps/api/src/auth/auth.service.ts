@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -8,9 +9,11 @@ import type {
   LoginWithTotpDto,
   PublicUser,
   RegisterDto,
+  RegistrationStatus,
   TotpCodeDto,
   UpdateProfileDto,
 } from '@finance/shared';
+import { UserRole } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { authenticator } from 'otplib';
 import * as QRCode from 'qrcode';
@@ -26,7 +29,22 @@ import {
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getRegistrationStatus(): Promise<RegistrationStatus> {
+    const userCount = await this.prisma.user.count();
+    const bootstrapAllowed = userCount === 0;
+    const settings = await this.ensureAppSettings();
+    return {
+      open: settings.registrationOpen,
+      bootstrapAllowed,
+    };
+  }
+
   async register(dto: RegisterDto): Promise<{ user: PublicUser; sessionId: string }> {
+    const status = await this.getRegistrationStatus();
+    if (!status.open && !status.bootstrapAllowed) {
+      throw new ForbiddenException('Registration is closed');
+    }
+
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email.toLowerCase() },
     });
@@ -35,11 +53,13 @@ export class AuthService {
     }
 
     const passwordHash = await argon2.hash(dto.password);
+    const role = status.bootstrapAllowed ? UserRole.ADMIN : UserRole.USER;
     const user = await this.prisma.user.create({
       data: {
         email: dto.email.toLowerCase(),
         passwordHash,
         displayName: dto.displayName,
+        role,
       },
     });
 
@@ -59,6 +79,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');
     }
+    this.assertNotDisabled(user.disabledAt);
 
     const valid = await argon2.verify(user.passwordHash, dto.password);
     if (!valid) {
@@ -100,6 +121,7 @@ export class AuthService {
       throw new UnauthorizedException('Login challenge expired');
     }
 
+    this.assertNotDisabled(pending.user.disabledAt);
     this.assertTotp(pending.user.totpSecret, dto.code);
     await this.prisma.pendingLogin.delete({ where: { id: pending.id } });
     const sessionId = await this.createSession(pending.user.id);
@@ -121,6 +143,10 @@ export class AuthService {
       if (session) {
         await this.prisma.session.delete({ where: { id: session.id } }).catch(() => undefined);
       }
+      return null;
+    }
+    if (session.user.disabledAt) {
+      await this.prisma.session.delete({ where: { id: session.id } }).catch(() => undefined);
       return null;
     }
     return toPublicUser(session.user);
@@ -183,6 +209,20 @@ export class AuthService {
       data: { totpEnabled: false, totpSecret: null },
     });
     return toPublicUser(updated);
+  }
+
+  private async ensureAppSettings() {
+    return this.prisma.appSettings.upsert({
+      where: { id: 1 },
+      create: { id: 1, registrationOpen: true },
+      update: {},
+    });
+  }
+
+  private assertNotDisabled(disabledAt: Date | null) {
+    if (disabledAt) {
+      throw new UnauthorizedException('Account is disabled');
+    }
   }
 
   private assertTotp(secret: string | null, code: string) {

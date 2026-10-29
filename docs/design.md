@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented; wallets/accounts milestone done ([plans/wallets-accounts.md](plans/wallets-accounts.md), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md)); UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
+**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented; instance admin + registration control ([plans/instance-admin.md](plans/instance-admin.md), [DEC-010](decisions/DEC-010-instance-admin.md)); wallets/accounts milestone done ([plans/wallets-accounts.md](plans/wallets-accounts.md), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md)); UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 
@@ -12,12 +12,12 @@ When architecture or stack choices change, update this file in the same change s
 - **First client:** Angular PWA with PrimeNG; installable shell; money data online-only.
 - **Contracts:** Zod schemas in a shared package for HTTP DTOs; do not expose Prisma models to the web app.
 - **Money:** integer minor units of each account’s ISO currency; IRR toman only as explicit UI presentation; no FX and no cross-currency net worth ([DEC-006](decisions/DEC-006-money-multi-currency.md)).
-- **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)).
+- **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)); instance `ADMIN` / `USER` with registration toggle ([DEC-010](decisions/DEC-010-instance-admin.md)).
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).
 - **Deploy:** Docker Compose (`postgres` + `api` + `web`); same-origin `/api` proxy; TLS at host nginx ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 - **UI language:** runtime Transloco catalogs (`fa`, `en`); preference via localStorage + profile `locale`; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
 
-Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md).
+Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md), [DEC-010](decisions/DEC-010-instance-admin.md).
 
 ## Repository layout
 
@@ -63,8 +63,9 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 
 | Area | Responsibility |
 | --- | --- |
-| `auth` | Register, login, logout, session cookies, optional TOTP enroll/verify |
+| `auth` | Register, login, logout, session cookies, optional TOTP enroll/verify; registration status |
 | `users` / profile | Display name, locale/timezone hooks |
+| `admin` | Instance settings (registration open), user list/role/disable/delete; admin access to any user’s wallets/accounts ([DEC-010](decisions/DEC-010-instance-admin.md)) |
 | `wallets` | Personal wallets; ownership |
 | `accounts` | Accounts (personal or shared), opening balances, per-account currency |
 | `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses |

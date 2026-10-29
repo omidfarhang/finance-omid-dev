@@ -1,4 +1,8 @@
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
 import { authenticator } from 'otplib';
@@ -13,12 +17,21 @@ describe('AuthService', () => {
       findUniqueOrThrow: jest.Mock;
       create: jest.Mock;
       update: jest.Mock;
+      count: jest.Mock;
     };
-    session: { create: jest.Mock; deleteMany: jest.Mock; findUnique: jest.Mock; delete: jest.Mock };
+    session: {
+      create: jest.Mock;
+      deleteMany: jest.Mock;
+      findUnique: jest.Mock;
+      delete: jest.Mock;
+    };
     pendingLogin: {
       create: jest.Mock;
       findUnique: jest.Mock;
       delete: jest.Mock;
+    };
+    appSettings: {
+      upsert: jest.Mock;
     };
   };
 
@@ -27,6 +40,8 @@ describe('AuthService', () => {
     email: 'a@example.com',
     passwordHash: '',
     displayName: 'Ada',
+    role: 'ADMIN' as const,
+    disabledAt: null as Date | null,
     locale: null,
     timeZone: null,
     totpSecret: null as string | null,
@@ -42,6 +57,7 @@ describe('AuthService', () => {
         findUniqueOrThrow: jest.fn(),
         create: jest.fn(),
         update: jest.fn(),
+        count: jest.fn().mockResolvedValue(0),
       },
       session: {
         create: jest.fn().mockResolvedValue({
@@ -56,6 +72,12 @@ describe('AuthService', () => {
         findUnique: jest.fn(),
         delete: jest.fn(),
       },
+      appSettings: {
+        upsert: jest.fn().mockResolvedValue({
+          id: 1,
+          registrationOpen: true,
+        }),
+      },
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -68,13 +90,15 @@ describe('AuthService', () => {
     service = module.get(AuthService);
   });
 
-  it('registers a new user and creates a session', async () => {
+  it('registers the first user as ADMIN', async () => {
+    prisma.user.count.mockResolvedValue(0);
     prisma.user.findUnique.mockResolvedValue(null);
     prisma.user.create.mockImplementation(async ({ data }) => ({
       ...baseUser,
       email: data.email,
       displayName: data.displayName,
       passwordHash: data.passwordHash,
+      role: data.role,
     }));
 
     const result = await service.register({
@@ -84,10 +108,28 @@ describe('AuthService', () => {
     });
 
     expect(result.user.email).toBe('a@example.com');
+    expect(result.user.role).toBe('ADMIN');
     expect(result.sessionId).toBe('22222222-2222-2222-2222-222222222222');
   });
 
+  it('rejects registration when closed and users exist', async () => {
+    prisma.user.count.mockResolvedValue(1);
+    prisma.appSettings.upsert.mockResolvedValue({
+      id: 1,
+      registrationOpen: false,
+    });
+
+    await expect(
+      service.register({
+        email: 'b@example.com',
+        password: 'password-long',
+        displayName: 'Bob',
+      }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
   it('rejects duplicate registration', async () => {
+    prisma.user.count.mockResolvedValue(1);
     prisma.user.findUnique.mockResolvedValue(baseUser);
     await expect(
       service.register({
@@ -106,6 +148,18 @@ describe('AuthService', () => {
 
     await expect(
       service.login({ email: 'a@example.com', password: 'wrong-password' }),
+    ).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('rejects login for disabled users', async () => {
+    prisma.user.findUnique.mockResolvedValue({
+      ...baseUser,
+      passwordHash: await argon2.hash('password-long'),
+      disabledAt: new Date(),
+    });
+
+    await expect(
+      service.login({ email: 'a@example.com', password: 'password-long' }),
     ).rejects.toBeInstanceOf(UnauthorizedException);
   });
 

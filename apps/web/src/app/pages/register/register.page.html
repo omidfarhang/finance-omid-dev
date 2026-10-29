@@ -6,38 +6,48 @@
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
-  <form (ngSubmit)="submit()" class="auth-form">
-    <label>
-      {{ t('register.displayName') }}
-      <input pInputText name="displayName" [(ngModel)]="displayName" required autocomplete="name" />
-    </label>
-    <label>
-      {{ t('register.email') }}
-      <input pInputText type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
-    </label>
-    <label>
-      {{ t('register.password') }}
-      <p-password
-        [(ngModel)]="password"
-        name="password"
-        toggleMask
-        required
-        autocomplete="new-password"
-        class="w-full"
-        inputStyleClass="w-full"
-      />
-    </label>
+  @if (statusLoading()) {
+    <p class="lede">{{ t('register.checking') }}</p>
+  } @else if (!registrationAllowed()) {
+    <p-message severity="warn" class="block">{{ t('register.closed') }}</p-message>
+    <p class="footer">
+      {{ t('register.alreadyRegistered') }}
+      <a routerLink="/login">{{ t('register.signIn') }}</a>
+    </p>
+  } @else {
+    <form (ngSubmit)="submit()" class="auth-form">
+      <label>
+        {{ t('register.displayName') }}
+        <input pInputText name="displayName" [(ngModel)]="displayName" required autocomplete="name" />
+      </label>
+      <label>
+        {{ t('register.email') }}
+        <input pInputText type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
+      </label>
+      <label>
+        {{ t('register.password') }}
+        <p-password
+          [(ngModel)]="password"
+          name="password"
+          toggleMask
+          required
+          autocomplete="new-password"
+          class="w-full"
+          inputStyleClass="w-full"
+        />
+      </label>
 
-    <button pButton type="submit" [disabled]="loading()">
-      @if (loading()) {
-        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
-      }
-      {{ t('register.submit') }}
-    </button>
-  </form>
+      <button pButton type="submit" [disabled]="loading()">
+        @if (loading()) {
+          <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+        }
+        {{ t('register.submit') }}
+      </button>
+    </form>
 
-  <p class="footer">
-    {{ t('register.alreadyRegistered') }}
-    <a routerLink="/login">{{ t('register.signIn') }}</a>
-  </p>
+    <p class="footer">
+      {{ t('register.alreadyRegistered') }}
+      <a routerLink="/login">{{ t('register.signIn') }}</a>
+    </p>
+  }
 </section>

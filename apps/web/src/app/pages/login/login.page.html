@@ -48,8 +48,10 @@
     </button>
   </form>
 
-  <p class="footer">
-    {{ t('login.noAccount') }}
-    <a routerLink="/register">{{ t('login.createOne') }}</a>
-  </p>
+  @if (registrationAllowed()) {
+    <p class="footer">
+      {{ t('login.noAccount') }}
+      <a routerLink="/register">{{ t('login.createOne') }}</a>
+    </p>
+  }
 </section>

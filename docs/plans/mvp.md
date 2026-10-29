@@ -9,10 +9,12 @@ The first useful release for personal (and soon household) use. Outcomes over im
 3. Import statements via a pluggable path (generic/synthetic first; real bank adapters later) without silent double-counting.
 4. See a basic next-month outlook from recurring expenses and expected income.
 5. Register, log in, optionally enable TOTP 2FA, and manage a basic profile before relying on the ledger.
+6. First registrant is instance admin; admin can control registration and users ([DEC-010](../decisions/DEC-010-instance-admin.md)).
 
 ## In scope
 
 - Auth: register, login, logout, optional TOTP 2FA, profile ([DEC-007](../decisions/DEC-007-auth.md))
+- Instance admin: first user is admin; registration toggle; manage users and any user’s wallets/accounts ([DEC-010](../decisions/DEC-010-instance-admin.md), [instance-admin.md](instance-admin.md))
 - Personal **wallets** with accounts that may be personal or **shared**; opening balances ([DEC-005](../decisions/DEC-005-wallets-and-accounts.md))
 - Manual income and expense entry (with categories or tags as needed for daily use)
 - Same-currency transfers between accounts that do not inflate income/expense totals
@@ -43,6 +45,7 @@ The first useful release for personal (and soon household) use. Outcomes over im
 - Forecast figures are labeled as projections and do not alter historical balances.
 - Balances are not aggregated across currencies into one net-worth number.
 - Users can register, log in, log out, update profile, and optionally enroll TOTP 2FA; mutating API routes require an authenticated session.
+- First registrant is admin; admin can close/reopen registration, manage users (role, disable, delete), and access another user’s wallets/accounts via admin routes; last-admin safeguards hold.
 - No real bank statements or personal financial records are required in the repository; tests use synthetic fixtures.
 
 ## Settled product choices
