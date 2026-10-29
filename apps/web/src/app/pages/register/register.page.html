@@ -3,7 +3,7 @@
   <p class="lede">{{ t('register.lede') }}</p>
 
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="block" />
+    <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
   <form (ngSubmit)="submit()" class="auth-form">
@@ -23,12 +23,17 @@
         toggleMask
         required
         autocomplete="new-password"
-        styleClass="w-full"
+        class="w-full"
         inputStyleClass="w-full"
       />
     </label>
 
-    <p-button type="submit" [label]="t('register.submit')" [loading]="loading()" />
+    <button pButton type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      }
+      {{ t('register.submit') }}
+    </button>
   </form>
 
   <p class="footer">

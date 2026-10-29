@@ -4,14 +4,16 @@
       <h1>{{ t('profile.title') }}</h1>
       <p class="lede">{{ auth.user()?.email }}</p>
     </div>
-    <p-button [label]="t('profile.signOut')" severity="secondary" (onClick)="logout()" />
+    <button pButton type="button" severity="secondary" (click)="logout()">
+      {{ t('profile.signOut') }}
+    </button>
   </header>
 
   @if (message()) {
-    <p-message severity="success" [text]="message()!" styleClass="block" />
+    <p-message severity="success" class="block">{{ message() }}</p-message>
   }
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="block" />
+    <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
   <form (ngSubmit)="saveProfile()" class="panel">
@@ -41,7 +43,12 @@
         }
       </select>
     </label>
-    <p-button type="submit" [label]="t('profile.save')" [loading]="loading()" />
+    <button pButton type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      }
+      {{ t('profile.save') }}
+    </button>
   </form>
 
   <section class="panel">
@@ -55,7 +62,9 @@
 
     @if (!auth.user()?.totpEnabled) {
       @if (!qrDataUrl()) {
-        <p-button [label]="t('profile.totp.setup')" (onClick)="start2fa()" />
+        <button pButton type="button" (click)="start2fa()">
+          {{ t('profile.totp.setup') }}
+        </button>
       } @else {
         <p>{{ t('profile.totp.scan') }}</p>
         <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
@@ -64,14 +73,18 @@
           {{ t('profile.totp.confirmCode') }}
           <input pInputText name="totpCode" [(ngModel)]="totpCode" inputmode="numeric" />
         </label>
-        <p-button [label]="t('profile.totp.confirm')" (onClick)="confirm2fa()" />
+        <button pButton type="button" (click)="confirm2fa()">
+          {{ t('profile.totp.confirm') }}
+        </button>
       }
     } @else {
       <label>
         {{ t('profile.totp.disableCode') }}
         <input pInputText name="disableCode" [(ngModel)]="disableCode" inputmode="numeric" />
       </label>
-      <p-button [label]="t('profile.totp.disable')" severity="danger" (onClick)="disable2fa()" />
+      <button pButton type="button" severity="danger" (click)="disable2fa()">
+        {{ t('profile.totp.disable') }}
+      </button>
     }
   </section>
 </section>

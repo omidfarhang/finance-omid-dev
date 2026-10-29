@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { Button } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
 import { Message } from 'primeng/message';
@@ -11,7 +11,15 @@ import { AuthService } from '../../core/auth.service';
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, Button, InputText, Password, Message, TranslocoDirective],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonDirective,
+    InputText,
+    Password,
+    Message,
+    TranslocoDirective,
+  ],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
@@ -33,16 +41,21 @@ export class LoginPage {
 
     const pending = this.pendingToken();
     if (pending) {
-      this.auth.completeTotpLogin({ pendingToken: pending, code: this.totpCode }).subscribe({
-        next: () => {
-          this.loading.set(false);
-          void this.router.navigateByUrl('/profile');
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.loading.set(false);
-          this.error.set(err.error?.message ?? this.i18n.translate('errors.invalidAuthCode'));
-        },
-      });
+      this.auth
+        .completeTotpLogin({ pendingToken: pending, code: this.totpCode })
+        .subscribe({
+          next: () => {
+            this.loading.set(false);
+            void this.router.navigateByUrl('/profile');
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.loading.set(false);
+            this.error.set(
+              err.error?.message ??
+                this.i18n.translate('errors.invalidAuthCode'),
+            );
+          },
+        });
       return;
     }
 
@@ -57,7 +70,9 @@ export class LoginPage {
       },
       error: (err: { error?: { message?: string } }) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? this.i18n.translate('errors.loginFailed'));
+        this.error.set(
+          err.error?.message ?? this.i18n.translate('errors.loginFailed'),
+        );
       },
     });
   }

@@ -4,18 +4,16 @@
       <h1>{{ t('wallets.title') }}</h1>
       <p class="lede">{{ t('wallets.lede') }}</p>
     </div>
-    <p-button
-      [label]="showToman() ? t('wallets.showRials') : t('wallets.showToman')"
-      severity="secondary"
-      (onClick)="toggleToman()"
-    />
+    <button pButton type="button" severity="secondary" (click)="toggleToman()">
+      {{ showToman() ? t('wallets.showRials') : t('wallets.showToman') }}
+    </button>
   </header>
 
   @if (message()) {
-    <p-message severity="success" [text]="message()!" styleClass="block" />
+    <p-message severity="success" class="block">{{ message() }}</p-message>
   }
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="block" />
+    <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
   @if (loading()) {
@@ -96,7 +94,7 @@
       {{ t('wallets.walletName') }}
       <input pInputText name="walletName" [(ngModel)]="walletName" required />
     </label>
-    <p-button type="submit" [label]="t('wallets.createWallet')" />
+    <button pButton type="submit">{{ t('wallets.createWallet') }}</button>
   </form>
 
   <form (ngSubmit)="createAccount()" class="panel">
@@ -141,7 +139,7 @@
       />
       <span>{{ t('wallets.sharedAccount') }}</span>
     </label>
-    <p-button type="submit" [label]="t('wallets.createAccount')" />
+    <button pButton type="submit">{{ t('wallets.createAccount') }}</button>
   </form>
 
   @if (sharedAccounts().length > 0) {
@@ -165,7 +163,7 @@
           required
         />
       </label>
-      <p-button type="submit" [label]="t('wallets.addMember')" />
+      <button pButton type="submit">{{ t('wallets.addMember') }}</button>
     </form>
   }
 </section>

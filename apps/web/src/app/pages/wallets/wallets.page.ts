@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import type { PublicAccount, PublicWallet } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import { Button } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
@@ -16,7 +16,7 @@ const CURRENCIES = ['IRR', 'USD'] as const;
   standalone: true,
   imports: [
     FormsModule,
-    Button,
+    ButtonDirective,
     Checkbox,
     InputText,
     Message,
@@ -92,21 +92,24 @@ export class WalletsPage implements OnInit {
   createWallet() {
     this.error.set(null);
     this.message.set(null);
-    this.walletsApi.createWallet(this.walletName.trim() || 'Personal').subscribe({
-      next: (wallet) => {
-        this.wallets.update((list) => [...list, wallet]);
-        if (!this.accountWalletId) {
-          this.accountWalletId = wallet.id;
-        }
-        this.message.set(this.i18n.translate('wallets.walletCreated'));
-        this.walletName = 'Personal';
-      },
-      error: (err: { error?: { message?: string } }) => {
-        this.error.set(
-          err.error?.message ?? this.i18n.translate('wallets.walletCreateFailed'),
-        );
-      },
-    });
+    this.walletsApi
+      .createWallet(this.walletName.trim() || 'Personal')
+      .subscribe({
+        next: (wallet) => {
+          this.wallets.update((list) => [...list, wallet]);
+          if (!this.accountWalletId) {
+            this.accountWalletId = wallet.id;
+          }
+          this.message.set(this.i18n.translate('wallets.walletCreated'));
+          this.walletName = 'Personal';
+        },
+        error: (err: { error?: { message?: string } }) => {
+          this.error.set(
+            err.error?.message ??
+              this.i18n.translate('wallets.walletCreateFailed'),
+          );
+        },
+      });
   }
 
   createAccount() {
@@ -164,7 +167,8 @@ export class WalletsPage implements OnInit {
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
-            err.error?.message ?? this.i18n.translate('wallets.memberAddFailed'),
+            err.error?.message ??
+              this.i18n.translate('wallets.memberAddFailed'),
           );
         },
       });

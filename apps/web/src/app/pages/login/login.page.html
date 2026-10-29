@@ -3,7 +3,7 @@
   <p class="lede">{{ t('login.lede') }}</p>
 
   @if (error()) {
-    <p-message severity="error" [text]="error()!" styleClass="block" />
+    <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
   <form (ngSubmit)="submit()" class="auth-form">
@@ -21,7 +21,7 @@
           toggleMask
           required
           autocomplete="current-password"
-          styleClass="w-full"
+          class="w-full"
           inputStyleClass="w-full"
         />
       </label>
@@ -40,11 +40,12 @@
       </label>
     }
 
-    <p-button
-      type="submit"
-      [label]="pendingToken() ? t('login.verify') : t('login.submit')"
-      [loading]="loading()"
-    />
+    <button pButton type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      }
+      {{ pendingToken() ? t('login.verify') : t('login.submit') }}
+    </button>
   </form>
 
   <p class="footer">

@@ -3,20 +3,22 @@
   <p class="lede" [innerHTML]="t('status.lede')"></p>
 
   @if (ok() === true) {
-    <p-message severity="success" [text]="detail()!" styleClass="block" />
+    <p-message severity="success" class="block">{{ detail() }}</p-message>
   } @else if (ok() === false) {
-    <p-message severity="error" [text]="detail()!" styleClass="block" />
+    <p-message severity="error" class="block">{{ detail() }}</p-message>
   } @else if (loading()) {
-    <p-message severity="info" [text]="t('status.checking')" styleClass="block" />
+    <p-message severity="info" class="block">{{ t('status.checking') }}</p-message>
   }
 
   <div class="actions">
-    <p-button
-      [label]="t('status.checkAgain')"
-      icon="pi pi-refresh"
-      [loading]="loading()"
-      (onClick)="check()"
-    />
+    <button pButton type="button" [disabled]="loading()" (click)="check()">
+      @if (loading()) {
+        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      } @else {
+        <i class="pi pi-refresh" aria-hidden="true"></i>
+      }
+      {{ t('status.checkAgain') }}
+    </button>
     <a routerLink="/login">{{ t('status.signIn') }}</a>
   </div>
 </section>
