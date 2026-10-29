@@ -15,6 +15,7 @@ import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
 import { LocaleService } from './core/i18n/locale.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,6 +24,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withXhr()),
     provideAnimationsAsync(),
     providePrimeNG({
+      ...(environment.primeNgLicense
+        ? { license: environment.primeNgLicense }
+        : {}),
       theme: {
         preset: Aura,
         options: {

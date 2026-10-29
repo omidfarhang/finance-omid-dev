@@ -4,7 +4,8 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev:api": "pnpm --filter @finance/api start:dev",
-    "dev:web": "pnpm --filter @finance/web start",
+    "dev:web": "node scripts/inject-primeng-license.mjs && pnpm --filter @finance/web start",
+    "inject:primeng-license": "node scripts/inject-primeng-license.mjs",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "test:api": "pnpm --filter @finance/api test",

@@ -42,6 +42,7 @@ Self-hosted under **https://finance.omid.dev**. Compose runs Postgres, the NestJ
 ```bash
 cp .env.example .env
 # Set SESSION_SECRET, POSTGRES_PASSWORD, DATABASE_URL, CORS_ORIGIN=https://finance.omid.dev
+# Set PRIMENG_LICENSE (free Community key from https://primeui.dev) to clear the PrimeUI banner
 docker compose up -d --build
 ```
 

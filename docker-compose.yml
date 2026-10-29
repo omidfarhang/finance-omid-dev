@@ -52,6 +52,8 @@ services:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
+      args:
+        PRIMENG_LICENSE: ${PRIMENG_LICENSE:-}
     image: finance-omid-web:local
     container_name: finance-omid-web
     restart: unless-stopped

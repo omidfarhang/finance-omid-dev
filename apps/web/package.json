@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test --watch=false",
+    "start": "node ../../scripts/inject-primeng-license.mjs && ng serve",
+    "build": "node ../../scripts/inject-primeng-license.mjs && ng build",
+    "watch": "node ../../scripts/inject-primeng-license.mjs && ng build --watch --configuration development",
+    "test": "node ../../scripts/inject-primeng-license.mjs && ng test --watch=false",
     "lint": "echo \"lint via build\""
   },
   "private": true,
