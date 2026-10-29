@@ -2,16 +2,19 @@
 
 Rules for humans and AI coding agents working in this repository.
 
-## Before implementation
+## Docs first (mandatory)
 
-- Read `README.md`, `docs/vision.md`, `docs/design.md`, and the relevant plan or specification.
-- Check `tasks/todo.md` and `tasks/backlog.md` before proposing new work.
-- Discuss significant unresolved product or architectural questions before committing to an approach.
-- Do not treat brainstorm items as approved requirements.
+Docs are the source of truth. Do not invent requirements absent from documentation.
+
+1. **Read before acting.** Before any task, read `README.md`, `docs/vision.md`, `docs/design.md`, relevant plans/specs under `docs/`, and related `docs/decisions/` entries. Check `tasks/todo.md` and `tasks/backlog.md` before proposing or starting work.
+2. **Check against docs.** Confirm the requested work matches documented intent. If docs conflict with the request, or significant product/architecture questions are unresolved, stop and discuss—do not proceed on assumptions. Brainstorm items are not approved requirements.
+3. **Update docs first.** Once a task is confirmed, update the relevant docs (plan, spec, MVP, design, DEC, task lists) *before* implementation so the written plan matches what will be built.
+4. **Follow docs when acting.** Implement only what the updated docs describe. Prefer the simplest approach that satisfies them. Keep task lists actionable and current as work progresses.
+
+When behavior, architecture, or stack choices change: update specs/MVP/design in the same change set; record significant decisions in `docs/decisions/` (`DEC-NNN`); keep `docs/design.md` in sync with related DECs. Move ideas to the backlog only after clarifying their purpose.
 
 ## Engineering principles
 
-- Prefer the simplest implementation that satisfies documented requirements.
 - Keep domain calculations independent of UI and database details where practical.
 - Use integer or decimal-safe monetary arithmetic; never use binary floating point for financial calculations.
 - Never silently infer whether imported amounts are rial or toman.
@@ -19,15 +22,6 @@ Rules for humans and AI coding agents working in this repository.
 - Preserve auditability and prevent accidental duplicate imports.
 - Validate inputs and enforce authorization on the server when a server exists.
 - Write tests for transfers, balances, imports, currency presentation, and forecasting.
-
-## Documentation
-
-- Update specifications or the MVP when behavior changes.
-- Record significant architectural decisions in `docs/decisions/` (`DEC-NNN`).
-- Keep `docs/design.md` in sync when architecture or stack choices change (same change set as the related DEC).
-- Move ideas to the backlog only after clarifying their purpose.
-- Keep task lists actionable and current.
-- Do not invent requirements that are absent from the documentation.
 
 ## Security and privacy
 
