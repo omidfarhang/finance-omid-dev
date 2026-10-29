@@ -17,6 +17,6 @@
     "db:generate": "pnpm --filter @finance/api prisma:generate"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=26"
   }
 }

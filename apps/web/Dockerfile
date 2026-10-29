@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app

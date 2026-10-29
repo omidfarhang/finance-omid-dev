@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssl python3 make g++ \
@@ -20,7 +20,7 @@ RUN pnpm --filter @finance/shared build
 WORKDIR /app/apps/api
 RUN pnpm exec prisma generate && pnpm run build
 
-FROM node:20-bookworm-slim AS runtime
+FROM node:26-bookworm-slim AS runtime
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \

@@ -20,7 +20,7 @@ packages/shared   Zod HTTP DTOs / shared types
 
 ## Local development
 
-Prerequisites: Node 20+, [pnpm](https://pnpm.io), Docker.
+Prerequisites: Node 26+ (current LTS), [pnpm](https://pnpm.io), Docker.
 
 ```bash
 cp .env.example .env
