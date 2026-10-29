@@ -1,2 +1,38 @@
-# finance-omid-dev
-A personal finance app for tracking accounts, income, expenses, bank statements, cash flow forecasts, and recipe costs.
+# Personal Finance
+
+A personal finance application for understanding balances, recording income and expenses, importing bank statements, forecasting cash flow, and calculating the real cost of everyday things.
+
+**Status:** documentation and planning — no application code yet.
+
+## Who it is for
+
+- Personal use by the creator first
+- Household use with a partner later
+- Possible public release after the core workflows are solid
+
+## Documentation map
+
+| Document | Purpose |
+| --- | --- |
+| [docs/vision.md](docs/vision.md) | Why this exists, principles, non-goals |
+| [docs/plans/mvp.md](docs/plans/mvp.md) | First useful release and acceptance criteria |
+| [docs/brainstorm/inbox.md](docs/brainstorm/inbox.md) | Unfiltered ideas and questions |
+| [docs/decisions/](docs/decisions/) | Expensive-to-reverse product and architecture choices |
+| [tasks/todo.md](tasks/todo.md) | Work ready to do |
+| [tasks/backlog.md](tasks/backlog.md) | Potential future work (not a commitment) |
+| [AGENTS.md](AGENTS.md) | Rules for AI coding agents and contributors |
+
+## Idea workflow
+
+1. Capture in the inbox
+2. Triage (clarify, dedupe, reject, or park)
+3. Backlog if worth considering
+4. Plan or specification when scope and behavior matter
+5. Todo when ready to implement
+6. Done when verified
+
+Brainstorm items are not requirements until they land in the MVP, a specification, or the todo list.
+
+## Privacy
+
+Never commit real bank statements, account numbers, credentials, or personal financial records. Use synthetic fixtures for examples and tests. See `.gitignore`.
