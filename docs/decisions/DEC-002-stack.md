@@ -5,7 +5,7 @@
 
 ## Context
 
-The repository is documentation-first with no application code yet. We need a stack that supports a REST API, relational persistence, safe validation, and an installable web client—without locking into tools we are not ready to scaffold.
+We needed a stack for a REST API, relational persistence, safe validation, and an installable web client. The monorepo scaffold (`apps/api`, `apps/web`, `packages/shared`) is now in place with pnpm and Docker Compose Postgres; this record keeps the chosen stack discoverable.
 
 ## Options considered
 

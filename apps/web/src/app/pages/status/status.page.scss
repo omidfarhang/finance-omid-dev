@@ -1,0 +1,21 @@
+.status-page {
+  max-width: 28rem;
+  margin: 3rem auto;
+  padding: 0 1.25rem;
+}
+
+.lede {
+  color: var(--p-text-muted-color, #5b6472);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+code {
+  font-size: 0.9em;
+}

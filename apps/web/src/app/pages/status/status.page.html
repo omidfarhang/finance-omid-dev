@@ -1,0 +1,17 @@
+<section class="status-page">
+  <h1>API status</h1>
+  <p class="lede">Online check against <code>/api/v1/health</code>. Money data always requires the network.</p>
+
+  @if (ok() === true) {
+    <p-message severity="success" [text]="detail()!" styleClass="block" />
+  } @else if (ok() === false) {
+    <p-message severity="error" [text]="detail()!" styleClass="block" />
+  } @else if (loading()) {
+    <p-message severity="info" text="Checking API…" styleClass="block" />
+  }
+
+  <div class="actions">
+    <p-button label="Check again" icon="pi pi-refresh" [loading]="loading()" (onClick)="check()" />
+    <a routerLink="/login">Sign in</a>
+  </div>
+</section>

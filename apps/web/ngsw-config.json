@@ -17,5 +17,17 @@
         "files": ["/assets/**", "/icons/**", "/*.(svg|png|jpg|jpeg|gif|webp|ico)"]
       }
     }
+  ],
+  "dataGroups": [
+    {
+      "name": "api",
+      "urls": ["/api/**"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1,
+        "maxAge": "0u",
+        "timeout": "10s"
+      }
+    }
   ]
 }
