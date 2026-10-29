@@ -17,10 +17,10 @@ Keep the living overview in [`../design.md`](../design.md) aligned when acceptin
 | [DEC-005](DEC-005-wallets-and-accounts.md) | Separate wallets + optional shared accounts; transfer/shared-expense MVP rules | Accepted |
 | [DEC-006](DEC-006-money-multi-currency.md) | Per-account currency; minor units; no FX / no cross-currency net worth | Accepted |
 | [DEC-007](DEC-007-auth.md) | Register/login; httpOnly cookie sessions; optional TOTP 2FA; profile | Accepted |
+| [DEC-008](DEC-008-self-hosted-docker.md) | Self-hosted Docker Compose; host nginx TLS for finance.omid.dev | Accepted |
 
 Likely early candidates (create when deciding, not before):
 
-- Privacy / data location (self-hosted defaults)
 - Import adapter model
 - Shared-expense settlement / reimbursement ledger
 

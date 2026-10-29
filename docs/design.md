@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** monorepo scaffolded (`pnpm`, Docker Compose Postgres); auth (register/login/optional TOTP/profile) implemented as first coding milestone.
+**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented as first coding milestone; self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 
@@ -14,8 +14,9 @@ When architecture or stack choices change, update this file in the same change s
 - **Money:** integer minor units of each account’s ISO currency; IRR toman only as explicit UI presentation; no FX and no cross-currency net worth ([DEC-006](decisions/DEC-006-money-multi-currency.md)).
 - **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)).
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).
+- **Deploy:** Docker Compose (`postgres` + `api` + `web`); same-origin `/api` proxy; TLS at host nginx ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
-Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md).
+Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md).
 
 ## Repository layout
 
@@ -31,22 +32,29 @@ Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisi
 ```
 
 - Package manager: **pnpm** workspaces.
-- Local Postgres: **Docker Compose**.
+- Postgres and production stack: **Docker Compose** ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
 ## Runtime
 
 ```mermaid
 flowchart LR
   browser[Angular_PWA]
+  hostNginx[Host_nginx_TLS]
+  web[web_nginx]
   api[NestJS_API]
   db[(PostgreSQL)]
-  browser -->|REST_HTTPS_cookie_session| api
+  browser -->|HTTPS_finance.omid.dev| hostNginx
+  hostNginx -->|HTTP_APP_PORT| web
+  web -->|static_SPA| web
+  web -->|/api/| api
   api -->|Prisma| db
 ```
 
 - REST under `/api/v1/...` (JSON; multipart for statement uploads).
+- Production web serves the SPA and proxies `/api/` to the API (same-origin cookies).
+- Host nginx terminates TLS for `finance.omid.dev` and forwards to Compose `APP_PORT` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 - Domain rules (balances, transfers, import deduplication, forecast vs actuals) live in the API and are tested without the UI.
-- Initial deploy target: self-hosted; authorize mutating API routes ([DEC-007](decisions/DEC-007-auth.md)).
+- Authorize mutating API routes ([DEC-007](decisions/DEC-007-auth.md)).
 
 ## API module map (MVP)
 

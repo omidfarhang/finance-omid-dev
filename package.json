@@ -9,8 +9,10 @@
     "test": "pnpm -r run test",
     "test:api": "pnpm --filter @finance/api test",
     "lint": "pnpm -r run lint",
-    "db:up": "docker compose up -d",
+    "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
+    "deploy:up": "docker compose up -d --build",
+    "deploy:down": "docker compose down",
     "db:migrate": "pnpm --filter @finance/api prisma:migrate",
     "db:generate": "pnpm --filter @finance/api prisma:generate"
   },
