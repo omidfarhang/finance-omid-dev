@@ -2,7 +2,7 @@
 
 A personal finance application for understanding balances, recording income and expenses, importing bank statements, forecasting cash flow, and calculating the real cost of everyday things.
 
-**Status:** documentation and planning — no application code yet.
+**Status:** documentation and planning — no application code yet. Architecture for a NestJS REST API and Angular + PrimeNG PWA is recorded in [docs/design.md](docs/design.md) and [docs/decisions/](docs/decisions/).
 
 ## Who it is for
 
@@ -15,6 +15,7 @@ A personal finance application for understanding balances, recording income and 
 | Document | Purpose |
 | --- | --- |
 | [docs/vision.md](docs/vision.md) | Why this exists, principles, non-goals |
+| [docs/design.md](docs/design.md) | Living system architecture overview |
 | [docs/plans/mvp.md](docs/plans/mvp.md) | First useful release and acceptance criteria |
 | [docs/brainstorm/inbox.md](docs/brainstorm/inbox.md) | Unfiltered ideas and questions |
 | [docs/decisions/](docs/decisions/) | Expensive-to-reverse product and architecture choices |

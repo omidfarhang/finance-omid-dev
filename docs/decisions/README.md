@@ -4,16 +4,20 @@ This directory contains decisions whose rationale should remain discoverable.
 
 Create a separate decision record for choices that affect multiple modules, data integrity, security, or future compatibility. Avoid records for trivial implementation choices.
 
+Keep the living overview in [`../design.md`](../design.md) aligned when accepting or superseding architecture decisions.
+
 ## Decision index
 
 | ID | Decision | Status |
 | --- | --- | --- |
-| — | (none yet) | — |
+| [DEC-001](DEC-001-client-server-split.md) | Client/server split (REST API + Angular PWA) | Accepted |
+| [DEC-002](DEC-002-stack.md) | Stack (NestJS, PostgreSQL, Prisma, Zod, Angular, PrimeNG) | Accepted |
+| [DEC-003](DEC-003-pwa-scope.md) | PWA scope (installable, online-only money data) | Accepted |
+| [DEC-004](DEC-004-money-storage-display.md) | IRR storage vs toman presentation | Accepted |
 
 Likely early candidates (create when deciding, not before):
 
 - Privacy / data location (self-hosted defaults)
-- IRR storage vs toman presentation
 - Import adapter model
 - Household ledger vs separate wallets
 

@@ -4,10 +4,11 @@ Work that is ready to be done.
 
 ## In progress
 
-- Establish documentation workspace (vision, MVP, inbox, backlog, decisions, AGENTS)
+- (none)
 
 ## Next
 
+- Scaffold application monorepo when ready: `apps/api` (NestJS + Prisma), `apps/web` (Angular + PrimeNG PWA), `packages/shared` (Zod); choose package manager and local Postgres approach then (see [docs/design.md](../docs/design.md))
 - Capture real day-to-day money workflows and annoyances in [docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md)
 - List banks you use and note anonymized statement column layouts (no real statements in git)
 - Triage inbox items into backlog, parked, or rejected
@@ -15,7 +16,8 @@ Work that is ready to be done.
 
 ## Done recently
 
-- (none yet)
+- Record architecture decisions DEC-001–004 and living [docs/design.md](../docs/design.md)
+- Establish documentation workspace (vision, MVP, inbox, backlog, decisions, AGENTS)
 
 ## Rules
 

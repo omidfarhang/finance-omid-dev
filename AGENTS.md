@@ -4,7 +4,7 @@ Rules for humans and AI coding agents working in this repository.
 
 ## Before implementation
 
-- Read `README.md`, `docs/vision.md`, and the relevant plan or specification.
+- Read `README.md`, `docs/vision.md`, `docs/design.md`, and the relevant plan or specification.
 - Check `tasks/todo.md` and `tasks/backlog.md` before proposing new work.
 - Discuss significant unresolved product or architectural questions before committing to an approach.
 - Do not treat brainstorm items as approved requirements.
@@ -24,6 +24,7 @@ Rules for humans and AI coding agents working in this repository.
 
 - Update specifications or the MVP when behavior changes.
 - Record significant architectural decisions in `docs/decisions/` (`DEC-NNN`).
+- Keep `docs/design.md` in sync when architecture or stack choices change (same change set as the related DEC).
 - Move ideas to the backlog only after clarifying their purpose.
 - Keep task lists actionable and current.
 - Do not invent requirements that are absent from the documentation.
