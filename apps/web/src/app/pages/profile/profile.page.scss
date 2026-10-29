@@ -30,6 +30,16 @@ label {
   font-weight: 600;
 }
 
+select {
+  width: 100%;
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(28, 42, 39, 0.16);
+  border-radius: 0.4rem;
+  background: #fff;
+  color: inherit;
+}
+
 .qr {
   width: 12rem;
   height: 12rem;

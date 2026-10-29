@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Button } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
@@ -10,7 +11,7 @@ import { AuthService } from '../../core/auth.service';
 @Component({
   selector: 'app-register-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, Button, InputText, Password, Message],
+  imports: [FormsModule, RouterLink, Button, InputText, Password, Message, TranslocoDirective],
   templateUrl: './register.page.html',
   styleUrl: './register.page.scss',
 })
@@ -21,10 +22,9 @@ export class RegisterPage {
   error = signal<string | null>(null);
   loading = signal(false);
 
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router,
-  ) {}
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly i18n = inject(TranslocoService);
 
   submit() {
     this.error.set(null);
@@ -42,7 +42,7 @@ export class RegisterPage {
         },
         error: (err: { error?: { message?: string } }) => {
           this.loading.set(false);
-          this.error.set(err.error?.message ?? 'Registration failed');
+          this.error.set(err.error?.message ?? this.i18n.translate('errors.registrationFailed'));
         },
       });
   }

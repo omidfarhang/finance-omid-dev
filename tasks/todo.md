@@ -18,6 +18,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- UI i18n: English + Farsi (Transloco, RTL, language switcher, profile locale) — [DEC-009](../docs/decisions/DEC-009-i18n.md)
 - Self-hosted Docker Compose deploy (postgres + api + web) for finance.omid.dev ([DEC-008](../docs/decisions/DEC-008-self-hosted-docker.md))
 - Scaffold pnpm monorepo (`apps/api`, `apps/web`, `packages/shared`) + Docker Compose Postgres
 - Auth milestone: register, login, logout, optional TOTP 2FA, profile ([DEC-007](../docs/decisions/DEC-007-auth.md))

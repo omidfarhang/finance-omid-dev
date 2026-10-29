@@ -1,6 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Button } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
@@ -10,7 +11,7 @@ import { AuthService } from '../../core/auth.service';
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [FormsModule, RouterLink, Button, InputText, Password, Message],
+  imports: [FormsModule, RouterLink, Button, InputText, Password, Message, TranslocoDirective],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
@@ -22,10 +23,9 @@ export class LoginPage {
   error = signal<string | null>(null);
   loading = signal(false);
 
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router,
-  ) {}
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly i18n = inject(TranslocoService);
 
   submit() {
     this.error.set(null);
@@ -40,7 +40,7 @@ export class LoginPage {
         },
         error: (err: { error?: { message?: string } }) => {
           this.loading.set(false);
-          this.error.set(err.error?.message ?? 'Invalid authentication code');
+          this.error.set(err.error?.message ?? this.i18n.translate('errors.invalidAuthCode'));
         },
       });
       return;
@@ -57,7 +57,7 @@ export class LoginPage {
       },
       error: (err: { error?: { message?: string } }) => {
         this.loading.set(false);
-        this.error.set(err.error?.message ?? 'Login failed');
+        this.error.set(err.error?.message ?? this.i18n.translate('errors.loginFailed'));
       },
     });
   }

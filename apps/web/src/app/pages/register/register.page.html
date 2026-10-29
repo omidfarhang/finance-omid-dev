@@ -1,6 +1,6 @@
-<section class="auth-page">
-  <h1>Create account</h1>
-  <p class="lede">Register to manage your wallets and accounts.</p>
+<section class="auth-page" *transloco="let t">
+  <h1>{{ t('register.title') }}</h1>
+  <p class="lede">{{ t('register.lede') }}</p>
 
   @if (error()) {
     <p-message severity="error" [text]="error()!" styleClass="block" />
@@ -8,15 +8,15 @@
 
   <form (ngSubmit)="submit()" class="auth-form">
     <label>
-      Display name
+      {{ t('register.displayName') }}
       <input pInputText name="displayName" [(ngModel)]="displayName" required autocomplete="name" />
     </label>
     <label>
-      Email
+      {{ t('register.email') }}
       <input pInputText type="email" name="email" [(ngModel)]="email" required autocomplete="username" />
     </label>
     <label>
-      Password
+      {{ t('register.password') }}
       <p-password
         [(ngModel)]="password"
         name="password"
@@ -28,11 +28,11 @@
       />
     </label>
 
-    <p-button type="submit" label="Create account" [loading]="loading()" />
+    <p-button type="submit" [label]="t('register.submit')" [loading]="loading()" />
   </form>
 
   <p class="footer">
-    Already registered?
-    <a routerLink="/login">Sign in</a>
+    {{ t('register.alreadyRegistered') }}
+    <a routerLink="/login">{{ t('register.signIn') }}</a>
   </p>
 </section>

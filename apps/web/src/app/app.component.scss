@@ -23,6 +23,18 @@
   color: inherit;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
 .nav a {
   text-decoration: none;
   color: var(--p-text-muted-color, #5b6472);
@@ -31,6 +43,29 @@
 
 .nav a:hover {
   color: inherit;
+}
+
+.lang-switch select {
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  background: transparent;
+  border: 1px solid rgba(28, 42, 39, 0.16);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 main {

@@ -1,9 +1,28 @@
-<div class="shell">
+<div class="shell" *transloco="let t">
   <header class="topbar">
-    <a routerLink="/" class="brand">Finance Omid</a>
-    <nav class="nav">
-      <a routerLink="/status">Status</a>
-    </nav>
+    <a routerLink="/" class="brand">{{ t('app.brand') }}</a>
+    <div class="topbar-actions">
+      <nav class="nav">
+        <a routerLink="/status">{{ t('app.nav.status') }}</a>
+        @if (auth.user()) {
+          <a routerLink="/profile">{{ t('app.nav.profile') }}</a>
+        } @else {
+          <a routerLink="/login">{{ t('app.nav.signIn') }}</a>
+        }
+      </nav>
+      <label class="lang-switch">
+        <span class="visually-hidden">{{ t('app.language') }}</span>
+        <select
+          [attr.aria-label]="t('app.language')"
+          [value]="locale.activeLang()"
+          (change)="onLangChange($event)"
+        >
+          @for (lang of locale.langs; track lang.id) {
+            <option [value]="lang.id">{{ t(lang.labelKey) }}</option>
+          }
+        </select>
+      </label>
+    </div>
   </header>
   <main>
     <router-outlet />

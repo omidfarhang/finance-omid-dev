@@ -1,0 +1,83 @@
+{
+  "app": {
+    "brand": "Finance Omid",
+    "nav": {
+      "status": "وضعیت",
+      "profile": "پروفایل",
+      "signIn": "ورود"
+    },
+    "language": "زبان",
+    "lang": {
+      "en": "English",
+      "fa": "فارسی"
+    }
+  },
+  "login": {
+    "title": "ورود",
+    "lede": "با حساب خود وارد این برنامه مالی خودمیزبان شوید.",
+    "email": "ایمیل",
+    "password": "رمز عبور",
+    "totpPrompt": "کد ۶ رقمی برنامه احراز هویت را وارد کنید.",
+    "totpCode": "کد احراز هویت",
+    "submit": "ورود",
+    "verify": "تأیید",
+    "noAccount": "حساب ندارید؟",
+    "createOne": "ثبت‌نام کنید"
+  },
+  "register": {
+    "title": "ایجاد حساب",
+    "lede": "برای مدیریت کیف‌پول‌ها و حساب‌ها ثبت‌نام کنید.",
+    "displayName": "نام نمایشی",
+    "email": "ایمیل",
+    "password": "رمز عبور",
+    "submit": "ایجاد حساب",
+    "alreadyRegistered": "قبلاً ثبت‌نام کرده‌اید؟",
+    "signIn": "ورود"
+  },
+  "profile": {
+    "title": "پروفایل",
+    "signOut": "خروج",
+    "accountDetails": "جزئیات حساب",
+    "displayName": "نام نمایشی",
+    "locale": "زبان",
+    "timeZone": "منطقه زمانی",
+    "timeZoneUnset": "تنظیم نشده",
+    "save": "ذخیره پروفایل",
+    "updated": "پروفایل به‌روز شد",
+    "updateFailed": "به‌روزرسانی پروفایل ممکن نشد",
+    "totp": {
+      "title": "احراز هویت دو مرحله‌ای",
+      "status": "وضعیت:",
+      "enabled": "فعال",
+      "optional": "اختیاری — فعال نیست",
+      "setup": "راه‌اندازی احراز هویت",
+      "scan": "این کد QR را با برنامه احراز هویت اسکن کنید و سپس کد را برای تأیید وارد کنید.",
+      "secret": "کلید:",
+      "confirmCode": "کد تأیید",
+      "confirm": "تأیید ۲FA",
+      "disableCode": "کد برای غیرفعال‌سازی ۲FA",
+      "disable": "غیرفعال‌سازی ۲FA",
+      "enabledMessage": "احراز هویت دو مرحله‌ای فعال شد",
+      "disabledMessage": "احراز هویت دو مرحله‌ای غیرفعال شد",
+      "setupFailed": "شروع راه‌اندازی ۲FA ممکن نشد",
+      "invalidCode": "کد احراز هویت نامعتبر است",
+      "disableFailed": "غیرفعال‌سازی ۲FA ممکن نشد"
+    }
+  },
+  "status": {
+    "title": "وضعیت API",
+    "lede": "بررسی آنلاین مسیر <code>/api/v1/health</code>. داده‌های مالی همیشه به شبکه نیاز دارند.",
+    "checking": "در حال بررسی API…",
+    "checkAgain": "بررسی دوباره",
+    "signIn": "ورود",
+    "ok": "API وضعیت ok را گزارش کرد.",
+    "unexpected": "وضعیت غیرمنتظره: {{status}}",
+    "unreachableHttp": "API در دسترس نیست (HTTP {{status}}).",
+    "unreachable": "API در دسترس نیست."
+  },
+  "errors": {
+    "loginFailed": "ورود ناموفق بود",
+    "registrationFailed": "ثبت‌نام ناموفق بود",
+    "invalidAuthCode": "کد احراز هویت نامعتبر است"
+  }
+}

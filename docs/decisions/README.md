@@ -18,6 +18,7 @@ Keep the living overview in [`../design.md`](../design.md) aligned when acceptin
 | [DEC-006](DEC-006-money-multi-currency.md) | Per-account currency; minor units; no FX / no cross-currency net worth | Accepted |
 | [DEC-007](DEC-007-auth.md) | Register/login; httpOnly cookie sessions; optional TOTP 2FA; profile | Accepted |
 | [DEC-008](DEC-008-self-hosted-docker.md) | Self-hosted Docker Compose; host nginx TLS for finance.omid.dev | Accepted |
+| [DEC-009](DEC-009-i18n.md) | Runtime UI i18n (Transloco); `fa` + `en`; RTL via `html[dir]` | Accepted |
 
 Likely early candidates (create when deciding, not before):
 

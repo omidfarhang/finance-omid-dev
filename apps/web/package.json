@@ -21,6 +21,7 @@
     "@angular/router": "^19.2.0",
     "@angular/service-worker": "^19.2.0",
     "@finance/shared": "workspace:*",
+    "@jsverse/transloco": "^8",
     "@primeuix/themes": "^1.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.10",

@@ -1,10 +1,10 @@
-<section class="profile-page">
+<section class="profile-page" *transloco="let t">
   <header class="profile-header">
     <div>
-      <h1>Profile</h1>
+      <h1>{{ t('profile.title') }}</h1>
       <p class="lede">{{ auth.user()?.email }}</p>
     </div>
-    <p-button label="Sign out" severity="secondary" (onClick)="logout()" />
+    <p-button [label]="t('profile.signOut')" severity="secondary" (onClick)="logout()" />
   </header>
 
   @if (message()) {
@@ -15,48 +15,63 @@
   }
 
   <form (ngSubmit)="saveProfile()" class="panel">
-    <h2>Account details</h2>
+    <h2>{{ t('profile.accountDetails') }}</h2>
     <label>
-      Display name
+      {{ t('profile.displayName') }}
       <input pInputText name="displayName" [(ngModel)]="displayName" required />
     </label>
     <label>
-      Locale
-      <input pInputText name="locale" [(ngModel)]="locale" placeholder="e.g. fa-IR" />
+      {{ t('profile.locale') }}
+      <select
+        name="locale"
+        [ngModel]="localeService.activeLang()"
+        (ngModelChange)="onLocaleChange($event)"
+      >
+        @for (lang of localeService.langs; track lang.id) {
+          <option [value]="lang.id">{{ t(lang.labelKey) }}</option>
+        }
+      </select>
     </label>
     <label>
-      Time zone
-      <input pInputText name="timeZone" [(ngModel)]="timeZone" placeholder="e.g. Asia/Tehran" />
+      {{ t('profile.timeZone') }}
+      <select name="timeZone" [(ngModel)]="timeZone">
+        <option value="">{{ t('profile.timeZoneUnset') }}</option>
+        @for (zone of timeZones; track zone) {
+          <option [value]="zone">{{ zone }}</option>
+        }
+      </select>
     </label>
-    <p-button type="submit" label="Save profile" [loading]="loading()" />
+    <p-button type="submit" [label]="t('profile.save')" [loading]="loading()" />
   </form>
 
   <section class="panel">
-    <h2>Two-factor authentication</h2>
+    <h2>{{ t('profile.totp.title') }}</h2>
     <p class="lede">
-      Status:
-      <strong>{{ auth.user()?.totpEnabled ? 'Enabled' : 'Optional — not enabled' }}</strong>
+      {{ t('profile.totp.status') }}
+      <strong>
+        {{ auth.user()?.totpEnabled ? t('profile.totp.enabled') : t('profile.totp.optional') }}
+      </strong>
     </p>
 
     @if (!auth.user()?.totpEnabled) {
       @if (!qrDataUrl()) {
-        <p-button label="Set up authenticator" (onClick)="start2fa()" />
+        <p-button [label]="t('profile.totp.setup')" (onClick)="start2fa()" />
       } @else {
-        <p>Scan this QR code with your authenticator app, then enter a code to confirm.</p>
+        <p>{{ t('profile.totp.scan') }}</p>
         <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
-        <p class="secret">Secret: {{ totpSecret() }}</p>
+        <p class="secret">{{ t('profile.totp.secret') }} {{ totpSecret() }}</p>
         <label>
-          Confirmation code
+          {{ t('profile.totp.confirmCode') }}
           <input pInputText name="totpCode" [(ngModel)]="totpCode" inputmode="numeric" />
         </label>
-        <p-button label="Confirm 2FA" (onClick)="confirm2fa()" />
+        <p-button [label]="t('profile.totp.confirm')" (onClick)="confirm2fa()" />
       }
     } @else {
       <label>
-        Code to disable 2FA
+        {{ t('profile.totp.disableCode') }}
         <input pInputText name="disableCode" [(ngModel)]="disableCode" inputmode="numeric" />
       </label>
-      <p-button label="Disable 2FA" severity="danger" (onClick)="disable2fa()" />
+      <p-button [label]="t('profile.totp.disable')" severity="danger" (onClick)="disable2fa()" />
     }
   </section>
 </section>

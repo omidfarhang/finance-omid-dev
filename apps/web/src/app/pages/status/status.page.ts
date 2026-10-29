@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
 import { environment } from '../../../environments/environment';
@@ -10,7 +11,7 @@ type HealthResponse = { status: string };
 @Component({
   selector: 'app-status-page',
   standalone: true,
-  imports: [RouterLink, Button, Message],
+  imports: [RouterLink, Button, Message, TranslocoDirective],
   templateUrl: './status.page.html',
   styleUrl: './status.page.scss',
 })
@@ -19,7 +20,8 @@ export class StatusPage implements OnInit {
   readonly ok = signal<boolean | null>(null);
   readonly detail = signal<string | null>(null);
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
     this.check();
@@ -35,15 +37,19 @@ export class StatusPage implements OnInit {
         this.loading.set(false);
         const healthy = res.status === 'ok';
         this.ok.set(healthy);
-        this.detail.set(healthy ? 'API reported status ok.' : `Unexpected status: ${res.status}`);
+        this.detail.set(
+          healthy
+            ? this.i18n.translate('status.ok')
+            : this.i18n.translate('status.unexpected', { status: res.status }),
+        );
       },
       error: (err: { status?: number; message?: string }) => {
         this.loading.set(false);
         this.ok.set(false);
         this.detail.set(
           err.status
-            ? `API unreachable (HTTP ${err.status}).`
-            : (err.message ?? 'API unreachable.'),
+            ? this.i18n.translate('status.unreachableHttp', { status: err.status })
+            : this.i18n.translate('status.unreachable'),
         );
       },
     });

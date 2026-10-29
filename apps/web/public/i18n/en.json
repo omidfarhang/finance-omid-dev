@@ -1,0 +1,83 @@
+{
+  "app": {
+    "brand": "Finance Omid",
+    "nav": {
+      "status": "Status",
+      "profile": "Profile",
+      "signIn": "Sign in"
+    },
+    "language": "Language",
+    "lang": {
+      "en": "English",
+      "fa": "فارسی"
+    }
+  },
+  "login": {
+    "title": "Sign in",
+    "lede": "Use your account for this self-hosted finance app.",
+    "email": "Email",
+    "password": "Password",
+    "totpPrompt": "Enter the 6-digit code from your authenticator app.",
+    "totpCode": "Authentication code",
+    "submit": "Sign in",
+    "verify": "Verify",
+    "noAccount": "No account?",
+    "createOne": "Create one"
+  },
+  "register": {
+    "title": "Create account",
+    "lede": "Register to manage your wallets and accounts.",
+    "displayName": "Display name",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Create account",
+    "alreadyRegistered": "Already registered?",
+    "signIn": "Sign in"
+  },
+  "profile": {
+    "title": "Profile",
+    "signOut": "Sign out",
+    "accountDetails": "Account details",
+    "displayName": "Display name",
+    "locale": "Language",
+    "timeZone": "Time zone",
+    "timeZoneUnset": "Not set",
+    "save": "Save profile",
+    "updated": "Profile updated",
+    "updateFailed": "Could not update profile",
+    "totp": {
+      "title": "Two-factor authentication",
+      "status": "Status:",
+      "enabled": "Enabled",
+      "optional": "Optional — not enabled",
+      "setup": "Set up authenticator",
+      "scan": "Scan this QR code with your authenticator app, then enter a code to confirm.",
+      "secret": "Secret:",
+      "confirmCode": "Confirmation code",
+      "confirm": "Confirm 2FA",
+      "disableCode": "Code to disable 2FA",
+      "disable": "Disable 2FA",
+      "enabledMessage": "Two-factor authentication enabled",
+      "disabledMessage": "Two-factor authentication disabled",
+      "setupFailed": "Could not start 2FA setup",
+      "invalidCode": "Invalid authentication code",
+      "disableFailed": "Could not disable 2FA"
+    }
+  },
+  "status": {
+    "title": "API status",
+    "lede": "Online check against <code>/api/v1/health</code>. Money data always requires the network.",
+    "checking": "Checking API…",
+    "checkAgain": "Check again",
+    "signIn": "Sign in",
+    "ok": "API reported status ok.",
+    "unexpected": "Unexpected status: {{status}}",
+    "unreachableHttp": "API unreachable (HTTP {{status}}).",
+    "unreachable": "API unreachable."
+  },
+  "errors": {
+    "loginFailed": "Login failed",
+    "registrationFailed": "Registration failed",
+    "invalidAuthCode": "Invalid authentication code"
+  }
+}

@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented as first coding milestone; self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
+**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented as first coding milestone; UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 
@@ -15,8 +15,9 @@ When architecture or stack choices change, update this file in the same change s
 - **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)).
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).
 - **Deploy:** Docker Compose (`postgres` + `api` + `web`); same-origin `/api` proxy; TLS at host nginx ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
+- **UI language:** runtime Transloco catalogs (`fa`, `en`); preference via localStorage + profile `locale`; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
 
-Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md).
+Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md).
 
 ## Repository layout
 
@@ -77,7 +78,8 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 - Thin client over the API (`apiBaseUrl`); no direct database access; credentials via httpOnly cookies (`withCredentials`).
 - PrimeNG is the sole UI component kit (one theme when scaffolded).
 - PWA service worker: precache shell/assets; **network-only** for `/api/*` (no offline money cache in MVP).
-- RTL-ready hooks for Persian later; Gregorian and Persian dates as product requires.
+- UI strings via Transloco JSON (`public/i18n/`); Farsi sets `dir=rtl` and a Persian-capable font; English is LTR ([DEC-009](decisions/DEC-009-i18n.md)).
+- Gregorian and Persian dates as product requires (calendar formatting separate from UI language catalogs).
 - Prefer Angular over React unless a future need forces a revisit ([DEC-002](decisions/DEC-002-stack.md)).
 
 ## Related docs
