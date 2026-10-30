@@ -11,6 +11,7 @@ import type {
 import { AccountMemberRole, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletsService } from '../wallets/wallets.service';
+import { buildBalanceMap } from './balance';
 import {
   parseMinorUnits,
   toPublicAccount,
@@ -33,12 +34,19 @@ export class AccountsService {
       include: accountInclude,
       orderBy: { createdAt: 'asc' },
     });
-    return accounts.map(toPublicAccount);
+    const balances = await this.balancesForAccounts(accounts);
+    return accounts.map((account) =>
+      toPublicAccount(account, balances.get(account.id) ?? account.openingBalanceMinor),
+    );
   }
 
   async getForUser(userId: string, accountId: string) {
     const account = await this.requireMemberAccount(userId, accountId);
-    return toPublicAccount(account);
+    const balances = await this.balancesForAccounts([account]);
+    return toPublicAccount(
+      account,
+      balances.get(account.id) ?? account.openingBalanceMinor,
+    );
   }
 
   async create(userId: string, dto: CreateAccountDto) {
@@ -61,7 +69,7 @@ export class AccountsService {
       },
       include: accountInclude,
     });
-    return toPublicAccount(account);
+    return toPublicAccount(account, openingBalanceMinor);
   }
 
   async update(userId: string, accountId: string, dto: UpdateAccountDto) {
@@ -71,11 +79,25 @@ export class AccountsService {
       data: { name: dto.name },
       include: accountInclude,
     });
-    return toPublicAccount(account);
+    const balances = await this.balancesForAccounts([account]);
+    return toPublicAccount(
+      account,
+      balances.get(account.id) ?? account.openingBalanceMinor,
+    );
   }
 
   async remove(userId: string, accountId: string) {
     await this.requireOwnerAccount(userId, accountId);
+    const movementCount = await this.prisma.transaction.count({
+      where: {
+        OR: [{ accountId }, { counterAccountId: accountId }],
+      },
+    });
+    if (movementCount > 0) {
+      throw new BadRequestException(
+        'Cannot delete an account that has transactions',
+      );
+    }
     await this.prisma.account.delete({ where: { id: accountId } });
   }
 
@@ -122,7 +144,11 @@ export class AccountsService {
       where: { id: accountId },
       include: accountInclude,
     });
-    return toPublicAccount(updated);
+    const balances = await this.balancesForAccounts([updated]);
+    return toPublicAccount(
+      updated,
+      balances.get(updated.id) ?? updated.openingBalanceMinor,
+    );
   }
 
   async removeMember(
@@ -158,10 +184,15 @@ export class AccountsService {
       where: { id: accountId },
       include: accountInclude,
     });
-    return toPublicAccount(updated);
+    const balances = await this.balancesForAccounts([updated]);
+    return toPublicAccount(
+      updated,
+      balances.get(updated.id) ?? updated.openingBalanceMinor,
+    );
   }
 
-  private async requireMemberAccount(userId: string, accountId: string) {
+  /** Public for transactions module membership checks. */
+  async requireMemberAccount(userId: string, accountId: string) {
     const account = await this.prisma.account.findFirst({
       where: { id: accountId, members: { some: { userId } } },
       include: accountInclude,
@@ -184,5 +215,26 @@ export class AccountsService {
       throw new NotFoundException('Account not found');
     }
     return account;
+  }
+
+  private async balancesForAccounts(
+    accounts: Array<{ id: string; openingBalanceMinor: bigint }>,
+  ) {
+    if (accounts.length === 0) {
+      return new Map<string, bigint>();
+    }
+    const ids = accounts.map((a) => a.id);
+    const movements = await this.prisma.transaction.findMany({
+      where: {
+        OR: [{ accountId: { in: ids } }, { counterAccountId: { in: ids } }],
+      },
+      select: {
+        type: true,
+        accountId: true,
+        counterAccountId: true,
+        amountMinor: true,
+      },
+    });
+    return buildBalanceMap(accounts, movements);
   }
 }

@@ -8,15 +8,15 @@ Work that is ready to be done.
 
 ## Next
 
-- Manual transactions and same-currency transfers (fill Activity / home quick-add / account detail per ui-ux.md)
-- Generic/synthetic CSV import adapter + deduplication (fill `/import` per ui-ux.md)
-- Recurrings and next-month forecast (per currency) (fill Outlook + home strip per ui-ux.md)
-- Capture real day-to-day money workflows and annoyances in [docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md)
-- List banks you use and note anonymized statement column layouts (no real statements in git)
-- Triage inbox items into backlog, parked, or rejected
+- (none — capture further ideas in inbox; promote via backlog → plan when ready)
 
 ## Done recently
 
+- Inbox triage + bank-format research stub ([docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md), [docs/brainstorm/bank-formats.md](../docs/brainstorm/bank-formats.md))
+- Recurrings and next-month forecast ([docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md)) — Outlook + home strip
+- Generic/synthetic CSV import + deduplication ([docs/plans/imports.md](../docs/plans/imports.md), [DEC-012](../docs/decisions/DEC-012-import-adapters.md))
+- Manual transactions, same-currency transfers, categories ([docs/plans/transactions.md](../docs/plans/transactions.md)) — Activity, home quick-add, account movements
+- Transactions slice plan ([docs/plans/transactions.md](../docs/plans/transactions.md))
 - App/Admin toolbar: language switcher removed when signed in; user menu (name, Settings, Support, Admin, Sign out); Guest shell keeps language ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - IRR/toman presentation preference moved to Settings (localStorage); removed from home / accounts headers ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - API tests: Jest → Vitest ([DEC-002](../docs/decisions/DEC-002-stack.md))

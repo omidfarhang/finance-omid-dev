@@ -14,13 +14,24 @@
         <h1>{{ t('accounts.notFoundTitle') }}</h1>
       }
     </div>
-    @if (account()?.isShared) {
-      <div class="header-actions">
-        <button pButton type="button" (click)="openMemberDialog()">
-          {{ t('accounts.addMember') }}
+    <div class="header-actions">
+      @if (account(); as account) {
+        <button pButton type="button" severity="secondary" (click)="openMovementDialog('INCOME')">
+          {{ t('activity.addIncome') }}
         </button>
-      </div>
-    }
+        <button pButton type="button" (click)="openMovementDialog('EXPENSE')">
+          {{ t('activity.addExpense') }}
+        </button>
+        <button pButton type="button" severity="secondary" (click)="openTransferDialog()">
+          {{ t('activity.addTransfer') }}
+        </button>
+        @if (account.isShared) {
+          <button pButton type="button" severity="secondary" (click)="openMemberDialog()">
+            {{ t('accounts.addMember') }}
+          </button>
+        }
+      }
+    </div>
   </header>
 
   @if (message()) {
@@ -41,14 +52,44 @@
         {{ t('accounts.opening') }}:
         {{ account.openingBalanceMinor }}
         {{ unitLabel(account.currency) }}
-        · {{ t('accounts.balanceFromOpening') }}
+        · {{ t('accounts.balanceFromMovements') }}
       </p>
     </section>
 
     <section class="panel">
       <h2>{{ t('accounts.movements') }}</h2>
-      <p class="lede">{{ t('accounts.movementsStub') }}</p>
-      <a routerLink="/activity">{{ t('accounts.activityLink') }}</a>
+      @if (transactions().length === 0) {
+        <p class="lede">{{ t('accounts.movementsEmpty') }}</p>
+        <a routerLink="/activity">{{ t('accounts.activityLink') }}</a>
+      } @else {
+        <ul class="tx-list">
+          @for (tx of transactions(); track tx.id) {
+            <li>
+              <div class="tx-main">
+                <span class="tx-type">{{ typeLabel(tx.type) }}</span>
+                <span class="balance">{{ formatAmount(tx, account.currency) }}</span>
+              </div>
+              <p class="meta">
+                {{ tx.occurredAt | date: 'medium' }}
+                @if (tx.type === 'TRANSFER') {
+                  ·
+                  @if (tx.accountId === account.id) {
+                    → {{ counterName(tx.counterAccountId) }}
+                  } @else {
+                    ← {{ counterName(tx.accountId) }}
+                  }
+                }
+                @if (tx.shared) {
+                  · {{ t('activity.sharedMark') }}
+                }
+              </p>
+              @if (tx.description) {
+                <p class="meta">{{ tx.description }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
     </section>
 
     @if (account.isShared) {
@@ -86,6 +127,119 @@
         />
       </label>
       <button pButton type="submit">{{ t('accounts.addMember') }}</button>
+    </form>
+  </p-dialog>
+
+  <p-dialog
+    [header]="movementType === 'INCOME' ? t('activity.addIncome') : t('activity.addExpense')"
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="movementDialogVisible()"
+    (visibleChange)="movementDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="createMovement()" class="dialog-form">
+      <label>
+        {{ t('activity.amount') }}
+        @if (account(); as account) {
+          <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(account.currency) }) }}</span>
+        }
+        <input
+          pInputText
+          name="movementAmount"
+          [(ngModel)]="movementAmount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.when') }}
+        <input
+          pInputText
+          type="datetime-local"
+          name="movementOccurredAt"
+          [(ngModel)]="movementOccurredAt"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input
+          pInputText
+          name="movementDescription"
+          [(ngModel)]="movementDescription"
+          class="w-full"
+        />
+      </label>
+      @if (movementType === 'EXPENSE' && account(); as account) {
+        @if (!account.isShared) {
+          <label class="checkbox-row">
+            <p-checkbox
+              [(ngModel)]="movementShared"
+              [binary]="true"
+              inputId="detailShared"
+              name="movementShared"
+            />
+            <span>{{ t('activity.sharedMark') }}</span>
+          </label>
+        }
+      }
+      <button pButton type="submit">{{ t('activity.save') }}</button>
+    </form>
+  </p-dialog>
+
+  <p-dialog
+    [header]="t('activity.addTransfer')"
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="transferDialogVisible()"
+    (visibleChange)="transferDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="createTransfer()" class="dialog-form">
+      <label>
+        {{ t('activity.toAccount') }}
+        <p-select
+          [options]="transferToOptions()"
+          [(ngModel)]="transferToId"
+          name="transferToId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.amount') }}
+        <input
+          pInputText
+          name="transferAmount"
+          [(ngModel)]="transferAmount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.when') }}
+        <input
+          pInputText
+          type="datetime-local"
+          name="transferOccurredAt"
+          [(ngModel)]="transferOccurredAt"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input
+          pInputText
+          name="transferDescription"
+          [(ngModel)]="transferDescription"
+          class="w-full"
+        />
+      </label>
+      <button pButton type="submit">{{ t('activity.save') }}</button>
     </form>
   </p-dialog>
 </section>

@@ -12,11 +12,6 @@ export function parseMinorUnits(value: string): bigint {
   return BigInt(value);
 }
 
-/** Balance for this milestone equals opening balance (no transactions yet). */
-export function balanceMinorFromOpening(openingBalanceMinor: bigint): bigint {
-  return openingBalanceMinor;
-}
-
 export function toPublicAccountMember(member: MemberWithUser): PublicAccountMember {
   return {
     userId: member.userId,
@@ -26,18 +21,17 @@ export function toPublicAccountMember(member: MemberWithUser): PublicAccountMemb
   };
 }
 
-export function toPublicAccount(account: AccountWithMembers): PublicAccount {
-  const opening = minorUnitsToString(account.openingBalanceMinor);
-  const balance = minorUnitsToString(
-    balanceMinorFromOpening(account.openingBalanceMinor),
-  );
+export function toPublicAccount(
+  account: AccountWithMembers,
+  balanceMinor: bigint,
+): PublicAccount {
   return {
     id: account.id,
     walletId: account.walletId,
     name: account.name,
     currency: account.currency,
-    openingBalanceMinor: opening,
-    balanceMinor: balance,
+    openingBalanceMinor: minorUnitsToString(account.openingBalanceMinor),
+    balanceMinor: minorUnitsToString(balanceMinor),
     isShared: account.isShared,
     members: account.members.map(toPublicAccountMember),
     createdAt: account.createdAt.toISOString(),

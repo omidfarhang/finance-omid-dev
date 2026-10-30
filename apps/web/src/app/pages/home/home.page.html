@@ -6,6 +6,9 @@
     </div>
   </header>
 
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
   @if (error()) {
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
@@ -48,8 +51,52 @@
 
   <section class="panel">
     <h2>{{ t('home.quickAdd') }}</h2>
-    <p class="lede">{{ t('home.quickAddStub') }}</p>
-    <a routerLink="/activity" class="text-link">{{ t('home.quickAddLink') }}</a>
+    @if (accounts().length === 0) {
+      <p class="lede">{{ t('home.quickAddDisabled') }}</p>
+    } @else {
+      <form (ngSubmit)="submitQuickAdd()" class="quick-add-form">
+        <label>
+          {{ t('activity.typeLabel') }}
+          <p-select
+            [options]="typeOptions()"
+            [(ngModel)]="quickType"
+            name="quickType"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+        <label>
+          {{ t('activity.account') }}
+          <p-select
+            [options]="accountOptions()"
+            [(ngModel)]="quickAccountId"
+            name="quickAccountId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+        <label>
+          {{ t('activity.amount') }}
+          <span class="hint">
+            @if (selectedAccount(); as acc) {
+              {{ t('activity.amountHint', { unit: unitLabel(acc.currency) }) }}
+            }
+          </span>
+          <input
+            pInputText
+            name="quickAmount"
+            [(ngModel)]="quickAmount"
+            inputmode="numeric"
+            required
+            class="w-full"
+          />
+        </label>
+        <button pButton type="submit">{{ t('activity.save') }}</button>
+      </form>
+      <a routerLink="/activity" class="text-link">{{ t('home.quickAddLink') }}</a>
+    }
   </section>
 
   <section class="panel">
@@ -57,6 +104,20 @@
       <h2>{{ t('home.outlook') }}</h2>
       <a routerLink="/outlook">{{ t('home.outlookLink') }}</a>
     </div>
-    <p class="lede projection">{{ t('home.outlookStub') }}</p>
+    <p class="projection">{{ t('outlook.projectionBanner') }}</p>
+    @if (forecast(); as forecast) {
+      @if (forecast.currencies.length === 0) {
+        <p class="lede">{{ t('home.outlookEmpty') }}</p>
+      } @else {
+        <ul class="account-list">
+          @for (row of forecast.currencies; track row.currency) {
+            <li class="account-link">
+              <span class="account-name">{{ row.currency }}</span>
+              <span class="balance">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
+            </li>
+          }
+        </ul>
+      }
+    }
   </section>
 </section>

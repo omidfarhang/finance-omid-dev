@@ -119,7 +119,7 @@ One composition with three sections. Missing data uses empty states, not blank p
 
 1. **Balances** — accounts grouped by currency (and wallet as secondary grouping). Show per-account balance; optional per-currency subtotal. **No** single cross-currency total. IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
 2. **Quick add** — income or expense for a chosen account (category when categories exist). Transfers and “shared” mark belong on Activity or account detail, not the home strip.
-3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until forecast API exists, show a stub empty state (“Outlook comes after recurrings”) without inventing numbers.
+3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
 
 When the user has no accounts: balances empty state with primary CTA “Create account”; quick-add and outlook disabled or explanatory.
 
@@ -164,7 +164,8 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Outlook (`/outlook`)
 
 - Purpose: next-month expected income, recurrings, surplus/shortfall **per currency**, labeled projections.
-- Empty until recurrings exist: explain and link to where recurrings will be managed (settings or outlook sub-area when specified).
+- Recurring rules are **managed on this page** (list + create/edit dialog) — not Settings ([recurrings-forecast.md](recurrings-forecast.md)).
+- Empty until recurrings exist: explain and prompt to add a rule here.
 
 ### Settings (`/settings`)
 
@@ -228,7 +229,7 @@ Document in implementation, do not rebrand:
 | Shared mark on personal expense | Activity / detail forms |
 | Categories/tags | Fields on add/edit when API exists |
 | CSV import + dedup | `/import` |
-| Recurring rules | Managed in or linked from Outlook (exact sub-route when recurrings slice is specified) |
+| Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |
 | Wallets/accounts (done API) | `/accounts`, `/accounts/:accountId` |
 | Auth / profile / TOTP (done) | Guest routes + `/settings` |

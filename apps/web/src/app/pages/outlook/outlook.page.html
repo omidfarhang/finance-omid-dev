@@ -1,5 +1,157 @@
-<section class="stub-page" *transloco="let t">
-  <h1>{{ t('outlook.title') }}</h1>
-  <p class="lede">{{ t('outlook.lede') }}</p>
-  <p class="lede projection">{{ t('outlook.empty') }}</p>
+<section class="outlook-page" *transloco="let t">
+  <header class="page-header">
+    <div>
+      <h1>{{ t('outlook.title') }}</h1>
+      <p class="lede">{{ t('outlook.lede') }}</p>
+      <p class="projection">{{ t('outlook.projectionBanner') }}</p>
+    </div>
+    <div class="header-actions">
+      <button pButton type="button" (click)="openCreate()">
+        {{ t('outlook.addRule') }}
+      </button>
+    </div>
+  </header>
+
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+
+  @if (loading()) {
+    <p class="lede">{{ t('outlook.loading') }}</p>
+  }
+
+  @if (forecast(); as forecast) {
+    <section class="panel">
+      <h2>
+        {{ t('outlook.nextMonth', { year: forecast.year, month: forecast.month }) }}
+      </h2>
+      @if (forecast.currencies.length === 0) {
+        <p class="lede projection">{{ t('outlook.empty') }}</p>
+      } @else {
+        <ul class="forecast-list">
+          @for (row of forecast.currencies; track row.currency) {
+            <li>
+              <div class="tx-main">
+                <strong>{{ row.currency }}</strong>
+                <span class="balance">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
+              </div>
+              <p class="meta">
+                {{ t('outlook.income') }}:
+                {{ formatMoney(row.expectedIncomeMinor, row.currency) }}
+                · {{ t('outlook.expense') }}:
+                {{ formatMoney(row.expectedExpenseMinor, row.currency) }}
+              </p>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
+
+  <section class="panel">
+    <h2>{{ t('outlook.rules') }}</h2>
+    @if (rules().length === 0) {
+      <p class="lede">{{ t('outlook.noRules') }}</p>
+    } @else {
+      <ul class="forecast-list">
+        @for (rule of rules(); track rule.id) {
+          <li>
+            <div class="tx-main">
+              <span>
+                {{ typeLabel(rule.type) }} · {{ rule.currency }}
+                @if (!rule.active) {
+                  <span class="badge">{{ t('outlook.inactive') }}</span>
+                }
+              </span>
+              <span class="balance">{{ formatMoney(rule.amountMinor, rule.currency) }}</span>
+            </div>
+            <p class="meta">
+              {{ t('outlook.dayOfMonth', { day: rule.anchorDay }) }}
+              @if (rule.description) {
+                · {{ rule.description }}
+              }
+            </p>
+            <div class="row-actions">
+              <button pButton type="button" severity="secondary" size="small" (click)="openEdit(rule)">
+                {{ t('outlook.edit') }}
+              </button>
+              <button pButton type="button" severity="danger" size="small" (click)="remove(rule)">
+                {{ t('outlook.delete') }}
+              </button>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <p-dialog
+    [header]="editingId ? t('outlook.editRule') : t('outlook.addRule')"
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="dialogVisible()"
+    (visibleChange)="dialogVisible.set($event)"
+  >
+    <form (ngSubmit)="save()" class="dialog-form">
+      <label>
+        {{ t('activity.typeLabel') }}
+        <p-select
+          [options]="typeOptions()"
+          [(ngModel)]="type"
+          name="type"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('accounts.currency') }}
+        <p-select
+          [options]="currencies"
+          [(ngModel)]="currency"
+          name="currency"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.amount') }}
+        <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(currency) }) }}</span>
+        <input
+          pInputText
+          name="amount"
+          [(ngModel)]="amount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('outlook.anchorDay') }}
+        <input
+          pInputText
+          name="anchorDay"
+          type="number"
+          min="1"
+          max="28"
+          [(ngModel)]="anchorDay"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input pInputText name="description" [(ngModel)]="description" class="w-full" />
+      </label>
+      <label class="checkbox-row">
+        <p-checkbox [(ngModel)]="active" [binary]="true" inputId="ruleActive" name="active" />
+        <span>{{ t('outlook.active') }}</span>
+      </label>
+      <button pButton type="submit">{{ t('activity.save') }}</button>
+    </form>
+  </p-dialog>
 </section>

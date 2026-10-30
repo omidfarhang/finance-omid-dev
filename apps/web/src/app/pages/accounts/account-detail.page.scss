@@ -83,6 +83,43 @@ label {
   font-weight: 600;
 }
 
+.hint {
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+}
+
+.tx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.tx-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.tx-type {
+  font-weight: 600;
+}
+
+.balance {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
 a {
   font-weight: 600;
   color: var(--app-accent);

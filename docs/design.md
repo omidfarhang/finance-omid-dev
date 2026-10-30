@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** monorepo scaffolded (`pnpm`, Docker Compose); auth (register/login/optional TOTP/profile) implemented; instance admin + registration control ([plans/instance-admin.md](plans/instance-admin.md), [DEC-010](decisions/DEC-010-instance-admin.md)); wallets/accounts milestone done ([plans/wallets-accounts.md](plans/wallets-accounts.md), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md)); UI i18n `fa`/`en` with RTL ([DEC-009](decisions/DEC-009-i18n.md)); self-hosted deploy via Compose under `finance.omid.dev` ([DEC-008](decisions/DEC-008-self-hosted-docker.md)); UI IA / hybrid home plan ([plans/ui-ux.md](plans/ui-ux.md), [DEC-011](decisions/DEC-011-ui-ia.md)).
+**Status:** MVP ledger path in place: auth, wallets/accounts, transactions/transfers, generic CSV import + dedupe, recurrings + next-month forecast; UI IA filled for Activity / Import / Outlook / home. Instance admin, i18n, Docker deploy as before. Multi-bank adapters and post-MVP ideas remain backlog.
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 
@@ -18,7 +18,7 @@ When architecture or stack choices change, update this file in the same change s
 - **UI language:** runtime Transloco catalogs (`fa`, `en`); preference via localStorage + profile `locale`; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
 - **UI information architecture:** hybrid home; App vs Admin shells; user menu (Settings / Support / Sign out); language switcher on Guest shell and Settings only; dedicated routes for activity, accounts, import, outlook, settings, support ([plans/ui-ux.md](plans/ui-ux.md), [DEC-011](decisions/DEC-011-ui-ia.md)).
 
-Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md), [DEC-010](decisions/DEC-010-instance-admin.md), [DEC-011](decisions/DEC-011-ui-ia.md).
+Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md), [DEC-010](decisions/DEC-010-instance-admin.md), [DEC-011](decisions/DEC-011-ui-ia.md), [DEC-012](decisions/DEC-012-import-adapters.md).
 
 ## Repository layout
 
@@ -69,11 +69,11 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | `admin` | Instance settings (registration open), user list/role/disable/delete; admin access to any user’s wallets/accounts ([DEC-010](decisions/DEC-010-instance-admin.md)) |
 | `wallets` | Personal wallets; ownership |
 | `accounts` | Accounts (personal or shared), opening balances, per-account currency |
-| `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses |
-| `categories` | Categories or tags as needed for daily use |
-| `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import |
-| `recurrings` | Recurring rules used for forecast only |
-| `forecast` | Next-month outlook from expected income and recurrings; labeled projections; per currency |
+| `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses ([plans/transactions.md](plans/transactions.md)) |
+| `categories` | Per-user category list for tagging movements ([plans/transactions.md](plans/transactions.md)) |
+| `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
+| `recurrings` | Recurring rules used for forecast only ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)); managed under `/outlook` |
+| `forecast` | Next-month outlook from expected income and recurrings; labeled projections; per currency ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)) |
 
 ## Frontend rules
 
@@ -91,6 +91,9 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | --- | --- |
 | [vision.md](vision.md) | Why and principles |
 | [plans/mvp.md](plans/mvp.md) | First release scope |
+| [plans/transactions.md](plans/transactions.md) | Manual transactions, transfers, categories |
+| [plans/imports.md](plans/imports.md) | CSV import adapters and deduplication |
+| [plans/recurrings-forecast.md](plans/recurrings-forecast.md) | Recurring rules and next-month forecast |
 | [plans/ui-ux.md](plans/ui-ux.md) | UI sitemap, shells, screen patterns |
 | [decisions/](decisions/) | Decision records |
 | [../AGENTS.md](../AGENTS.md) | Contributor / agent rules |

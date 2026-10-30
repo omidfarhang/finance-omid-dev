@@ -6,31 +6,30 @@ Capture first. Classify later. Brainstorm items are not approved requirements.
 
 ## Ideas
 
-### Recipe / sandwich unit costing
+### (none open)
 
-- **Date:** 2026-10-29
-- **Context:** Buying many ingredients for a meal and using only part of each package.
-- **Thought:** Calculate how much a sandwich (or any dish) really costs when you use half of several items bought in bulk.
-- **Open questions:** Units, yields, price history, how partial usage links to grocery expenses.
-
-### Smart loan and money advice
-
-- **Date:** 2026-10-29
-- **Context:** Desire for suggestions that match budget (e.g. bank loans) and practical money advice.
-- **Thought:** After balances, imports, and forecasts exist, suggest options that fit the user's cash-flow outlook.
-- **Open questions:** Data sources, consent, how to avoid inventing financial numbers, regulatory caution for public release.
+Triaged 2026-10-30: recipe costing → [backlog](../../tasks/backlog.md); smart advice → parked in backlog.
 
 ---
 
 ## Questions
 
 - (Settled → MVP / DEC-005–007) wallets vs single ledger; money/currency; auth.
-- Which real banks and anonymized column layouts to add after the generic CSV adapter?
+- (Settled → DEC-012 + generic CSV) first import path; real banks tracked in [bank-formats.md](bank-formats.md).
 
 ## Observations
 
 - Existing finance apps often ship many unused features and still miss multi-format Iranian bank imports, partial recipe costing, and simple recurring-based outlook.
-- Bank CSV/Excel layouts differ per bank; import adapters need to be first-class, not an afterthought.
+- Bank CSV/Excel layouts differ per bank; import adapters need to be first-class, not an afterthought ([DEC-012](../decisions/DEC-012-import-adapters.md)).
+- **Day-to-day (2026-10-30):** Quick-add on home for income/expense is enough for small entries; transfers and shared mark belong on Activity/account detail. Import must force explicit `unit=minor` — silent rial/toman inference remains a hard no. Forecast must stay clearly labeled so Activity never mixes projections.
+
+## Recently triaged
+
+| Item | Disposition | Date |
+| --- | --- | --- |
+| Recipe / sandwich unit costing | Backlog (Later) | 2026-10-30 |
+| Smart loan and money advice | Parked (until balances/imports/forecasts trustworthy) | 2026-10-30 |
+| Which banks after generic CSV? | Research file [bank-formats.md](bank-formats.md); backlog multi-bank adapters | 2026-10-30 |
 
 <!-- Template for new entries:
 

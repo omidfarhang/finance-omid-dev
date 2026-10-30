@@ -1,0 +1,55 @@
+# Slice: Recurrings and next-month forecast
+
+Forecast-only recurring rules for MVP. Parent: [mvp.md](mvp.md). UI: [ui-ux.md](ui-ux.md). Depends on accounts (+ categories optional). Does not write to the ledger.
+
+## Goals
+
+- Store recurring income/expense rules per user (amount, currency, cadence, next occurrence)
+- Next-calendar-month outlook: expected income, expected expenses, surplus/shortfall **per currency**, labeled as projections
+- Manage recurrings under `/outlook` (list + create/edit dialog) — not Settings
+- Home outlook strip shows the same summary (or empty state)
+
+## Out of scope
+
+Writing recurrings into actual transactions, mid-month “remaining this month” forecasts, FX, transfers as recurrings, auto-matching bank imports to rules.
+
+## Schema
+
+- **RecurringRule:**
+  - `userId`
+  - `type`: `INCOME` | `EXPENSE` (no TRANSFER)
+  - `amountMinor` positive `BigInt`
+  - `currency` ISO 4217 (rules are currency-scoped; not tied to one account in MVP)
+  - `description` optional
+  - `interval`: `MONTHLY` only in MVP
+  - `anchorDay` 1–28 (day-of-month for monthly occurrence; avoids month-end edge cases)
+  - `active` boolean (default true)
+  - `createdAt` / `updatedAt`
+
+## Forecast window
+
+- **Next calendar month** in UTC (or user timezone later; MVP uses UTC month boundaries for determinism in tests).
+- Include every active rule whose `interval` produces an occurrence in that month (monthly → one occurrence on `anchorDay`, clamped if needed).
+- Aggregate sums by `currency`:
+  - `expectedIncomeMinor`
+  - `expectedExpenseMinor`
+  - `surplusMinor` = income − expense
+
+## API (`/api/v1`)
+
+| Area | Routes |
+| --- | --- |
+| Recurrings | `GET/POST /recurrings`, `PATCH/DELETE /recurrings/:id` |
+| Forecast | `GET /forecast/next-month` → `{ currencies: [{ currency, expectedIncomeMinor, expectedExpenseMinor, surplusMinor }], projection: true }` |
+
+## UI
+
+- **`/outlook`:** projection banner; per-currency summary; list of rules with add/edit dialog; empty state explains projections
+- **Home strip:** same summary from `GET /forecast/next-month`, or stub empty copy if no rules / zero currencies
+
+## Acceptance
+
+- Forecast figures are labeled projections and do not alter historical balances or Activity
+- Per-currency totals; no cross-currency net worth
+- Creating/updating/deleting rules updates the next-month outlook
+- Amounts are integer minor units on the wire

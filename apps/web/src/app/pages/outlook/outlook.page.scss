@@ -1,15 +1,92 @@
-.stub-page {
-  max-width: 40rem;
+.outlook-page {
+  max-width: 44rem;
   margin: 2rem auto;
   padding: 0 1.25rem;
   display: grid;
-  gap: 0.85rem;
+  gap: 1.5rem;
 }
 
-.lede {
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.header-actions,
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.lede,
+.meta,
+.hint {
   color: var(--app-text-muted);
 }
 
 .projection {
   font-style: italic;
+  color: var(--app-text-muted);
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+.forecast-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.tx-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.balance {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-inline-start: 0.35rem;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--app-text) 20%, transparent);
+  border-radius: 0.25rem;
+}
+
+.dialog-form {
+  display: grid;
+  gap: 1rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+}
+
+.hint {
+  font-weight: 400;
+  font-size: 0.85rem;
 }

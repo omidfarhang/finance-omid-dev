@@ -7,12 +7,7 @@ Potential future work. Nothing here is a commitment.
 - Multi-bank statement import adapters
   - **Problem:** Each bank uses a different CSV/Excel layout.
   - **Expected outcome:** Pluggable parsers or mappings per bank; safe re-import.
-  - **Dependencies:** First MVP import path; anonymized format research.
-
-- Next-month cash-flow forecast from recurrings
-  - **Problem:** Hard to know if next month will be tight before it happens.
-  - **Expected outcome:** Outlook from expected income and recurring expenses, separate from actuals.
-  - **Dependencies:** Recurring rules; accounts and transactions.
+  - **Dependencies:** Generic CSV path done ([DEC-012](../docs/decisions/DEC-012-import-adapters.md)); fill [bank-formats.md](../docs/brainstorm/bank-formats.md) with anonymized column notes.
 
 ## Later
 

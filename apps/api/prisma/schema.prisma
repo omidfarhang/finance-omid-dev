@@ -18,6 +18,21 @@ enum UserRole {
   ADMIN
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum RecurringType {
+  INCOME
+  EXPENSE
+}
+
+enum RecurringInterval {
+  MONTHLY
+}
+
 model User {
   id           String    @id @default(uuid()) @db.Uuid
   email        String    @unique
@@ -32,10 +47,14 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  sessions       Session[]
-  pendingLogins  PendingLogin[]
-  wallets        Wallet[]
-  accountMembers AccountMember[]
+  sessions           Session[]
+  pendingLogins      PendingLogin[]
+  wallets            Wallet[]
+  accountMembers     AccountMember[]
+  categories          Category[]
+  createdTransactions Transaction[] @relation("TransactionCreator")
+  importBatches       ImportBatch[]
+  recurringRules      RecurringRule[]
 }
 
 model AppSettings {
@@ -67,7 +86,10 @@ model Account {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  members AccountMember[]
+  members              AccountMember[]
+  transactions         Transaction[]   @relation("TransactionAccount")
+  counterTransactions  Transaction[]   @relation("TransactionCounterAccount")
+  importBatches        ImportBatch[]
 
   @@index([walletId])
 }
@@ -105,4 +127,83 @@ model PendingLogin {
 
   @@index([userId])
   @@index([expiresAt])
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Transaction {
+  id               String          @id @default(uuid()) @db.Uuid
+  type             TransactionType
+  accountId        String          @db.Uuid
+  account          Account         @relation("TransactionAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  counterAccountId String?         @db.Uuid
+  counterAccount   Account?        @relation("TransactionCounterAccount", fields: [counterAccountId], references: [id], onDelete: Restrict)
+  amountMinor      BigInt
+  occurredAt       DateTime
+  description      String?
+  categoryId       String?         @db.Uuid
+  category         Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  shared           Boolean         @default(false)
+  transferGroupId  String?         @db.Uuid
+  dedupeKey        String?
+  importBatchId    String?         @db.Uuid
+  importBatch      ImportBatch?    @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
+  createdByUserId  String          @db.Uuid
+  createdBy        User            @relation("TransactionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([accountId, dedupeKey])
+  @@index([accountId, occurredAt])
+  @@index([counterAccountId, occurredAt])
+  @@index([createdByUserId])
+  @@index([transferGroupId])
+  @@index([importBatchId])
+}
+
+model ImportBatch {
+  id                     String   @id @default(uuid()) @db.Uuid
+  userId                 String   @db.Uuid
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId              String   @db.Uuid
+  account                Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  adapterId              String
+  originalFilename       String
+  createdCount           Int
+  skippedDuplicateCount  Int
+  createdAt              DateTime @default(now())
+
+  transactions Transaction[]
+
+  @@index([userId, createdAt])
+  @@index([accountId])
+}
+
+model RecurringRule {
+  id          String            @id @default(uuid()) @db.Uuid
+  userId      String            @db.Uuid
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        RecurringType
+  amountMinor BigInt
+  currency    String            @db.Char(3)
+  description String?
+  interval    RecurringInterval @default(MONTHLY)
+  anchorDay   Int
+  active      Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([userId, active])
 }

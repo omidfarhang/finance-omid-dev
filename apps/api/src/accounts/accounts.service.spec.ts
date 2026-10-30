@@ -22,6 +22,10 @@ describe('AccountsService', () => {
       count: Mock;
       delete: Mock;
     };
+    transaction: {
+      findMany: Mock;
+      count: Mock;
+    };
     user: { findFirst: Mock };
   };
   let walletsService: { requireOwnedWallet: Mock };
@@ -79,6 +83,10 @@ describe('AccountsService', () => {
         create: vi.fn(),
         count: vi.fn(),
         delete: vi.fn(),
+      },
+      transaction: {
+        findMany: vi.fn().mockResolvedValue([]),
+        count: vi.fn().mockResolvedValue(0),
       },
       user: { findFirst: vi.fn() },
     };

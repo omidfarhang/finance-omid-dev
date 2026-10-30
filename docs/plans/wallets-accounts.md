@@ -36,7 +36,7 @@ Unknown or inaccessible ids return **404** (no existence leak).
 
 ## Balance meaning
 
-Until transactions exist: `balanceMinor === openingBalanceMinor`.
+This slice shipped with `balanceMinor === openingBalanceMinor`. After [transactions.md](transactions.md): opening ± signed movements.
 
 ## Acceptance
 
