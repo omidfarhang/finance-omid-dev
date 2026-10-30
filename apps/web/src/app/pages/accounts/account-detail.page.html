@@ -70,7 +70,7 @@
                 <span class="balance">{{ formatAmount(tx, account.currency) }}</span>
               </div>
               <p class="meta">
-                {{ tx.occurredAt | date: 'medium' }}
+                {{ tx.occurredAt | appDateTime }}
                 @if (tx.type === 'TRANSFER') {
                   ·
                   @if (tx.accountId === account.id) {
@@ -183,13 +183,10 @@
       </label>
       <label>
         {{ t('activity.when') }}
-        <input
-          pInputText
-          type="datetime-local"
+        <app-date-time-field
           name="movementOccurredAt"
           [(ngModel)]="movementOccurredAt"
           required
-          class="w-full"
         />
       </label>
       <label>
@@ -263,13 +260,10 @@
       </label>
       <label>
         {{ t('activity.when') }}
-        <input
-          pInputText
-          type="datetime-local"
+        <app-date-time-field
           name="transferOccurredAt"
           [(ngModel)]="transferOccurredAt"
           required
-          class="w-full"
         />
       </label>
       <label>

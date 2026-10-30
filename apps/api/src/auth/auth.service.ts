@@ -161,6 +161,7 @@ export class AuthService {
         displayName: dto.displayName,
         locale: dto.locale === undefined ? undefined : dto.locale,
         timeZone: dto.timeZone === undefined ? undefined : dto.timeZone,
+        calendar: dto.calendar === undefined ? undefined : dto.calendar,
       },
     });
     return toPublicUser(user);

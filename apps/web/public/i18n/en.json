@@ -1,4 +1,10 @@
 {
+  "common": {
+    "pickDateTime": "Pick date and time",
+    "hour": "Hour",
+    "minute": "Minute",
+    "done": "Done"
+  },
   "app": {
     "brand": "Finance Omid",
     "nav": {
@@ -122,7 +128,7 @@
     "projectionBanner": "Projection — these figures do not change account balances.",
     "loading": "Loading outlook…",
     "loadFailed": "Could not load outlook",
-    "nextMonth": "Next month ({{year}}-{{month}})",
+    "nextMonth": "Next month ({{label}})",
     "income": "Expected income",
     "expense": "Expected expenses",
     "rules": "Recurring rules",
@@ -212,6 +218,10 @@
     "locale": "Language",
     "timeZone": "Time zone",
     "timeZoneUnset": "Not set",
+    "calendar": "Calendar",
+    "calendarLede": "Affects date pickers, list dates, Activity month filter, and Outlook next month. Independent of language. Times stay stored as ISO.",
+    "calendarJalali": "Jalali (Persian)",
+    "calendarGregorian": "Gregorian",
     "save": "Save profile",
     "updated": "Profile updated",
     "updateFailed": "Could not update profile",

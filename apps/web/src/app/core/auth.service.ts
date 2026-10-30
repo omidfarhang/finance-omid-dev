@@ -1,8 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, signal } from '@angular/core';
-import type { PublicUser, RegistrationStatus } from '@finance/shared';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import type {
+  CalendarSystem,
+  PublicUser,
+  RegistrationStatus,
+} from '@finance/shared';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { CalendarPreferenceService } from './calendar-preference.service';
 
 type AuthResponse = { user: PublicUser };
 type TotpChallenge = { requiresTotp: true; pendingToken: string };
@@ -14,7 +19,13 @@ export class AuthService {
   readonly loaded = signal(false);
   readonly isAdmin = computed(() => this.user()?.role === 'ADMIN');
 
-  constructor(private readonly http: HttpClient) {}
+  private readonly http = inject(HttpClient);
+  private readonly calendarPreference = inject(CalendarPreferenceService);
+
+  private applyUser(user: PublicUser | null): void {
+    this.user.set(user);
+    this.calendarPreference.hydrateFromUser(user);
+  }
 
   registrationStatus(): Observable<RegistrationStatus> {
     return this.http.get<RegistrationStatus>(
@@ -29,11 +40,11 @@ export class AuthService {
     }).pipe(
       map((res) => res.user),
       tap((user) => {
-        this.user.set(user);
+        this.applyUser(user);
         this.loaded.set(true);
       }),
       catchError(() => {
-        this.user.set(null);
+        this.applyUser(null);
         this.loaded.set(true);
         return of(null);
       }),
@@ -51,7 +62,7 @@ export class AuthService {
       })
       .pipe(
         map((res) => res.user),
-        tap((user) => this.user.set(user)),
+        tap((user) => this.applyUser(user)),
       );
   }
 
@@ -67,7 +78,7 @@ export class AuthService {
       .pipe(
         tap((res) => {
           if ('user' in res) {
-            this.user.set(res.user);
+            this.applyUser(res.user);
           }
         }),
       );
@@ -83,7 +94,7 @@ export class AuthService {
       })
       .pipe(
         map((res) => res.user),
-        tap((user) => this.user.set(user)),
+        tap((user) => this.applyUser(user)),
       );
   }
 
@@ -92,9 +103,9 @@ export class AuthService {
       .post(`${environment.apiBaseUrl}/auth/logout`, {}, { withCredentials: true })
       .pipe(
         map(() => undefined),
-        tap(() => this.user.set(null)),
+        tap(() => this.applyUser(null)),
         catchError(() => {
-          this.user.set(null);
+          this.applyUser(null);
           return of(undefined);
         }),
       );
@@ -104,6 +115,7 @@ export class AuthService {
     displayName?: string;
     locale?: string | null;
     timeZone?: string | null;
+    calendar?: CalendarSystem;
   }): Observable<PublicUser> {
     return this.http
       .post<AuthResponse>(`${environment.apiBaseUrl}/profile`, payload, {
@@ -111,7 +123,7 @@ export class AuthService {
       })
       .pipe(
         map((res) => res.user),
-        tap((user) => this.user.set(user)),
+        tap((user) => this.applyUser(user)),
       );
   }
 
@@ -132,7 +144,7 @@ export class AuthService {
       )
       .pipe(
         map((res) => res.user),
-        tap((user) => this.user.set(user)),
+        tap((user) => this.applyUser(user)),
       );
   }
 
@@ -145,7 +157,7 @@ export class AuthService {
       )
       .pipe(
         map((res) => res.user),
-        tap((user) => this.user.set(user)),
+        tap((user) => this.applyUser(user)),
       );
   }
 }

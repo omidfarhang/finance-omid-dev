@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -17,16 +16,19 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
+import { AppDateTimePipe } from '../../core/app-date-time.pipe';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
+import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 @Component({
   selector: 'app-account-detail-page',
   standalone: true,
   imports: [
-    DatePipe,
+    AppDateTimeFieldComponent,
+    AppDateTimePipe,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -158,7 +160,7 @@ export class AccountDetailPage implements OnInit {
     this.editingTransactionId = null;
     this.movementType = type;
     this.movementAmount = '';
-    this.movementOccurredAt = this.nowLocalInput();
+    this.movementOccurredAt = new Date().toISOString();
     this.movementDescription = '';
     this.movementCategoryId = this.defaultCategoryId(type);
     this.movementShared = false;
@@ -170,7 +172,7 @@ export class AccountDetailPage implements OnInit {
       this.editingTransferId = tx.id;
       this.transferToId = tx.counterAccountId ?? this.transferToId;
       this.transferAmount = tx.amountMinor;
-      this.transferOccurredAt = this.toLocalInput(tx.occurredAt);
+      this.transferOccurredAt = tx.occurredAt;
       this.transferDescription = tx.description ?? '';
       this.transferDialogVisible.set(true);
       return;
@@ -178,7 +180,7 @@ export class AccountDetailPage implements OnInit {
     this.editingTransactionId = tx.id;
     this.movementType = tx.type;
     this.movementAmount = tx.amountMinor;
-    this.movementOccurredAt = this.toLocalInput(tx.occurredAt);
+    this.movementOccurredAt = tx.occurredAt;
     this.movementDescription = tx.description ?? '';
     this.movementCategoryId = tx.categoryId ?? this.defaultCategoryId(tx.type);
     this.movementShared = tx.shared;
@@ -188,7 +190,7 @@ export class AccountDetailPage implements OnInit {
   openTransferDialog() {
     this.editingTransferId = null;
     this.transferAmount = '';
-    this.transferOccurredAt = this.nowLocalInput();
+    this.transferOccurredAt = new Date().toISOString();
     this.transferDescription = '';
     this.transferDialogVisible.set(true);
   }
@@ -429,13 +431,4 @@ export class AccountDetailPage implements OnInit {
     return preferred?.id ?? '';
   }
 
-  private nowLocalInput(): string {
-    return this.toLocalInput(new Date().toISOString());
-  }
-
-  private toLocalInput(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
 }

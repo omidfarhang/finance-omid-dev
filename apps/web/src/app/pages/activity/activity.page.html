@@ -68,7 +68,7 @@
             @if (tx.type === 'TRANSFER') {
               → {{ accountName(tx.counterAccountId) }}
             }
-            · {{ tx.occurredAt | date: 'medium' }}
+            · {{ tx.occurredAt | appDateTime }}
             @if (tx.categoryName) {
               · {{ displayCategoryName(tx.categoryName) }}
             }
@@ -151,13 +151,10 @@
       </label>
       <label>
         {{ t('activity.when') }}
-        <input
-          pInputText
-          type="datetime-local"
+        <app-date-time-field
           name="movementOccurredAt"
           [(ngModel)]="movementOccurredAt"
           required
-          class="w-full"
         />
       </label>
       <label>
@@ -246,13 +243,10 @@
       </label>
       <label>
         {{ t('activity.when') }}
-        <input
-          pInputText
-          type="datetime-local"
+        <app-date-time-field
           name="transferOccurredAt"
           [(ngModel)]="transferOccurredAt"
           required
-          class="w-full"
         />
       </label>
       <label>

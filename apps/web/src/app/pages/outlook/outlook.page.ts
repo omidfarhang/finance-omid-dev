@@ -12,6 +12,8 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
+import { formatCalendarMonthLabel } from '../../core/format-app-date';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
@@ -58,6 +60,7 @@ export class OutlookPage implements OnInit {
 
   private readonly api = inject(RecurringsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
@@ -152,6 +155,15 @@ export class OutlookPage implements OnInit {
         );
       },
     });
+  }
+
+  forecastMonthLabel(forecast: NextMonthForecast): string {
+    return formatCalendarMonthLabel(
+      forecast.year,
+      forecast.month,
+      forecast.calendar,
+      this.locale.activeLang(),
+    );
   }
 
   formatMoney(amountMinor: string, currency: string): string {

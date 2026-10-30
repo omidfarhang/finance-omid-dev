@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { currencyCodeSchema, minorUnitsSchema } from './account';
+import { calendarSchema } from './user';
 import { positiveMinorUnitsSchema } from './transaction';
 
 export const recurringTypeSchema = z.enum(['INCOME', 'EXPENSE']);
@@ -54,6 +55,7 @@ export type ForecastCurrency = z.infer<typeof forecastCurrencySchema>;
 
 export const nextMonthForecastSchema = z.object({
   projection: z.literal(true),
+  calendar: calendarSchema,
   year: z.number().int(),
   month: z.number().int().min(1).max(12),
   currencies: z.array(forecastCurrencySchema),

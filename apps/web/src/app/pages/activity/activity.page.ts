@@ -1,11 +1,12 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import type {
-  PublicAccount,
-  PublicCategory,
-  PublicTransaction,
+import {
+  DEFAULT_BOUNDS_TIME_ZONE,
+  currentMonthBounds,
+  type PublicAccount,
+  type PublicCategory,
+  type PublicTransaction,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
@@ -16,10 +17,14 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
+import { AppDateTimePipe } from '../../core/app-date-time.pipe';
+import { AuthService } from '../../core/auth.service';
+import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
+import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 type RangeKey = 'all' | '30d' | 'month';
 
@@ -27,7 +32,8 @@ type RangeKey = 'all' | '30d' | 'month';
   selector: 'app-activity-page',
   standalone: true,
   imports: [
-    DatePipe,
+    AppDateTimeFieldComponent,
+    AppDateTimePipe,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -96,6 +102,8 @@ export class ActivityPage implements OnInit {
   private readonly walletsApi = inject(WalletsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly calendarPref = inject(CalendarPreferenceService);
+  private readonly auth = inject(AuthService);
   private readonly i18n = inject(TranslocoService);
   private readonly confirm = inject(ConfirmationService);
 
@@ -164,7 +172,7 @@ export class ActivityPage implements OnInit {
     this.editingTransactionId = null;
     this.movementType = type;
     this.movementAmount = '';
-    this.movementOccurredAt = this.nowLocalInput();
+    this.movementOccurredAt = new Date().toISOString();
     this.movementDescription = '';
     this.movementCategoryId = this.defaultCategoryId(type);
     this.movementShared = false;
@@ -180,7 +188,7 @@ export class ActivityPage implements OnInit {
       this.transferFromId = tx.accountId;
       this.transferToId = tx.counterAccountId ?? '';
       this.transferAmount = tx.amountMinor;
-      this.transferOccurredAt = this.toLocalInput(tx.occurredAt);
+      this.transferOccurredAt = tx.occurredAt;
       this.transferDescription = tx.description ?? '';
       this.transferDialogVisible.set(true);
       return;
@@ -189,7 +197,7 @@ export class ActivityPage implements OnInit {
     this.movementType = tx.type;
     this.movementAccountId = tx.accountId;
     this.movementAmount = tx.amountMinor;
-    this.movementOccurredAt = this.toLocalInput(tx.occurredAt);
+    this.movementOccurredAt = tx.occurredAt;
     this.movementDescription = tx.description ?? '';
     this.movementCategoryId = tx.categoryId ?? this.defaultCategoryId(tx.type);
     this.movementShared = tx.shared;
@@ -199,7 +207,7 @@ export class ActivityPage implements OnInit {
   openTransferDialog() {
     this.editingTransferId = null;
     this.transferAmount = '';
-    this.transferOccurredAt = this.nowLocalInput();
+    this.transferOccurredAt = new Date().toISOString();
     this.transferDescription = '';
     this.transferDialogVisible.set(true);
   }
@@ -435,19 +443,11 @@ export class ActivityPage implements OnInit {
       from.setDate(from.getDate() - 30);
       return { from: from.toISOString(), to: now.toISOString() };
     }
-    const from = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    const bounds = currentMonthBounds(
+      now,
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
     );
-    return { from: from.toISOString(), to: now.toISOString() };
-  }
-
-  private nowLocalInput(): string {
-    return this.toLocalInput(new Date().toISOString());
-  }
-
-  private toLocalInput(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return { from: bounds.fromIso, to: now.toISOString() };
   }
 }

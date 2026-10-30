@@ -68,9 +68,10 @@ export class RecurringsService {
   }
 
   async nextMonthForecast(userId: string): Promise<NextMonthForecast> {
-    const rules = await this.prisma.recurringRule.findMany({
-      where: { userId },
-    });
+    const [user, rules] = await Promise.all([
+      this.prisma.user.findUniqueOrThrow({ where: { id: userId } }),
+      this.prisma.recurringRule.findMany({ where: { userId } }),
+    ]);
     return buildNextMonthForecast(
       rules.map((r) => ({
         type: r.type,
@@ -80,6 +81,10 @@ export class RecurringsService {
         interval: 'MONTHLY' as const,
         anchorDay: r.anchorDay,
       })),
+      {
+        calendar: user.calendar,
+        timeZone: user.timeZone,
+      },
     );
   }
 

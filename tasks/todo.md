@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Calendar preference (Gregorian / Jalali): profile field, Settings, shared helpers, date pipe/picker, Activity month filters, Outlook next-month bounds ([DEC-013](../docs/decisions/DEC-013-calendar-preference.md))
 - Edit/delete movements + typed required categories ([docs/plans/transactions.md](../docs/plans/transactions.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/imports.md](../docs/plans/imports.md)) — Activity/home/account edit-delete; Settings category CRUD; Uncategorized defaults
 - Inbox triage + bank-format research stub ([docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md), [docs/brainstorm/bank-formats.md](../docs/brainstorm/bank-formats.md))
 - Recurrings and next-month forecast ([docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md)) — Outlook + home strip

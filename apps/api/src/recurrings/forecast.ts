@@ -1,4 +1,5 @@
-import type { NextMonthForecast } from '@finance/shared';
+import type { CalendarSystem, NextMonthForecast } from '@finance/shared';
+import { nextMonthBounds } from '@finance/shared';
 import { RecurringType } from '../generated/prisma/client';
 
 export type RuleForForecast = {
@@ -10,24 +11,21 @@ export type RuleForForecast = {
   anchorDay: number;
 };
 
-/** UTC next calendar month year/month (1–12). */
-export function nextUtcMonth(from: Date = new Date()): {
-  year: number;
-  month: number;
-} {
-  const year = from.getUTCFullYear();
-  const month = from.getUTCMonth() + 1; // 1–12 current
-  if (month === 12) {
-    return { year: year + 1, month: 1 };
-  }
-  return { year, month: month + 1 };
-}
+export type ForecastContext = {
+  calendar: CalendarSystem;
+  timeZone: string | null;
+  from?: Date;
+};
 
 export function buildNextMonthForecast(
   rules: RuleForForecast[],
-  from: Date = new Date(),
+  context: ForecastContext,
 ): NextMonthForecast {
-  const { year, month } = nextUtcMonth(from);
+  const bounds = nextMonthBounds(
+    context.from ?? new Date(),
+    context.calendar,
+    context.timeZone,
+  );
   const byCurrency = new Map<
     string,
     { income: bigint; expense: bigint }
@@ -63,8 +61,9 @@ export function buildNextMonthForecast(
 
   return {
     projection: true,
-    year,
-    month,
+    calendar: bounds.calendar,
+    year: bounds.year,
+    month: bounds.month,
     currencies,
   };
 }

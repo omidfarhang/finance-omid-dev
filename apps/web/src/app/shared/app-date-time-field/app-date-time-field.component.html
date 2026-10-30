@@ -1,0 +1,86 @@
+<div class="app-date-time-field" *transloco="let t">
+  @if (calendar() === 'GREGORIAN') {
+    <p-datepicker
+      [ngModel]="gregorianDate()"
+      (ngModelChange)="onGregorianChange($event)"
+      [ngModelOptions]="{ standalone: true }"
+      [showTime]="true"
+      hourFormat="24"
+      [disabled]="disabled"
+      appendTo="body"
+      styleClass="w-full"
+      inputStyleClass="w-full"
+    />
+  } @else {
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      class="w-full date-trigger"
+      [disabled]="disabled"
+      (click)="toggleOpen()"
+    >
+      {{ displayLabel() || t('common.pickDateTime') }}
+    </button>
+    @if (open()) {
+      <div class="jalali-panel" role="dialog">
+        <div class="jalali-nav">
+          <button pButton type="button" severity="secondary" size="small" (click)="prevMonth()">
+            ‹
+          </button>
+          <span class="month-label">{{ monthLabel() }}</span>
+          <button pButton type="button" severity="secondary" size="small" (click)="nextMonth()">
+            ›
+          </button>
+        </div>
+        <div class="day-grid">
+          @for (day of dayCells(); track day) {
+            <button
+              type="button"
+              class="day-cell"
+              [class.selected]="day === selectedDay()"
+              (click)="selectDay(day)"
+            >
+              {{ day }}
+            </button>
+          }
+        </div>
+        <div class="time-row">
+          <label>
+            {{ t('common.hour') }}
+            <input
+              pInputText
+              type="number"
+              min="0"
+              max="23"
+              [ngModel]="hour()"
+              (ngModelChange)="onHourChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </label>
+          <label>
+            {{ t('common.minute') }}
+            <input
+              pInputText
+              type="number"
+              min="0"
+              max="59"
+              [ngModel]="minute()"
+              (ngModelChange)="onMinuteChange($event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </label>
+        </div>
+        <button
+          pButton
+          type="button"
+          size="small"
+          class="w-full"
+          (click)="toggleOpen()"
+        >
+          {{ t('common.done') }}
+        </button>
+      </div>
+    }
+  }
+</div>

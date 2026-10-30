@@ -1,12 +1,22 @@
 import { z } from 'zod';
+import {
+  calendarSchemaValues,
+  DEFAULT_CALENDAR,
+  type CalendarSystem,
+} from './calendar';
 
 export const userRoleSchema = z.enum(['USER', 'ADMIN']);
 export type UserRole = z.infer<typeof userRoleSchema>;
+
+export const calendarSchema = z.enum(calendarSchemaValues);
+export type { CalendarSystem };
+export { DEFAULT_CALENDAR };
 
 export const updateProfileSchema = z.object({
   displayName: z.string().trim().min(1).max(100).optional(),
   locale: z.string().trim().min(2).max(32).optional().nullable(),
   timeZone: z.string().trim().min(1).max(64).optional().nullable(),
+  calendar: calendarSchema.optional(),
 });
 export type UpdateProfileDto = z.infer<typeof updateProfileSchema>;
 
@@ -17,6 +27,7 @@ export const publicUserSchema = z.object({
   role: userRoleSchema,
   locale: z.string().nullable(),
   timeZone: z.string().nullable(),
+  calendar: calendarSchema,
   totpEnabled: z.boolean(),
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),

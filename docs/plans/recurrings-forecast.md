@@ -28,8 +28,9 @@ Writing recurrings into actual transactions, mid-month “remaining this month�
 
 ## Forecast window
 
-- **Next calendar month** in UTC (or user timezone later; MVP uses UTC month boundaries for determinism in tests).
-- Include every active rule whose `interval` produces an occurrence in that month (monthly → one occurrence on `anchorDay`, clamped if needed).
+- **Next calendar month** in the user’s profile **calendar** (`GREGORIAN` | `JALALI`) and **timezone** ([DEC-013](../decisions/DEC-013-calendar-preference.md)). Unset timezone → UTC.
+- Response includes `calendar` plus `year` / `month` **in that calendar** (for Outlook labels).
+- Include every active rule whose `interval` produces an occurrence in that month (monthly → one occurrence on `anchorDay` as day-of-month in the user’s calendar; `anchorDay` stays 1–28).
 - Aggregate sums by `currency`:
   - `expectedIncomeMinor`
   - `expectedExpenseMinor`

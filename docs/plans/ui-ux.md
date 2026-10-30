@@ -18,7 +18,7 @@ Product UI information architecture and interaction patterns for the Angular PWA
 - Full design-system component library beyond shared app patterns on PrimeNG
 - Recipe / costing UI, settlement / IOU UX, rich household invite (see MVP out of scope and backlog)
 - Rebrand or dark theme; keep the current visual direction and document tokens
-- Jalali date-picker productization in this plan (placeholder only; calendars come later)
+- (calendars: see [DEC-013](../decisions/DEC-013-calendar-preference.md); Settings + shared date field/pipe)
 
 ## Principles
 
@@ -63,7 +63,7 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | `/accounts/:accountId` | Account detail, movements, shared members |
 | `/import` | Statement upload, adapter choice, dedup feedback |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
-| `/settings` | Profile, locale/timezone, money display, TOTP, sign-out; link to Status/health if kept |
+| `/settings` | Profile, locale/timezone/calendar, money display, TOTP, sign-out; link to Status/health if kept |
 | `/support` | Lightweight help / contact stub (user-menu entry only; not primary nav) |
 
 Legacy `/wallets` and `/profile` should redirect into Accounts and Settings when the shell lands.
@@ -169,7 +169,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Settings (`/settings`)
 
-- Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
+- Purpose: display name, locale, timezone, **calendar** (Gregorian / Jalali) alignment with [DEC-009](../decisions/DEC-009-i18n.md) and [DEC-013](../decisions/DEC-013-calendar-preference.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
 - Authenticated language changes happen here (not in App/Admin toolbar).
 - Category management lives here — not a primary-nav peer ([transactions.md](transactions.md)).
 
@@ -197,7 +197,9 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Dates
 
-- Product will need Gregorian and Persian calendars; **Jalali pickers are out of this plan’s implementation scope**. Until then, use unambiguous ISO/Gregorian display with timezone from profile; do not pretend locale alone equals calendar system ([DEC-009](../decisions/DEC-009-i18n.md)).
+- Profile **calendar** preference (`GREGORIAN` | `JALALI`, default Jalali) is independent of UI language ([DEC-013](../decisions/DEC-013-calendar-preference.md)). Storage and API remain ISO instants.
+- Shared datetime pipe and field drive list formatting, form pickers, and Activity “this month” bounds (user calendar + timezone; unset TZ → UTC). Outlook “next month” labels follow the forecast payload’s calendar year/month.
+- Preference control lives in Settings (profile + localStorage cache), same dual-write pattern as UI language.
 
 ### Forms and chrome
 

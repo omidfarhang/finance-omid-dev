@@ -9,6 +9,7 @@ export function toPublicUser(user: User): PublicUser {
     role: user.role,
     locale: user.locale,
     timeZone: user.timeZone,
+    calendar: user.calendar,
     totpEnabled: user.totpEnabled,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),

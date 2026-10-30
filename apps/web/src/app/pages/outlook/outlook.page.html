@@ -26,7 +26,7 @@
   @if (forecast(); as forecast) {
     <section class="panel">
       <h2>
-        {{ t('outlook.nextMonth', { year: forecast.year, month: forecast.month }) }}
+        {{ t('outlook.nextMonth', { label: forecastMonthLabel(forecast) }) }}
       </h2>
       @if (forecast.currencies.length === 0) {
         <p class="lede projection">{{ t('outlook.empty') }}</p>

@@ -43,6 +43,19 @@
         }
       </select>
     </label>
+    <label>
+      {{ t('settings.calendar') }}
+      <select
+        name="calendar"
+        [ngModel]="calendar"
+        (ngModelChange)="onCalendarChange($event)"
+      >
+        @for (opt of calendarOptions; track opt.value) {
+          <option [value]="opt.value">{{ t(opt.labelKey) }}</option>
+        }
+      </select>
+    </label>
+    <p class="lede">{{ t('settings.calendarLede') }}</p>
     <button pButton type="submit" [disabled]="loading()">
       @if (loading()) {
         <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>

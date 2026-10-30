@@ -1,7 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import type { CategoryKind, PublicCategory } from '@finance/shared';
+import type {
+  CalendarSystem,
+  CategoryKind,
+  PublicCategory,
+} from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonDirective } from 'primeng/button';
@@ -10,6 +14,7 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { AuthService } from '../../core/auth.service';
+import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { UiLang, toUiLang } from '../../core/i18n/supported-langs';
 import {
@@ -38,9 +43,14 @@ import { TransactionsService } from '../../core/transactions.service';
 export class SettingsPage implements OnInit {
   displayName = '';
   timeZone = '';
+  calendar: CalendarSystem = 'JALALI';
   totpCode = '';
   disableCode = '';
   timeZones: string[] = listTimeZones();
+  readonly calendarOptions: { labelKey: string; value: CalendarSystem }[] = [
+    { labelKey: 'settings.calendarJalali', value: 'JALALI' },
+    { labelKey: 'settings.calendarGregorian', value: 'GREGORIAN' },
+  ];
   qrDataUrl = signal<string | null>(null);
   totpSecret = signal<string | null>(null);
   message = signal<string | null>(null);
@@ -54,6 +64,7 @@ export class SettingsPage implements OnInit {
 
   readonly auth = inject(AuthService);
   readonly localeService = inject(LocaleService);
+  readonly calendarPreference = inject(CalendarPreferenceService);
   readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly router = inject(Router);
   private readonly i18n = inject(TranslocoService);
@@ -84,11 +95,15 @@ export class SettingsPage implements OnInit {
     if (user) {
       this.displayName = user.displayName;
       this.timeZone = user.timeZone ?? '';
+      this.calendar = user.calendar;
+      this.calendarPreference.hydrateFromUser(user);
       this.timeZones = ensureTimeZoneOption(this.timeZones, user.timeZone);
       const fromProfile = toUiLang(user.locale);
       if (fromProfile && fromProfile !== this.localeService.activeLang()) {
         void this.localeService.setLang(fromProfile, { persistProfile: false });
       }
+    } else {
+      this.calendar = this.calendarPreference.calendar();
     }
     this.reloadCategories();
   }
@@ -214,6 +229,11 @@ export class SettingsPage implements OnInit {
     this.moneyDisplay.setShowToman(checked);
   }
 
+  onCalendarChange(value: CalendarSystem) {
+    this.calendar = value;
+    this.calendarPreference.setCalendar(value);
+  }
+
   saveProfile() {
     this.error.set(null);
     this.message.set(null);
@@ -224,10 +244,12 @@ export class SettingsPage implements OnInit {
         displayName: this.displayName,
         locale,
         timeZone: this.timeZone || null,
+        calendar: this.calendar,
       })
       .subscribe({
         next: () => {
           this.loading.set(false);
+          this.calendarPreference.setCalendar(this.calendar);
           void this.localeService.setLang(locale, { persistProfile: false });
           this.message.set(this.i18n.translate('settings.updated'));
         },

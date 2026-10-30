@@ -1,16 +1,38 @@
 import { RecurringType } from '../generated/prisma/client';
-import { buildNextMonthForecast, nextUtcMonth } from './forecast';
+import { buildNextMonthForecast } from './forecast';
 
 describe('forecast', () => {
-  it('computes next UTC month', () => {
-    expect(nextUtcMonth(new Date('2026-10-30T12:00:00.000Z'))).toEqual({
-      year: 2026,
-      month: 11,
+  it('computes next Gregorian month in UTC', () => {
+    const forecast = buildNextMonthForecast([], {
+      calendar: 'GREGORIAN',
+      timeZone: 'UTC',
+      from: new Date('2026-10-30T12:00:00.000Z'),
     });
-    expect(nextUtcMonth(new Date('2026-12-01T00:00:00.000Z'))).toEqual({
-      year: 2027,
-      month: 1,
+    expect(forecast.calendar).toBe('GREGORIAN');
+    expect(forecast.year).toBe(2026);
+    expect(forecast.month).toBe(11);
+  });
+
+  it('rolls Gregorian December to next year', () => {
+    const forecast = buildNextMonthForecast([], {
+      calendar: 'GREGORIAN',
+      timeZone: 'UTC',
+      from: new Date('2026-12-01T00:00:00.000Z'),
     });
+    expect(forecast.year).toBe(2027);
+    expect(forecast.month).toBe(1);
+  });
+
+  it('computes next Jalali month for Asia/Tehran', () => {
+    // Mid Esfand 1404 → next is Farvardin 1405
+    const forecast = buildNextMonthForecast([], {
+      calendar: 'JALALI',
+      timeZone: 'Asia/Tehran',
+      from: new Date('2026-03-05T12:00:00.000Z'),
+    });
+    expect(forecast.calendar).toBe('JALALI');
+    expect(forecast.year).toBe(1405);
+    expect(forecast.month).toBe(1);
   });
 
   it('aggregates active monthly rules per currency without mutating ledger state', () => {
@@ -49,10 +71,15 @@ describe('forecast', () => {
           anchorDay: 1,
         },
       ],
-      new Date('2026-10-15T00:00:00.000Z'),
+      {
+        calendar: 'GREGORIAN',
+        timeZone: 'UTC',
+        from: new Date('2026-10-15T00:00:00.000Z'),
+      },
     );
 
     expect(forecast.projection).toBe(true);
+    expect(forecast.calendar).toBe('GREGORIAN');
     expect(forecast.year).toBe(2026);
     expect(forecast.month).toBe(11);
     expect(forecast.currencies).toEqual([
