@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { TransactionType } from '../generated/prisma/client';
+import { CategoryKind, TransactionType } from '../generated/prisma/client';
 import { AccountsService } from '../accounts/accounts.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TransactionsService } from './transactions.service';
@@ -9,24 +9,26 @@ describe('TransactionsService', () => {
   let service: TransactionsService;
   let prisma: {
     transaction: {
-      findMany: Mock;
-      findFirst: Mock;
-      create: Mock;
-      update: Mock;
-      delete: Mock;
+      findMany: ReturnType<typeof vi.fn>;
+      findFirst: ReturnType<typeof vi.fn>;
+      create: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+      delete: ReturnType<typeof vi.fn>;
     };
-    account: { findUniqueOrThrow: Mock };
-    accountMember: { findMany: Mock };
-    category: { findFirst: Mock };
+    account: { findUniqueOrThrow: ReturnType<typeof vi.fn> };
+    accountMember: { findMany: ReturnType<typeof vi.fn> };
+    category: { findFirst: ReturnType<typeof vi.fn> };
   };
   let accountsService: {
-    requireMemberAccount: Mock;
+    requireMemberAccount: ReturnType<typeof vi.fn>;
   };
 
   const userId = '11111111-1111-1111-1111-111111111111';
   const accountA = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   const accountB = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
   const accountUsd = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+  const expenseCategoryId = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
+  const incomeCategoryId = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
   const baseTx = {
     id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
@@ -36,13 +38,18 @@ describe('TransactionsService', () => {
     amountMinor: 100n,
     occurredAt: new Date('2026-03-01T12:00:00.000Z'),
     description: 'Coffee',
-    categoryId: null,
+    categoryId: expenseCategoryId,
     shared: false,
     transferGroupId: null,
     createdByUserId: userId,
     createdAt: new Date('2026-03-01T12:00:00.000Z'),
     updatedAt: new Date('2026-03-01T12:00:00.000Z'),
-    category: null,
+    category: {
+      id: expenseCategoryId,
+      name: 'Food',
+      kind: CategoryKind.EXPENSE,
+      isSystem: false,
+    },
   };
 
   beforeEach(async () => {
@@ -73,11 +80,16 @@ describe('TransactionsService', () => {
     service = module.get(TransactionsService);
   });
 
-  it('creates an expense on a personal account with optional shared mark', async () => {
+  it('creates an expense on a personal account with required category and shared mark', async () => {
     accountsService.requireMemberAccount.mockResolvedValue({
       id: accountA,
       isShared: false,
       currency: 'IRR',
+    });
+    prisma.category.findFirst.mockResolvedValue({
+      id: expenseCategoryId,
+      kind: CategoryKind.EXPENSE,
+      userId,
     });
     prisma.transaction.create.mockResolvedValue({ ...baseTx, shared: true });
 
@@ -87,6 +99,7 @@ describe('TransactionsService', () => {
       amountMinor: '100',
       occurredAt: '2026-03-01T12:00:00.000Z',
       description: 'Coffee',
+      categoryId: expenseCategoryId,
       shared: true,
     });
 
@@ -95,6 +108,7 @@ describe('TransactionsService', () => {
         data: expect.objectContaining({
           type: TransactionType.EXPENSE,
           amountMinor: 100n,
+          categoryId: expenseCategoryId,
           shared: true,
         }),
       }),
@@ -102,10 +116,10 @@ describe('TransactionsService', () => {
     expect(result.shared).toBe(true);
   });
 
-  it('rejects shared mark on a shared account expense', async () => {
+  it('rejects income/expense without a category', async () => {
     accountsService.requireMemberAccount.mockResolvedValue({
       id: accountA,
-      isShared: true,
+      isShared: false,
       currency: 'IRR',
     });
 
@@ -115,6 +129,82 @@ describe('TransactionsService', () => {
         accountId: accountA,
         amountMinor: '100',
         occurredAt: '2026-03-01T12:00:00.000Z',
+        categoryId: undefined as unknown as string,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects category kind mismatch', async () => {
+    accountsService.requireMemberAccount.mockResolvedValue({
+      id: accountA,
+      isShared: false,
+      currency: 'IRR',
+    });
+    prisma.category.findFirst.mockResolvedValue({
+      id: incomeCategoryId,
+      kind: CategoryKind.INCOME,
+      userId,
+    });
+
+    await expect(
+      service.create(userId, {
+        type: 'EXPENSE',
+        accountId: accountA,
+        amountMinor: '100',
+        occurredAt: '2026-03-01T12:00:00.000Z',
+        categoryId: incomeCategoryId,
+      }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('updates amount on an existing expense', async () => {
+    prisma.accountMember.findMany.mockResolvedValue([{ accountId: accountA }]);
+    prisma.transaction.findFirst.mockResolvedValue(baseTx);
+    prisma.transaction.update.mockResolvedValue({
+      ...baseTx,
+      amountMinor: 250n,
+    });
+
+    const result = await service.update(userId, baseTx.id, {
+      amountMinor: '250',
+    });
+
+    expect(prisma.transaction.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ amountMinor: 250n }),
+      }),
+    );
+    expect(result.amountMinor).toBe('250');
+  });
+
+  it('rejects clearing categoryId on update', async () => {
+    prisma.accountMember.findMany.mockResolvedValue([{ accountId: accountA }]);
+    prisma.transaction.findFirst.mockResolvedValue(baseTx);
+
+    await expect(
+      service.update(userId, baseTx.id, { categoryId: null }),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('rejects shared mark on a shared account expense', async () => {
+    accountsService.requireMemberAccount.mockResolvedValue({
+      id: accountA,
+      isShared: true,
+      currency: 'IRR',
+    });
+    prisma.category.findFirst.mockResolvedValue({
+      id: expenseCategoryId,
+      kind: CategoryKind.EXPENSE,
+      userId,
+    });
+
+    await expect(
+      service.create(userId, {
+        type: 'EXPENSE',
+        accountId: accountA,
+        amountMinor: '100',
+        occurredAt: '2026-03-01T12:00:00.000Z',
+        categoryId: expenseCategoryId,
         shared: true,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
@@ -136,6 +226,8 @@ describe('TransactionsService', () => {
       ...baseTx,
       type: TransactionType.TRANSFER,
       counterAccountId: accountB,
+      categoryId: null,
+      category: null,
       shared: false,
       transferGroupId: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
       description: null,

@@ -118,7 +118,7 @@ On narrow viewports, primary nav may collapse to a bottom bar or drawer; labels 
 One composition with three sections. Missing data uses empty states, not blank panels.
 
 1. **Balances** — accounts grouped by currency (and wallet as secondary grouping). Show per-account balance; optional per-currency subtotal. **No** single cross-currency total. IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
-2. **Quick add** — income or expense for a chosen account (category when categories exist). Transfers and “shared” mark belong on Activity or account detail, not the home strip.
+2. **Quick add** — income or expense for a chosen account with a **required** category (filtered by type). Transfers and “shared” mark belong on Activity or account detail, not the home strip.
 3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
 
 When the user has no accounts: balances empty state with primary CTA “Create account”; quick-add and outlook disabled or explanatory.
@@ -139,7 +139,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Activity (`/activity`)
 
 - Purpose: chronological ledger of actual movements; filter by useful time range.
-- Primary actions: add income/expense; add transfer; open row to edit/detail when supported.
+- Primary actions: add income/expense (required category); add transfer; open row to edit (amount + metadata) or delete (ConfirmDialog). Account and type are not editable — delete + re-add.
 - Empty: “No movements yet” + CTA to add or import.
 - Must not mix unlabeled forecast rows into this list.
 
@@ -153,7 +153,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Account detail (`/accounts/:accountId`)
 
 - Purpose: one account’s balance story, movements, shared badge, member management (email add/remove per [wallets-accounts.md](wallets-accounts.md)).
-- Primary actions: add movement/transfer; manage members if shared; edit name when API allows.
+- Primary actions: add movement/transfer (required category on income/expense); edit/delete movements; manage members if shared; edit name when API allows.
 
 ### Import (`/import`)
 
@@ -169,8 +169,9 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Settings (`/settings`)
 
-- Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
+- Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
 - Authenticated language changes happen here (not in App/Admin toolbar).
+- Category management lives here — not a primary-nav peer ([transactions.md](transactions.md)).
 
 ### Support (`/support`)
 
@@ -227,7 +228,7 @@ Document in implementation, do not rebrand:
 | Manual income/expense | Home quick-add; Activity; Account detail |
 | Same-currency transfers | Activity; Account detail (not home quick-add) |
 | Shared mark on personal expense | Activity / detail forms |
-| Categories/tags | Fields on add/edit when API exists |
+| Categories (typed, required) | Add/edit fields on Activity / home / account detail; manage lists in Settings |
 | CSV import + dedup | `/import` |
 | Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |

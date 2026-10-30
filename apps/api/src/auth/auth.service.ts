@@ -18,6 +18,7 @@ import * as argon2 from 'argon2';
 import { generate, generateSecret, generateURI, verify } from 'otplib';
 import * as QRCode from 'qrcode';
 import { randomUUID } from 'crypto';
+import { ensureDefaultCategories } from '../categories/category-defaults';
 import { PrismaService } from '../prisma/prisma.service';
 import { toPublicUser } from '../users/users.mapper';
 import {
@@ -62,6 +63,7 @@ export class AuthService {
         role,
       },
     });
+    await ensureDefaultCategories(this.prisma, user.id);
 
     const sessionId = await this.createSession(user.id);
     return { user: toPublicUser(user), sessionId };

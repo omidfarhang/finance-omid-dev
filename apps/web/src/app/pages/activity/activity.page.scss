@@ -89,3 +89,10 @@ label {
   font-size: 0.85rem;
   color: var(--app-text-muted);
 }
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}

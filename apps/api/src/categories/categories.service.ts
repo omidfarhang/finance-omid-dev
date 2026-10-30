@@ -3,27 +3,49 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import type { CreateCategoryDto, UpdateCategoryDto } from '@finance/shared';
+import type {
+  CreateCategoryDto,
+  ListCategoriesQuery,
+  UpdateCategoryDto,
+} from '@finance/shared';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  ensureDefaultCategories,
+  requireUncategorizedId,
+} from './category-defaults';
 import { toPublicCategory } from './categories.mapper';
 
 @Injectable()
 export class CategoriesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async listForUser(userId: string) {
+  async ensureDefaultsForUser(userId: string) {
+    await ensureDefaultCategories(this.prisma, userId);
+  }
+
+  async listForUser(userId: string, query: ListCategoriesQuery = {}) {
+    await ensureDefaultCategories(this.prisma, userId);
     const categories = await this.prisma.category.findMany({
-      where: { userId },
-      orderBy: { name: 'asc' },
+      where: {
+        userId,
+        ...(query.kind ? { kind: query.kind } : {}),
+      },
+      orderBy: [{ kind: 'asc' }, { name: 'asc' }],
     });
     return categories.map(toPublicCategory);
   }
 
   async create(userId: string, dto: CreateCategoryDto) {
+    await ensureDefaultCategories(this.prisma, userId);
     try {
       const category = await this.prisma.category.create({
-        data: { userId, name: dto.name },
+        data: {
+          userId,
+          kind: dto.kind,
+          name: dto.name,
+          isSystem: false,
+        },
       });
       return toPublicCategory(category);
     } catch (err) {
@@ -38,7 +60,10 @@ export class CategoriesService {
   }
 
   async update(userId: string, categoryId: string, dto: UpdateCategoryDto) {
-    await this.requireOwned(userId, categoryId);
+    const existing = await this.requireOwned(userId, categoryId);
+    if (existing.isSystem) {
+      throw new BadRequestException('System categories cannot be renamed');
+    }
     try {
       const category = await this.prisma.category.update({
         where: { id: categoryId },
@@ -57,8 +82,26 @@ export class CategoriesService {
   }
 
   async remove(userId: string, categoryId: string) {
-    await this.requireOwned(userId, categoryId);
-    await this.prisma.category.delete({ where: { id: categoryId } });
+    const existing = await this.requireOwned(userId, categoryId);
+    if (existing.isSystem) {
+      throw new BadRequestException('System categories cannot be deleted');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const uncategorizedId = await requireUncategorizedId(
+        tx,
+        userId,
+        existing.kind,
+      );
+      if (uncategorizedId === categoryId) {
+        throw new BadRequestException('System categories cannot be deleted');
+      }
+      await tx.transaction.updateMany({
+        where: { categoryId },
+        data: { categoryId: uncategorizedId },
+      });
+      await tx.category.delete({ where: { id: categoryId } });
+    });
   }
 
   private async requireOwned(userId: string, categoryId: string) {

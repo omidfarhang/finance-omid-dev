@@ -5,6 +5,8 @@ export function toPublicCategory(category: Category): PublicCategory {
   return {
     id: category.id,
     name: category.name,
+    kind: category.kind,
+    isSystem: category.isSystem,
     createdAt: category.createdAt.toISOString(),
     updatedAt: category.updatedAt.toISOString(),
   };

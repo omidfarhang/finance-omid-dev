@@ -1,9 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type {
+  CategoryKind,
+  CreateCategoryDto,
   CreateTransactionDto,
   PublicCategory,
   PublicTransaction,
+  UpdateCategoryDto,
+  UpdateTransactionDto,
 } from '@finance/shared';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -55,6 +59,19 @@ export class TransactionsService {
       .pipe(map((res) => res.transaction));
   }
 
+  updateTransaction(
+    id: string,
+    payload: UpdateTransactionDto,
+  ): Observable<PublicTransaction> {
+    return this.http
+      .patch<{ transaction: PublicTransaction }>(
+        `${environment.apiBaseUrl}/transactions/${id}`,
+        payload,
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.transaction));
+  }
+
   deleteTransaction(id: string): Observable<void> {
     return this.http.delete<void>(
       `${environment.apiBaseUrl}/transactions/${id}`,
@@ -62,22 +79,46 @@ export class TransactionsService {
     );
   }
 
-  listCategories(): Observable<PublicCategory[]> {
+  listCategories(kind?: CategoryKind): Observable<PublicCategory[]> {
+    let httpParams = new HttpParams();
+    if (kind) {
+      httpParams = httpParams.set('kind', kind);
+    }
     return this.http
       .get<{ categories: PublicCategory[] }>(
         `${environment.apiBaseUrl}/categories`,
-        { withCredentials: true },
+        { withCredentials: true, params: httpParams },
       )
       .pipe(map((res) => res.categories));
   }
 
-  createCategory(name: string): Observable<PublicCategory> {
+  createCategory(payload: CreateCategoryDto): Observable<PublicCategory> {
     return this.http
       .post<{ category: PublicCategory }>(
         `${environment.apiBaseUrl}/categories`,
-        { name },
+        payload,
         { withCredentials: true },
       )
       .pipe(map((res) => res.category));
+  }
+
+  updateCategory(
+    id: string,
+    payload: UpdateCategoryDto,
+  ): Observable<PublicCategory> {
+    return this.http
+      .patch<{ category: PublicCategory }>(
+        `${environment.apiBaseUrl}/categories/${id}`,
+        payload,
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.category));
+  }
+
+  deleteCategory(id: string): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiBaseUrl}/categories/${id}`,
+      { withCredentials: true },
+    );
   }
 }

@@ -8,14 +8,17 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
   createCategorySchema,
+  listCategoriesQuerySchema,
   updateCategorySchema,
 } from '@finance/shared';
 import type {
   CreateCategoryDto,
+  ListCategoriesQuery,
   PublicUser,
   UpdateCategoryDto,
 } from '@finance/shared';
@@ -30,8 +33,12 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  async list(@CurrentUser() user: PublicUser) {
-    const categories = await this.categoriesService.listForUser(user.id);
+  async list(
+    @CurrentUser() user: PublicUser,
+    @Query(new ZodValidationPipe(listCategoriesQuerySchema))
+    query: ListCategoriesQuery,
+  ) {
+    const categories = await this.categoriesService.listForUser(user.id, query);
     return { categories };
   }
 

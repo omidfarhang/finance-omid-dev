@@ -9,7 +9,11 @@ import type {
   ListTransactionsQuery,
   UpdateTransactionDto,
 } from '@finance/shared';
-import { Prisma, TransactionType } from '../generated/prisma/client';
+import {
+  CategoryKind,
+  Prisma,
+  TransactionType,
+} from '../generated/prisma/client';
 import { AccountsService } from '../accounts/accounts.service';
 import { parseMinorUnits } from '../accounts/accounts.mapper';
 import { PrismaService } from '../prisma/prisma.service';
@@ -113,8 +117,9 @@ export class TransactionsService {
 
     const categoryId = await this.resolveCategoryId(
       userId,
-      dto.categoryId ?? null,
+      dto.categoryId,
       dto.type,
+      true,
     );
 
     const row = await this.prisma.transaction.create({
@@ -143,6 +148,19 @@ export class TransactionsService {
       transactionId,
     );
 
+    if (dto.categoryId === null) {
+      throw new BadRequestException('categoryId cannot be cleared');
+    }
+
+    if (
+      existing.type === TransactionType.TRANSFER &&
+      (dto.categoryId !== undefined || dto.shared !== undefined)
+    ) {
+      throw new BadRequestException(
+        'Transfers cannot have a category or shared mark',
+      );
+    }
+
     let shared = existing.shared;
     if (dto.shared !== undefined) {
       if (dto.shared) {
@@ -163,19 +181,23 @@ export class TransactionsService {
 
     let categoryId = existing.categoryId;
     if (dto.categoryId !== undefined) {
-      if (existing.type === TransactionType.TRANSFER) {
-        throw new BadRequestException('Transfers cannot have a category');
-      }
       categoryId = await this.resolveCategoryId(
         userId,
         dto.categoryId,
         existing.type,
+        true,
       );
     }
+
+    const amountMinor =
+      dto.amountMinor !== undefined
+        ? parseMinorUnits(dto.amountMinor)
+        : undefined;
 
     const row = await this.prisma.transaction.update({
       where: { id: transactionId },
       data: {
+        amountMinor,
         occurredAt: dto.occurredAt ? new Date(dto.occurredAt) : undefined,
         description:
           dto.description === undefined ? undefined : dto.description,
@@ -238,20 +260,35 @@ export class TransactionsService {
 
   private async resolveCategoryId(
     userId: string,
-    categoryId: string | null,
+    categoryId: string | null | undefined,
     type: string,
+    required: boolean,
   ): Promise<string | null> {
-    if (!categoryId) {
+    if (type === 'TRANSFER') {
+      if (categoryId) {
+        throw new BadRequestException('Transfers cannot have a category');
+      }
       return null;
     }
-    if (type === 'TRANSFER') {
-      throw new BadRequestException('Transfers cannot have a category');
+    if (!categoryId) {
+      if (required) {
+        throw new BadRequestException('categoryId is required');
+      }
+      return null;
     }
+
+    const expectedKind =
+      type === 'INCOME' ? CategoryKind.INCOME : CategoryKind.EXPENSE;
     const category = await this.prisma.category.findFirst({
       where: { id: categoryId, userId },
     });
     if (!category) {
       throw new NotFoundException('Category not found');
+    }
+    if (category.kind !== expectedKind) {
+      throw new BadRequestException(
+        `Category kind must be ${expectedKind} for ${type} transactions`,
+      );
     }
     return category.id;
   }

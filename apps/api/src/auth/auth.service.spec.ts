@@ -33,6 +33,10 @@ describe('AuthService', () => {
     appSettings: {
       upsert: Mock;
     };
+    category: {
+      findMany: Mock;
+      createMany: Mock;
+    };
   };
 
   const baseUser = {
@@ -77,6 +81,10 @@ describe('AuthService', () => {
           id: 1,
           registrationOpen: true,
         }),
+      },
+      category: {
+        findMany: vi.fn().mockResolvedValue([]),
+        createMany: vi.fn().mockResolvedValue({ count: 11 }),
       },
     };
 

@@ -66,6 +66,109 @@
   </section>
 
   <section class="panel">
+    <h2>{{ t('settings.categories.title') }}</h2>
+    <p class="lede">{{ t('settings.categories.lede') }}</p>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h3>{{ t('settings.categories.income') }}</h3>
+        <button
+          pButton
+          type="button"
+          size="small"
+          severity="secondary"
+          (click)="openCreateCategory('INCOME')"
+        >
+          {{ t('settings.categories.add') }}
+        </button>
+      </div>
+      <ul class="category-list">
+        @for (category of incomeCategories(); track category.id) {
+          <li>
+            <span>
+              {{ categoryLabel(category) }}
+              @if (category.isSystem) {
+                <span class="meta">{{ t('settings.categories.system') }}</span>
+              }
+            </span>
+            <span class="row-actions">
+              <button
+                pButton
+                type="button"
+                size="small"
+                severity="secondary"
+                [disabled]="category.isSystem"
+                (click)="openEditCategory(category)"
+              >
+                {{ t('settings.categories.rename') }}
+              </button>
+              <button
+                pButton
+                type="button"
+                size="small"
+                severity="danger"
+                [disabled]="category.isSystem"
+                (click)="confirmDeleteCategory(category)"
+              >
+                {{ t('settings.categories.delete') }}
+              </button>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+
+    <div class="category-block">
+      <div class="category-header">
+        <h3>{{ t('settings.categories.expense') }}</h3>
+        <button
+          pButton
+          type="button"
+          size="small"
+          severity="secondary"
+          (click)="openCreateCategory('EXPENSE')"
+        >
+          {{ t('settings.categories.add') }}
+        </button>
+      </div>
+      <ul class="category-list">
+        @for (category of expenseCategories(); track category.id) {
+          <li>
+            <span>
+              {{ categoryLabel(category) }}
+              @if (category.isSystem) {
+                <span class="meta">{{ t('settings.categories.system') }}</span>
+              }
+            </span>
+            <span class="row-actions">
+              <button
+                pButton
+                type="button"
+                size="small"
+                severity="secondary"
+                [disabled]="category.isSystem"
+                (click)="openEditCategory(category)"
+              >
+                {{ t('settings.categories.rename') }}
+              </button>
+              <button
+                pButton
+                type="button"
+                size="small"
+                severity="danger"
+                [disabled]="category.isSystem"
+                (click)="confirmDeleteCategory(category)"
+              >
+                {{ t('settings.categories.delete') }}
+              </button>
+            </span>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel">
     <h2>{{ t('settings.totp.title') }}</h2>
     <p class="lede">
       {{ t('settings.totp.status') }}
@@ -111,4 +214,43 @@
     <p class="lede">{{ t('settings.statusLinkLede') }}</p>
     <a routerLink="/status">{{ t('settings.statusLink') }}</a>
   </section>
+
+  <p-dialog
+    [header]="
+      editingCategoryId
+        ? t('settings.categories.rename')
+        : t('settings.categories.add')
+    "
+    [modal]="true"
+    [style]="{ width: 'min(24rem, 92vw)' }"
+    [visible]="categoryDialogVisible()"
+    (visibleChange)="categoryDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="saveCategory()" class="dialog-form">
+      @if (!editingCategoryId) {
+        <label>
+          {{ t('settings.categories.kind') }}
+          <p-select
+            [options]="kindOptions()"
+            [(ngModel)]="categoryKind"
+            name="categoryKind"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+      }
+      <label>
+        {{ t('settings.categories.name') }}
+        <input
+          pInputText
+          name="categoryName"
+          [(ngModel)]="categoryName"
+          required
+          class="w-full"
+        />
+      </label>
+      <button pButton type="submit">{{ t('settings.categories.save') }}</button>
+    </form>
+  </p-dialog>
 </section>

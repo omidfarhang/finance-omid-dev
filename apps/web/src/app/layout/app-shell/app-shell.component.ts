@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 
 @Component({
@@ -10,6 +11,7 @@ import { UserMenuComponent } from '../user-menu/user-menu.component';
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    ConfirmDialog,
     TranslocoDirective,
     UserMenuComponent,
   ],

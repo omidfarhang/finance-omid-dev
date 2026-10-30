@@ -8,6 +8,7 @@ import type {
   PublicTransaction,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { Dialog } from 'primeng/dialog';
@@ -49,6 +50,7 @@ export class ActivityPage implements OnInit {
   error = signal<string | null>(null);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
+  editingTransactionId: string | null = null;
   range: RangeKey = '30d';
   filterAccountId = '';
 
@@ -57,7 +59,7 @@ export class ActivityPage implements OnInit {
   movementAmount = '';
   movementOccurredAt = '';
   movementDescription = '';
-  movementCategoryId: string | null = null;
+  movementCategoryId = '';
   movementShared = false;
 
   transferFromId = '';
@@ -65,6 +67,7 @@ export class ActivityPage implements OnInit {
   transferAmount = '';
   transferOccurredAt = '';
   transferDescription = '';
+  editingTransferId: string | null = null;
 
   readonly accountOptions = computed(() =>
     this.accounts().map((a) => ({
@@ -81,11 +84,6 @@ export class ActivityPage implements OnInit {
     ...this.accountOptions(),
   ]);
 
-  readonly categoryOptions = computed(() => [
-    { label: '—', value: null as string | null },
-    ...this.categories().map((c) => ({ label: c.name, value: c.id })),
-  ]);
-
   readonly rangeOptions = computed(() => [
     { label: this.i18n.translate('activity.rangeAll'), value: 'all' as const },
     { label: this.i18n.translate('activity.range30d'), value: '30d' as const },
@@ -99,6 +97,7 @@ export class ActivityPage implements OnInit {
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly i18n = inject(TranslocoService);
+  private readonly confirm = inject(ConfirmationService);
 
   ngOnInit() {
     this.reload();
@@ -145,12 +144,29 @@ export class ActivityPage implements OnInit {
     this.reload();
   }
 
+  categoryOptionsFor(kind: 'INCOME' | 'EXPENSE') {
+    return this.categories()
+      .filter((c) => c.kind === kind)
+      .map((c) => ({
+        label: this.categoryLabel(c),
+        value: c.id,
+      }));
+  }
+
+  categoryLabel(category: PublicCategory): string {
+    if (category.name === 'Uncategorized') {
+      return this.i18n.translate('activity.uncategorized');
+    }
+    return category.name;
+  }
+
   openMovementDialog(type: 'INCOME' | 'EXPENSE' = 'EXPENSE') {
+    this.editingTransactionId = null;
     this.movementType = type;
     this.movementAmount = '';
     this.movementOccurredAt = this.nowLocalInput();
     this.movementDescription = '';
-    this.movementCategoryId = null;
+    this.movementCategoryId = this.defaultCategoryId(type);
     this.movementShared = false;
     if (!this.movementAccountId && this.accounts()[0]) {
       this.movementAccountId = this.accounts()[0].id;
@@ -158,21 +174,96 @@ export class ActivityPage implements OnInit {
     this.movementDialogVisible.set(true);
   }
 
+  openEditDialog(tx: PublicTransaction) {
+    if (tx.type === 'TRANSFER') {
+      this.editingTransferId = tx.id;
+      this.transferFromId = tx.accountId;
+      this.transferToId = tx.counterAccountId ?? '';
+      this.transferAmount = tx.amountMinor;
+      this.transferOccurredAt = this.toLocalInput(tx.occurredAt);
+      this.transferDescription = tx.description ?? '';
+      this.transferDialogVisible.set(true);
+      return;
+    }
+    this.editingTransactionId = tx.id;
+    this.movementType = tx.type;
+    this.movementAccountId = tx.accountId;
+    this.movementAmount = tx.amountMinor;
+    this.movementOccurredAt = this.toLocalInput(tx.occurredAt);
+    this.movementDescription = tx.description ?? '';
+    this.movementCategoryId = tx.categoryId ?? this.defaultCategoryId(tx.type);
+    this.movementShared = tx.shared;
+    this.movementDialogVisible.set(true);
+  }
+
   openTransferDialog() {
+    this.editingTransferId = null;
     this.transferAmount = '';
     this.transferOccurredAt = this.nowLocalInput();
     this.transferDescription = '';
     this.transferDialogVisible.set(true);
   }
 
+  confirmDelete(tx: PublicTransaction) {
+    this.confirm.confirm({
+      message: this.i18n.translate('activity.confirmDelete'),
+      header: this.i18n.translate('activity.delete'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteTransaction(tx.id),
+    });
+  }
+
   selectedMovementAccount(): PublicAccount | undefined {
     return this.accounts().find((a) => a.id === this.movementAccountId);
   }
 
-  createMovement() {
+  saveMovement() {
     this.error.set(null);
     this.message.set(null);
-    if (!this.movementAccountId || !/^\d+$/.test(this.movementAmount.trim())) {
+    if (
+      !this.movementCategoryId ||
+      !/^\d+$/.test(this.movementAmount.trim())
+    ) {
+      this.error.set(
+        !this.movementCategoryId
+          ? this.i18n.translate('activity.categoryRequired')
+          : this.i18n.translate('activity.invalidAmount'),
+      );
+      return;
+    }
+
+    if (this.editingTransactionId) {
+      const account = this.selectedMovementAccount();
+      const shared =
+        this.movementType === 'EXPENSE' &&
+        !!account &&
+        !account.isShared &&
+        this.movementShared;
+      this.txApi
+        .updateTransaction(this.editingTransactionId, {
+          amountMinor: this.movementAmount.trim(),
+          occurredAt: new Date(this.movementOccurredAt).toISOString(),
+          description: this.movementDescription.trim() || null,
+          categoryId: this.movementCategoryId,
+          shared,
+        })
+        .subscribe({
+          next: () => {
+            this.message.set(this.i18n.translate('activity.updated'));
+            this.movementDialogVisible.set(false);
+            this.reload();
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.error.set(
+              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
+            );
+          },
+        });
+      return;
+    }
+
+    if (!this.movementAccountId) {
       this.error.set(this.i18n.translate('activity.invalidAmount'));
       return;
     }
@@ -206,14 +297,37 @@ export class ActivityPage implements OnInit {
       });
   }
 
-  createTransfer() {
+  saveTransfer() {
     this.error.set(null);
     this.message.set(null);
-    if (
-      !this.transferFromId ||
-      !this.transferToId ||
-      !/^\d+$/.test(this.transferAmount.trim())
-    ) {
+    if (!/^\d+$/.test(this.transferAmount.trim())) {
+      this.error.set(this.i18n.translate('activity.invalidAmount'));
+      return;
+    }
+
+    if (this.editingTransferId) {
+      this.txApi
+        .updateTransaction(this.editingTransferId, {
+          amountMinor: this.transferAmount.trim(),
+          occurredAt: new Date(this.transferOccurredAt).toISOString(),
+          description: this.transferDescription.trim() || null,
+        })
+        .subscribe({
+          next: () => {
+            this.message.set(this.i18n.translate('activity.updated'));
+            this.transferDialogVisible.set(false);
+            this.reload();
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.error.set(
+              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
+            );
+          },
+        });
+      return;
+    }
+
+    if (!this.transferFromId || !this.transferToId) {
       this.error.set(this.i18n.translate('activity.invalidAmount'));
       return;
     }
@@ -276,6 +390,41 @@ export class ActivityPage implements OnInit {
     });
   }
 
+  displayCategoryName(name: string | null): string {
+    if (!name) {
+      return '';
+    }
+    if (name === 'Uncategorized') {
+      return this.i18n.translate('activity.uncategorized');
+    }
+    return name;
+  }
+
+  private deleteTransaction(id: string) {
+    this.error.set(null);
+    this.message.set(null);
+    this.txApi.deleteTransaction(id).subscribe({
+      next: () => {
+        this.message.set(this.i18n.translate('activity.deleted'));
+        this.reload();
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.error.set(
+          err.error?.message ?? this.i18n.translate('activity.deleteFailed'),
+        );
+      },
+    });
+  }
+
+  private defaultCategoryId(kind: 'INCOME' | 'EXPENSE'): string {
+    const list = this.categories().filter((c) => c.kind === kind);
+    const preferred =
+      list.find((c) => !c.isSystem) ??
+      list.find((c) => c.name === 'Uncategorized') ??
+      list[0];
+    return preferred?.id ?? '';
+  }
+
   private rangeBounds(range: RangeKey): { from?: string; to?: string } {
     const now = new Date();
     if (range === 'all') {
@@ -293,7 +442,11 @@ export class ActivityPage implements OnInit {
   }
 
   private nowLocalInput(): string {
-    const d = new Date();
+    return this.toLocalInput(new Date().toISOString());
+  }
+
+  private toLocalInput(iso: string): string {
+    const d = new Date(iso);
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }

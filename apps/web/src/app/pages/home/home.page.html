@@ -59,7 +59,8 @@
           {{ t('activity.typeLabel') }}
           <p-select
             [options]="typeOptions()"
-            [(ngModel)]="quickType"
+            [ngModel]="quickType"
+            (ngModelChange)="onQuickTypeChange($event)"
             name="quickType"
             optionLabel="label"
             optionValue="value"
@@ -72,6 +73,17 @@
             [options]="accountOptions()"
             [(ngModel)]="quickAccountId"
             name="quickAccountId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+        <label>
+          {{ t('activity.category') }}
+          <p-select
+            [options]="categoryOptionsFor(quickType)"
+            [(ngModel)]="quickCategoryId"
+            name="quickCategoryId"
             optionLabel="label"
             optionValue="value"
             class="w-full"

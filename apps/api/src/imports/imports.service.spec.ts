@@ -7,17 +7,33 @@ import { ImportsService } from './imports.service';
 describe('ImportsService', () => {
   let service: ImportsService;
   let prisma: {
-    $transaction: Mock;
-    importBatch: { create: Mock; update: Mock };
-    transaction: { create: Mock };
+    $transaction: ReturnType<typeof vi.fn>;
+    importBatch: { create: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    transaction: { create: ReturnType<typeof vi.fn> };
   };
-  let accountsService: { requireMemberAccount: Mock };
+  let accountsService: { requireMemberAccount: ReturnType<typeof vi.fn> };
 
   const userId = '11111111-1111-1111-1111-111111111111';
   const accountId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+  const incomeUncategorizedId = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
+  const expenseUncategorizedId = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
   const csv = `date,amount,type,description,external_id,unit
 2026-01-15,15000,EXPENSE,Coffee,ext-1,minor
 `;
+
+  function categoryTxMocks() {
+    return {
+      findMany: vi.fn().mockResolvedValue([
+        { kind: 'INCOME', name: 'Uncategorized' },
+        { kind: 'EXPENSE', name: 'Uncategorized' },
+      ]),
+      createMany: vi.fn().mockResolvedValue({ count: 0 }),
+      findFirst: vi
+        .fn()
+        .mockResolvedValueOnce({ id: incomeUncategorizedId })
+        .mockResolvedValueOnce({ id: expenseUncategorizedId }),
+    };
+  }
 
   beforeEach(async () => {
     prisma = {
@@ -56,8 +72,9 @@ describe('ImportsService', () => {
     };
 
     prisma.$transaction.mockImplementation(
-      async (fn: (tx: typeof prisma) => Promise<unknown>) => {
+      async (fn: (tx: unknown) => Promise<unknown>) => {
         const tx = {
+          category: categoryTxMocks(),
           importBatch: {
             create: vi.fn().mockResolvedValue(batch),
             update: vi.fn().mockImplementation(async ({ data }) => ({
@@ -77,7 +94,7 @@ describe('ImportsService', () => {
               ),
           },
         };
-        return fn(tx as never);
+        return fn(tx);
       },
     );
 
@@ -91,10 +108,10 @@ describe('ImportsService', () => {
     expect(first.created).toBe(1);
     expect(first.skippedDuplicate).toBe(0);
 
-    // Second call with two identical logical rows simulated via create mock sequence
     prisma.$transaction.mockImplementation(
-      async (fn: (tx: typeof prisma) => Promise<unknown>) => {
+      async (fn: (tx: unknown) => Promise<unknown>) => {
         const tx = {
+          category: categoryTxMocks(),
           importBatch: {
             create: vi.fn().mockResolvedValue(batch),
             update: vi.fn().mockImplementation(async ({ data }) => ({
@@ -111,7 +128,7 @@ describe('ImportsService', () => {
             ),
           },
         };
-        return fn(tx as never);
+        return fn(tx);
       },
     );
 
@@ -124,5 +141,53 @@ describe('ImportsService', () => {
     });
     expect(second.created).toBe(0);
     expect(second.skippedDuplicate).toBe(1);
+  });
+
+  it('assigns Uncategorized category on imported expenses', async () => {
+    const batch = {
+      id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+      userId,
+      accountId,
+      adapterId: 'generic_csv',
+      originalFilename: 'a.csv',
+      createdCount: 0,
+      skippedDuplicateCount: 0,
+      createdAt: new Date('2026-01-20T00:00:00.000Z'),
+    };
+    const create = vi.fn().mockResolvedValue({});
+
+    prisma.$transaction.mockImplementation(
+      async (fn: (tx: unknown) => Promise<unknown>) => {
+        const tx = {
+          category: categoryTxMocks(),
+          importBatch: {
+            create: vi.fn().mockResolvedValue(batch),
+            update: vi.fn().mockImplementation(async ({ data }) => ({
+              ...batch,
+              ...data,
+            })),
+          },
+          transaction: { create },
+        };
+        return fn(tx);
+      },
+    );
+
+    await service.importFile({
+      userId,
+      accountId,
+      adapterId: 'generic_csv',
+      originalFilename: 'a.csv',
+      content: csv,
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          categoryId: expenseUncategorizedId,
+          type: 'EXPENSE',
+        }),
+      }),
+    );
   });
 });

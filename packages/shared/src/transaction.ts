@@ -19,7 +19,7 @@ const baseCreateFields = {
 export const createIncomeExpenseSchema = z.object({
   type: z.enum(['INCOME', 'EXPENSE']),
   accountId: z.uuid(),
-  categoryId: z.uuid().optional().nullable(),
+  categoryId: z.uuid(),
   shared: z.boolean().optional().default(false),
   ...baseCreateFields,
 });
@@ -37,12 +37,23 @@ export const createTransactionSchema = z.discriminatedUnion('type', [
 ]);
 export type CreateTransactionDto = z.infer<typeof createTransactionSchema>;
 
-export const updateTransactionSchema = z.object({
-  occurredAt: z.iso.datetime().optional(),
-  description: z.string().trim().max(500).optional().nullable(),
-  categoryId: z.uuid().optional().nullable(),
-  shared: z.boolean().optional(),
-});
+export const updateTransactionSchema = z
+  .object({
+    amountMinor: positiveMinorUnitsSchema.optional(),
+    occurredAt: z.iso.datetime().optional(),
+    description: z.string().trim().max(500).optional().nullable(),
+    categoryId: z.uuid().optional().nullable(),
+    shared: z.boolean().optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.categoryId === null) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'categoryId cannot be cleared',
+        path: ['categoryId'],
+      });
+    }
+  });
 export type UpdateTransactionDto = z.infer<typeof updateTransactionSchema>;
 
 const emptyToUndefined = (value: unknown) =>

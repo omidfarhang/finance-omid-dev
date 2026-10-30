@@ -70,7 +70,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | `wallets` | Personal wallets; ownership |
 | `accounts` | Accounts (personal or shared), opening balances, per-account currency |
 | `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses ([plans/transactions.md](plans/transactions.md)) |
-| `categories` | Per-user category list for tagging movements ([plans/transactions.md](plans/transactions.md)) |
+| `categories` | Per-user income/expense category lists (defaults + CRUD; required on movements) ([plans/transactions.md](plans/transactions.md)) |
 | `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
 | `recurrings` | Recurring rules used for forecast only ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)); managed under `/outlook` |
 | `forecast` | Next-month outlook from expected income and recurrings; labeled projections; per currency ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)) |

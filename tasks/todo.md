@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Edit/delete movements + typed required categories ([docs/plans/transactions.md](../docs/plans/transactions.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/imports.md](../docs/plans/imports.md)) — Activity/home/account edit-delete; Settings category CRUD; Uncategorized defaults
 - Inbox triage + bank-format research stub ([docs/brainstorm/inbox.md](../docs/brainstorm/inbox.md), [docs/brainstorm/bank-formats.md](../docs/brainstorm/bank-formats.md))
 - Recurrings and next-month forecast ([docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md)) — Outlook + home strip
 - Generic/synthetic CSV import + deduplication ([docs/plans/imports.md](../docs/plans/imports.md), [DEC-012](../docs/decisions/DEC-012-import-adapters.md))

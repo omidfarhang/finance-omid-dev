@@ -7,12 +7,13 @@ Pluggable CSV import for MVP. Product rules: [DEC-012](../decisions/DEC-012-impo
 - Upload a statement file against a chosen account and adapter
 - First adapter: `generic_csv` with a documented synthetic column layout
 - Create income/expense transactions from rows (no transfers via import in MVP)
+- Assign each imported income/expense the user’s system **Uncategorized** category of matching kind ([transactions.md](transactions.md)); no importer category picker in MVP
 - Re-importing the same rows skips duplicates; response reports created vs skipped counts
 - Never silently infer rial vs toman — unit is explicit in the CSV
 
 ## Out of scope
 
-Per-bank adapters, Excel, transfer detection from statements, editing import batches after commit, FX.
+Per-bank adapters, Excel, transfer detection from statements, editing import batches after commit, FX, category mapping at import time.
 
 ## Generic CSV contract (`generic_csv`)
 
@@ -53,7 +54,7 @@ Normalized description: trim + collapse internal whitespace. Key is scoped by un
 | `GET /imports/adapters` | List adapter ids + labels (at least `generic_csv`) |
 | `POST /imports` | `multipart/form-data`: `file`, `accountId`, `adapterId` → `{ batch, created, skippedDuplicate }` |
 
-User must be a member of `accountId`. Created rows are `INCOME`/`EXPENSE` only.
+User must be a member of `accountId`. Created rows are `INCOME`/`EXPENSE` only, each with `categoryId` set to Uncategorized for that kind (seed defaults if missing).
 
 ## UI (`/import`)
 
@@ -64,6 +65,7 @@ User must be a member of `accountId`. Created rows are `INCOME`/`EXPENSE` only.
 ## Acceptance
 
 - Importing a synthetic CSV creates matching ledger rows and updates balances
+- Imported income/expense rows use Uncategorized of the matching kind
 - Importing the same file again creates zero new transactions; skipped count equals row count
 - Invalid `unit` (not `minor`) fails with a clear error and creates no rows
 - No real bank statements required in the repository

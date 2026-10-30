@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import type {
   NextMonthForecast,
   PublicAccount,
+  PublicCategory,
   PublicWallet,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
@@ -44,6 +45,7 @@ type CurrencyGroup = {
 export class HomePage implements OnInit {
   wallets = signal<PublicWallet[]>([]);
   accounts = signal<PublicAccount[]>([]);
+  categories = signal<PublicCategory[]>([]);
   forecast = signal<NextMonthForecast | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -52,6 +54,7 @@ export class HomePage implements OnInit {
   quickType: 'INCOME' | 'EXPENSE' = 'EXPENSE';
   quickAccountId = '';
   quickAmount = '';
+  quickCategoryId = '';
 
   readonly currencyGroups = computed((): CurrencyGroup[] => {
     const walletsById = new Map(this.wallets().map((w) => [w.id, w]));
@@ -97,15 +100,18 @@ export class HomePage implements OnInit {
     forkJoin({
       wallets: this.walletsApi.listWallets(),
       accounts: this.walletsApi.listAccounts(),
+      categories: this.txApi.listCategories(),
       forecast: this.recurringsApi.nextMonthForecast(),
     }).subscribe({
-      next: ({ wallets, accounts, forecast }) => {
+      next: ({ wallets, accounts, categories, forecast }) => {
         this.wallets.set(wallets);
         this.accounts.set(accounts);
+        this.categories.set(categories);
         this.forecast.set(forecast);
         if (!this.quickAccountId && accounts[0]) {
           this.quickAccountId = accounts[0].id;
         }
+        this.ensureQuickCategory();
         this.loading.set(false);
       },
       error: (err: { error?: { message?: string } }) => {
@@ -117,6 +123,23 @@ export class HomePage implements OnInit {
     });
   }
 
+  onQuickTypeChange(type: 'INCOME' | 'EXPENSE') {
+    this.quickType = type;
+    this.ensureQuickCategory();
+  }
+
+  categoryOptionsFor(kind: 'INCOME' | 'EXPENSE') {
+    return this.categories()
+      .filter((c) => c.kind === kind)
+      .map((c) => ({
+        label:
+          c.name === 'Uncategorized'
+            ? this.i18n.translate('activity.uncategorized')
+            : c.name,
+        value: c.id,
+      }));
+  }
+
   selectedAccount(): PublicAccount | undefined {
     return this.accounts().find((a) => a.id === this.quickAccountId);
   }
@@ -124,8 +147,16 @@ export class HomePage implements OnInit {
   submitQuickAdd() {
     this.error.set(null);
     this.message.set(null);
-    if (!this.quickAccountId || !/^\d+$/.test(this.quickAmount.trim())) {
-      this.error.set(this.i18n.translate('activity.invalidAmount'));
+    if (
+      !this.quickAccountId ||
+      !this.quickCategoryId ||
+      !/^\d+$/.test(this.quickAmount.trim())
+    ) {
+      this.error.set(
+        !this.quickCategoryId
+          ? this.i18n.translate('activity.categoryRequired')
+          : this.i18n.translate('activity.invalidAmount'),
+      );
       return;
     }
     this.txApi
@@ -134,6 +165,7 @@ export class HomePage implements OnInit {
         accountId: this.quickAccountId,
         amountMinor: this.quickAmount.trim(),
         occurredAt: new Date().toISOString(),
+        categoryId: this.quickCategoryId,
         shared: false,
       })
       .subscribe({
@@ -198,5 +230,12 @@ export class HomePage implements OnInit {
         cents: this.i18n.translate('accounts.cents'),
       },
     );
+  }
+
+  private ensureQuickCategory() {
+    const options = this.categoryOptionsFor(this.quickType);
+    if (!options.some((o) => o.value === this.quickCategoryId)) {
+      this.quickCategoryId = options[0]?.value ?? '';
+    }
   }
 }

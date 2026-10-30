@@ -1,7 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import type { ImportResult, PublicImportAdapter } from '@finance/shared';
-import { Prisma } from '../generated/prisma/client';
+import { CategoryKind, Prisma } from '../generated/prisma/client';
 import { AccountsService } from '../accounts/accounts.service';
+import { requireUncategorizedId } from '../categories/category-defaults';
 import { PrismaService } from '../prisma/prisma.service';
 import { parseGenericCsv } from './generic-csv.adapter';
 import { toPublicImportBatch } from './imports.mapper';
@@ -46,6 +47,17 @@ export class ImportsService {
     let skippedDuplicate = 0;
 
     const batch = await this.prisma.$transaction(async (tx) => {
+      const incomeCategoryId = await requireUncategorizedId(
+        tx,
+        input.userId,
+        CategoryKind.INCOME,
+      );
+      const expenseCategoryId = await requireUncategorizedId(
+        tx,
+        input.userId,
+        CategoryKind.EXPENSE,
+      );
+
       const createdBatch = await tx.importBatch.create({
         data: {
           userId: input.userId,
@@ -66,6 +78,8 @@ export class ImportsService {
               amountMinor: row.amountMinor,
               occurredAt: row.occurredAt,
               description: row.description,
+              categoryId:
+                row.type === 'INCOME' ? incomeCategoryId : expenseCategoryId,
               dedupeKey: row.dedupeKey,
               importBatchId: createdBatch.id,
               createdByUserId: input.userId,

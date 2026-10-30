@@ -71,3 +71,54 @@ a {
   color: var(--app-accent);
   text-decoration: none;
 }
+
+.category-block {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.category-header h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.category-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.category-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.meta {
+  margin-inline-start: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--app-text-muted);
+}
+
+.dialog-form {
+  display: grid;
+  gap: 1rem;
+}
