@@ -13,30 +13,7 @@
         <a routerLink="/import" routerLinkActive="active">{{ t('app.nav.import') }}</a>
         <a routerLink="/outlook" routerLinkActive="active">{{ t('app.nav.outlook') }}</a>
       </nav>
-      <div class="overflow">
-        <button
-          type="button"
-          class="overflow-toggle"
-          [attr.aria-expanded]="overflowOpen()"
-          [attr.aria-label]="t('app.nav.more')"
-          (click)="toggleOverflow($event)"
-        >
-          {{ t('app.nav.more') }}
-        </button>
-        @if (overflowOpen()) {
-          <div class="overflow-menu" role="menu" (click)="$event.stopPropagation()">
-            <a routerLink="/settings" role="menuitem" (click)="closeOverflow()">
-              {{ t('app.nav.settings') }}
-            </a>
-            @if (auth.isAdmin()) {
-              <a routerLink="/admin" role="menuitem" (click)="closeOverflow()">
-                {{ t('app.nav.admin') }}
-              </a>
-            }
-          </div>
-        }
-      </div>
-      <app-lang-switch />
+      <app-user-menu />
     </div>
   </header>
 

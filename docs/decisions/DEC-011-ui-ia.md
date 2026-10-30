@@ -16,7 +16,7 @@ Early UI grew as API-slice forms (top bar + always-visible create fields). There
 ## Decision
 
 - Authenticated daily landing is **`/` hybrid home** (per-currency balances, quick income/expense add, labeled outlook strip). Post-login goes to `/`, not profile.
-- **App shell** primary nav: Home · Activity · Accounts · Import · Outlook. Settings and Admin (if role) live in overflow. Status/health is not primary nav.
+- **App shell** primary nav: Home · Activity · Accounts · Import · Outlook. Settings, Support, Sign out, and Admin (if role) live in a **user menu** (signed-in name). Language control is Guest-shell / Settings only — not in the authenticated toolbar. Status/health is not primary nav.
 - **Admin shell** is separate; managing another user’s money requires an acting-as context banner and dedicated `/admin/...` routes ([DEC-010](DEC-010-instance-admin.md)).
 - List pages prioritize data and actions; create/edit use dialog, drawer, or sub-route.
 - Visual direction stays current (Aura, teal/sage, existing fonts); IA is the corrective change, not a rebrand.

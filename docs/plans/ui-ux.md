@@ -36,9 +36,9 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 
 | Shell | Who | Chrome |
 | --- | --- | --- |
-| **App** | Authenticated user | Brand, primary nav, overflow (Settings; Admin link if role), language control |
-| **Admin** | Instance `ADMIN` | Distinct admin header/context; back to app; not the personal Accounts mental model |
-| **Guest** | Unauthenticated | Minimal chrome (brand + language); centered auth forms; no primary money nav |
+| **App** | Authenticated user | Brand, primary nav, **user menu** (shows signed-in display name; Settings, Support, Admin if role, Sign out). No language control in the toolbar — change language in Settings. |
+| **Admin** | Instance `ADMIN` | Distinct admin header/context; back to app; same user menu; not the personal Accounts mental model |
+| **Guest** | Unauthenticated | Minimal chrome (brand + **language** switcher); centered auth forms; no primary money nav |
 
 **Status / API health** is not a primary-nav peer. Expose under Settings (or a hidden/dev route) only.
 
@@ -63,7 +63,8 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | `/accounts/:accountId` | Account detail, movements, shared members |
 | `/import` | Statement upload, adapter choice, dedup feedback |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
-| `/settings` | Profile, locale/timezone, TOTP, sign-out; link to Status/health if kept |
+| `/settings` | Profile, locale/timezone, money display, TOTP, sign-out; link to Status/health if kept |
+| `/support` | Lightweight help / contact stub (user-menu entry only; not primary nav) |
 
 Legacy `/wallets` and `/profile` should redirect into Accounts and Settings when the shell lands.
 
@@ -88,6 +89,7 @@ flowchart TB
     importPage[import]
     outlook[outlook]
     settings[settings]
+    support[support]
   end
   subgraph adminShell [Admin_shell]
     adminHome[admin_users]
@@ -107,7 +109,7 @@ flowchart TB
 
 **Home · Activity · Accounts · Import · Outlook**
 
-Settings (and **Admin** when `ADMIN`) live in an overflow / account menu — not as equal top-level CRUD links beside Status.
+Settings, Support, Sign out, and **Admin** (when `ADMIN`) live in the **user menu** (toolbar control labeled with the signed-in display name) — not as equal top-level CRUD links beside Status. Language switching for authenticated users is only on Settings; the Guest shell keeps the language control for login/register.
 
 On narrow viewports, primary nav may collapse to a bottom bar or drawer; labels and order stay the same.
 
@@ -167,6 +169,12 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Settings (`/settings`)
 
 - Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
+- Authenticated language changes happen here (not in App/Admin toolbar).
+
+### Support (`/support`)
+
+- Purpose: short help / how to get support stub; reachable from the user menu only.
+- Keep empty-state honest until a real support channel is specified.
 
 ### Admin (`/admin`, `/admin/users/:userId`)
 
@@ -230,7 +238,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 
 ## Acceptance criteria (“feels like an app”)
 
-- Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) and land on `/` after login.
+- Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook), a user menu showing who is signed in, and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
 - Hybrid home shows balances (from available APIs), a quick-add affordance (stub OK until transactions), and an outlook strip (stub OK until forecast).
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.

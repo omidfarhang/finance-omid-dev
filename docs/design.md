@@ -16,7 +16,7 @@ When architecture or stack choices change, update this file in the same change s
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).
 - **Deploy:** Docker Compose (`postgres` + `api` + `web`); same-origin `/api` proxy; TLS at host nginx ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
 - **UI language:** runtime Transloco catalogs (`fa`, `en`); preference via localStorage + profile `locale`; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
-- **UI information architecture:** hybrid home; App vs Admin shells; dedicated routes for activity, accounts, import, outlook, settings ([plans/ui-ux.md](plans/ui-ux.md), [DEC-011](decisions/DEC-011-ui-ia.md)).
+- **UI information architecture:** hybrid home; App vs Admin shells; user menu (Settings / Support / Sign out); language switcher on Guest shell and Settings only; dedicated routes for activity, accounts, import, outlook, settings, support ([plans/ui-ux.md](plans/ui-ux.md), [DEC-011](decisions/DEC-011-ui-ia.md)).
 
 Decisions: [DEC-001](decisions/DEC-001-client-server-split.md), [DEC-002](decisions/DEC-002-stack.md), [DEC-003](decisions/DEC-003-pwa-scope.md), [DEC-004](decisions/DEC-004-money-storage-display.md) (superseded), [DEC-005](decisions/DEC-005-wallets-and-accounts.md), [DEC-006](decisions/DEC-006-money-multi-currency.md), [DEC-007](decisions/DEC-007-auth.md), [DEC-008](decisions/DEC-008-self-hosted-docker.md), [DEC-009](decisions/DEC-009-i18n.md), [DEC-010](decisions/DEC-010-instance-admin.md), [DEC-011](decisions/DEC-011-ui-ia.md).
 
@@ -83,7 +83,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 - UI strings via Transloco JSON (`public/i18n/`); Farsi sets `dir=rtl` and a Persian-capable font; English is LTR ([DEC-009](decisions/DEC-009-i18n.md)).
 - Gregorian and Persian dates as product requires (calendar formatting separate from UI language catalogs).
 - Prefer Angular over React unless a future need forces a revisit ([DEC-002](decisions/DEC-002-stack.md)).
-- **Screens, nav, and interaction patterns** follow [plans/ui-ux.md](plans/ui-ux.md) ([DEC-011](decisions/DEC-011-ui-ia.md)): hybrid home; App vs Admin shells; list-first pages (create/edit in dialog, drawer, or sub-route); no always-on CRUD form stacks; Status out of primary nav.
+- **Screens, nav, and interaction patterns** follow [plans/ui-ux.md](plans/ui-ux.md) ([DEC-011](decisions/DEC-011-ui-ia.md)): hybrid home; App vs Admin shells with user menu; list-first pages (create/edit in dialog, drawer, or sub-route); no always-on CRUD form stacks; Status out of primary nav.
 
 ## Related docs
 

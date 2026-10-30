@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ConfirmDialog } from 'primeng/confirmdialog';
-import { LangSwitchComponent } from '../lang-switch/lang-switch.component';
+import { UserMenuComponent } from '../user-menu/user-menu.component';
 
 @Component({
   selector: 'app-admin-shell',
@@ -11,7 +11,7 @@ import { LangSwitchComponent } from '../lang-switch/lang-switch.component';
     RouterOutlet,
     RouterLink,
     TranslocoDirective,
-    LangSwitchComponent,
+    UserMenuComponent,
     ConfirmDialog,
   ],
   templateUrl: './admin-shell.component.html',

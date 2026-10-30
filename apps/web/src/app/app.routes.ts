@@ -15,6 +15,7 @@ import { OutlookPage } from './pages/outlook/outlook.page';
 import { RegisterPage } from './pages/register/register.page';
 import { SettingsPage } from './pages/settings/settings.page';
 import { StatusPage } from './pages/status/status.page';
+import { SupportPage } from './pages/support/support.page';
 
 export const routes: Routes = [
   { path: 'wallets', redirectTo: 'accounts', pathMatch: 'full' },
@@ -52,6 +53,7 @@ export const routes: Routes = [
       { path: 'import', component: ImportPage },
       { path: 'outlook', component: OutlookPage },
       { path: 'settings', component: SettingsPage },
+      { path: 'support', component: SupportPage },
       { path: 'status', component: StatusPage },
     ],
   },

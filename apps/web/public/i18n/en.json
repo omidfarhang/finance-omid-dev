@@ -13,11 +13,24 @@
       "more": "More",
       "signIn": "Sign in"
     },
+    "userMenu": {
+      "label": "Account menu",
+      "settings": "Settings",
+      "support": "Support",
+      "admin": "Admin",
+      "signOut": "Sign out"
+    },
     "language": "Language",
     "lang": {
       "en": "English",
       "fa": "فارسی"
     }
+  },
+  "support": {
+    "title": "Support",
+    "lede": "Help for using this personal finance app.",
+    "empty": "A support channel is not wired yet. Use Settings for account and language preferences for now.",
+    "settingsLink": "Open Settings"
   },
   "home": {
     "title": "Home",

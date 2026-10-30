@@ -17,6 +17,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- App/Admin toolbar: language switcher removed when signed in; user menu (name, Settings, Support, Admin, Sign out); Guest shell keeps language ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - IRR/toman presentation preference moved to Settings (localStorage); removed from home / accounts headers ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - API tests: Jest → Vitest ([DEC-002](../docs/decisions/DEC-002-stack.md))
 - API stack bump: NestJS 12, Prisma 7 (`prisma-client` + adapter-pg), Zod 4 (shared + api); compatible TypeScript 6 / tooling ([DEC-002](../docs/decisions/DEC-002-stack.md))

@@ -41,8 +41,7 @@
 }
 
 .nav a,
-.bottom-nav a,
-.overflow-menu a {
+.bottom-nav a {
   text-decoration: none;
   color: var(--app-text-muted);
   font-weight: 600;
@@ -50,49 +49,9 @@
 
 .nav a:hover,
 .bottom-nav a:hover,
-.overflow-menu a:hover,
 .nav a.active,
 .bottom-nav a.active {
   color: var(--app-text);
-}
-
-.overflow {
-  position: relative;
-}
-
-.overflow-toggle {
-  font: inherit;
-  font-weight: 600;
-  color: var(--app-text-muted);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--app-text) 16%, transparent);
-  border-radius: 0.4rem;
-  padding: 0.35rem 0.55rem;
-  cursor: pointer;
-}
-
-.overflow-menu {
-  position: absolute;
-  inset-inline-end: 0;
-  top: calc(100% + 0.35rem);
-  min-width: 10rem;
-  display: grid;
-  gap: 0.15rem;
-  padding: 0.45rem;
-  background: #fff;
-  border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--app-text) 12%, transparent);
-  z-index: 30;
-}
-
-.overflow-menu a {
-  padding: 0.45rem 0.55rem;
-  border-radius: 0.35rem;
-}
-
-.overflow-menu a:hover {
-  background: color-mix(in srgb, var(--app-accent) 8%, transparent);
 }
 
 .shell-main {

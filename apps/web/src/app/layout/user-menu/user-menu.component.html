@@ -1,0 +1,36 @@
+<div class="user-menu" *transloco="let t">
+  <button
+    type="button"
+    class="user-menu-toggle"
+    [attr.aria-expanded]="open()"
+    [attr.aria-haspopup]="true"
+    [attr.aria-label]="t('app.userMenu.label')"
+    (click)="toggle($event)"
+  >
+    <span class="user-menu-name">{{ auth.user()?.displayName }}</span>
+    <span class="user-menu-caret" aria-hidden="true"></span>
+  </button>
+
+  @if (open()) {
+    <div class="user-menu-panel" role="menu" (click)="$event.stopPropagation()">
+      <div class="user-menu-identity">
+        <strong>{{ auth.user()?.displayName }}</strong>
+        <span class="user-menu-email">{{ auth.user()?.email }}</span>
+      </div>
+      <a routerLink="/settings" role="menuitem" (click)="close()">
+        {{ t('app.userMenu.settings') }}
+      </a>
+      <a routerLink="/support" role="menuitem" (click)="close()">
+        {{ t('app.userMenu.support') }}
+      </a>
+      @if (auth.isAdmin()) {
+        <a routerLink="/admin" role="menuitem" (click)="close()">
+          {{ t('app.userMenu.admin') }}
+        </a>
+      }
+      <button type="button" class="user-menu-signout" role="menuitem" (click)="logout()">
+        {{ t('app.userMenu.signOut') }}
+      </button>
+    </div>
+  }
+</div>
