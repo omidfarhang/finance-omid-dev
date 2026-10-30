@@ -1,11 +1,11 @@
-<section class="profile-page" *transloco="let t">
-  <header class="profile-header">
+<section class="settings-page" *transloco="let t">
+  <header class="page-header">
     <div>
-      <h1>{{ t('profile.title') }}</h1>
+      <h1>{{ t('settings.title') }}</h1>
       <p class="lede">{{ auth.user()?.email }}</p>
     </div>
     <button pButton type="button" severity="secondary" (click)="logout()">
-      {{ t('profile.signOut') }}
+      {{ t('settings.signOut') }}
     </button>
   </header>
 
@@ -17,13 +17,13 @@
   }
 
   <form (ngSubmit)="saveProfile()" class="panel">
-    <h2>{{ t('profile.accountDetails') }}</h2>
+    <h2>{{ t('settings.accountDetails') }}</h2>
     <label>
-      {{ t('profile.displayName') }}
+      {{ t('settings.displayName') }}
       <input pInputText name="displayName" [(ngModel)]="displayName" required />
     </label>
     <label>
-      {{ t('profile.locale') }}
+      {{ t('settings.locale') }}
       <select
         name="locale"
         [ngModel]="localeService.activeLang()"
@@ -35,9 +35,9 @@
       </select>
     </label>
     <label>
-      {{ t('profile.timeZone') }}
+      {{ t('settings.timeZone') }}
       <select name="timeZone" [(ngModel)]="timeZone">
-        <option value="">{{ t('profile.timeZoneUnset') }}</option>
+        <option value="">{{ t('settings.timeZoneUnset') }}</option>
         @for (zone of timeZones; track zone) {
           <option [value]="zone">{{ zone }}</option>
         }
@@ -47,44 +47,54 @@
       @if (loading()) {
         <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
       }
-      {{ t('profile.save') }}
+      {{ t('settings.save') }}
     </button>
   </form>
 
   <section class="panel">
-    <h2>{{ t('profile.totp.title') }}</h2>
+    <h2>{{ t('settings.totp.title') }}</h2>
     <p class="lede">
-      {{ t('profile.totp.status') }}
+      {{ t('settings.totp.status') }}
       <strong>
-        {{ auth.user()?.totpEnabled ? t('profile.totp.enabled') : t('profile.totp.optional') }}
+        {{
+          auth.user()?.totpEnabled
+            ? t('settings.totp.enabled')
+            : t('settings.totp.optional')
+        }}
       </strong>
     </p>
 
     @if (!auth.user()?.totpEnabled) {
       @if (!qrDataUrl()) {
         <button pButton type="button" (click)="start2fa()">
-          {{ t('profile.totp.setup') }}
+          {{ t('settings.totp.setup') }}
         </button>
       } @else {
-        <p>{{ t('profile.totp.scan') }}</p>
+        <p>{{ t('settings.totp.scan') }}</p>
         <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
-        <p class="secret">{{ t('profile.totp.secret') }} {{ totpSecret() }}</p>
+        <p class="secret">{{ t('settings.totp.secret') }} {{ totpSecret() }}</p>
         <label>
-          {{ t('profile.totp.confirmCode') }}
+          {{ t('settings.totp.confirmCode') }}
           <input pInputText name="totpCode" [(ngModel)]="totpCode" inputmode="numeric" />
         </label>
         <button pButton type="button" (click)="confirm2fa()">
-          {{ t('profile.totp.confirm') }}
+          {{ t('settings.totp.confirm') }}
         </button>
       }
     } @else {
       <label>
-        {{ t('profile.totp.disableCode') }}
+        {{ t('settings.totp.disableCode') }}
         <input pInputText name="disableCode" [(ngModel)]="disableCode" inputmode="numeric" />
       </label>
       <button pButton type="button" severity="danger" (click)="disable2fa()">
-        {{ t('profile.totp.disable') }}
+        {{ t('settings.totp.disable') }}
       </button>
     }
+  </section>
+
+  <section class="panel">
+    <h2>{{ t('settings.statusLinkTitle') }}</h2>
+    <p class="lede">{{ t('settings.statusLinkLede') }}</p>
+    <a routerLink="/status">{{ t('settings.statusLink') }}</a>
   </section>
 </section>

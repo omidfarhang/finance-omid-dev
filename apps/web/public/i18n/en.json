@@ -2,10 +2,15 @@
   "app": {
     "brand": "Finance Omid",
     "nav": {
-      "status": "Status",
-      "wallets": "Wallets",
-      "profile": "Profile",
+      "primary": "Primary",
+      "home": "Home",
+      "activity": "Activity",
+      "accounts": "Accounts",
+      "import": "Import",
+      "outlook": "Outlook",
+      "settings": "Settings",
       "admin": "Admin",
+      "more": "More",
       "signIn": "Sign in"
     },
     "language": "Language",
@@ -13,6 +18,37 @@
       "en": "English",
       "fa": "فارسی"
     }
+  },
+  "home": {
+    "title": "Home",
+    "lede": "Balances, a quick add path, and a short next-month outlook.",
+    "balances": "Balances",
+    "openAccounts": "Accounts",
+    "loadingBalances": "Loading balances…",
+    "noAccounts": "No accounts yet. Create one to start tracking money.",
+    "createAccountCta": "Create account",
+    "quickAdd": "Quick add",
+    "quickAddStub": "Income and expense entry arrives with transactions. Use Activity when that slice lands.",
+    "quickAddLink": "Open Activity",
+    "outlook": "Outlook",
+    "outlookLink": "Full outlook",
+    "outlookStub": "Projection — outlook comes after recurrings. No forecast numbers yet."
+  },
+  "activity": {
+    "title": "Activity",
+    "lede": "Chronological ledger of actual movements.",
+    "empty": "No movements yet. Manual entry and transfers arrive in the next slice.",
+    "importLink": "Import a statement"
+  },
+  "importPage": {
+    "title": "Import",
+    "lede": "Upload a bank statement and review deduplication feedback.",
+    "empty": "CSV import adapters are not wired yet. This route is reserved for that workflow."
+  },
+  "outlook": {
+    "title": "Outlook",
+    "lede": "Next-month expected income, recurrings, and surplus or shortfall per currency.",
+    "empty": "Projection — outlook comes after recurrings. Nothing to forecast yet."
   },
   "login": {
     "title": "Sign in",
@@ -42,6 +78,12 @@
   "admin": {
     "title": "Admin",
     "lede": "Control registration and users for this self-hosted instance.",
+    "backToApp": "Back to app",
+    "backToUsers": "Back to users",
+    "actingAs": "Acting as {{name}}",
+    "manageMoneyHint": "Open a user to manage their wallets and accounts.",
+    "userMoneyLede": "Create wallets and accounts for this user. This is not your personal Accounts view.",
+    "userNotFound": "User not found",
     "loading": "Loading admin data…",
     "loadFailed": "Could not load admin data",
     "registration": "Registration",
@@ -68,12 +110,11 @@
     "userUpdated": "User updated",
     "updateFailed": "Could not update user",
     "userMoney": "User wallets and accounts",
-    "clearSelection": "Clear",
     "noWallets": "This user has no wallets yet.",
     "moneyLoadFailed": "Could not load user wallets"
   },
-  "profile": {
-    "title": "Profile",
+  "settings": {
+    "title": "Settings",
     "signOut": "Sign out",
     "accountDetails": "Account details",
     "displayName": "Display name",
@@ -83,6 +124,9 @@
     "save": "Save profile",
     "updated": "Profile updated",
     "updateFailed": "Could not update profile",
+    "statusLinkTitle": "API status",
+    "statusLinkLede": "Health check for the API. Not part of primary navigation.",
+    "statusLink": "Open status",
     "totp": {
       "title": "Two-factor authentication",
       "status": "Status:",
@@ -113,11 +157,11 @@
     "unreachableHttp": "API unreachable (HTTP {{status}}).",
     "unreachable": "API unreachable."
   },
-  "wallets": {
-    "title": "Wallets",
-    "lede": "Personal wallets and accounts. Balances are opening amounts until transactions exist. No cross-currency total.",
-    "loading": "Loading wallets…",
-    "loadFailed": "Could not load wallets",
+  "accounts": {
+    "title": "Accounts",
+    "lede": "Wallets and accounts with balances. No cross-currency total.",
+    "loading": "Loading accounts…",
+    "loadFailed": "Could not load accounts",
     "yourWallets": "Your wallets",
     "empty": "No wallets yet. Create one to start.",
     "noAccounts": "No accounts in this wallet yet.",
@@ -141,16 +185,23 @@
     "opening": "Opening",
     "members": "Members",
     "addMember": "Add member",
-    "sharedAccountSelect": "Shared account",
     "memberEmail": "Member email",
-    "memberRequired": "Choose a shared account and enter an email",
+    "memberRequired": "Enter a member email",
     "memberAdded": "Member added",
     "memberAddFailed": "Could not add member",
     "showToman": "Show IRR as toman",
     "showRials": "Show IRR as rials",
     "rials": "rials",
     "cents": "cents",
-    "toman": "toman"
+    "toman": "toman",
+    "backToList": "All accounts",
+    "notFound": "Account not found",
+    "notFoundTitle": "Account not found",
+    "balanceStory": "Balance",
+    "balanceFromOpening": "Opening balance until movements exist",
+    "movements": "Movements",
+    "movementsStub": "Ledger rows will appear here when transactions exist.",
+    "activityLink": "Open Activity"
   },
   "errors": {
     "loginFailed": "Login failed",

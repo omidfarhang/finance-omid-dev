@@ -1,19 +1,55 @@
 import { Routes } from '@angular/router';
 import { adminGuard, authGuard, guestGuard } from './core/auth.guard';
+import { AdminShellComponent } from './layout/admin-shell/admin-shell.component';
+import { AppShellComponent } from './layout/app-shell/app-shell.component';
+import { GuestShellComponent } from './layout/guest-shell/guest-shell.component';
+import { AccountDetailPage } from './pages/accounts/account-detail.page';
+import { AccountsPage } from './pages/accounts/accounts.page';
+import { ActivityPage } from './pages/activity/activity.page';
 import { AdminPage } from './pages/admin/admin.page';
+import { AdminUserPage } from './pages/admin/admin-user.page';
+import { HomePage } from './pages/home/home.page';
+import { ImportPage } from './pages/import/import.page';
 import { LoginPage } from './pages/login/login.page';
-import { ProfilePage } from './pages/profile/profile.page';
+import { OutlookPage } from './pages/outlook/outlook.page';
 import { RegisterPage } from './pages/register/register.page';
+import { SettingsPage } from './pages/settings/settings.page';
 import { StatusPage } from './pages/status/status.page';
-import { WalletsPage } from './pages/wallets/wallets.page';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'wallets' },
-  { path: 'status', component: StatusPage },
-  { path: 'login', component: LoginPage, canActivate: [guestGuard] },
-  { path: 'register', component: RegisterPage, canActivate: [guestGuard] },
-  { path: 'profile', component: ProfilePage, canActivate: [authGuard] },
-  { path: 'wallets', component: WalletsPage, canActivate: [authGuard] },
-  { path: 'admin', component: AdminPage, canActivate: [adminGuard] },
-  { path: '**', redirectTo: 'wallets' },
+  { path: 'wallets', redirectTo: 'accounts', pathMatch: 'full' },
+  { path: 'profile', redirectTo: 'settings', pathMatch: 'full' },
+  {
+    path: '',
+    component: GuestShellComponent,
+    children: [
+      { path: 'login', component: LoginPage, canActivate: [guestGuard] },
+      { path: 'register', component: RegisterPage, canActivate: [guestGuard] },
+    ],
+  },
+  {
+    path: 'admin',
+    component: AdminShellComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', component: AdminPage },
+      { path: 'users/:userId', component: AdminUserPage },
+    ],
+  },
+  {
+    path: '',
+    component: AppShellComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', component: HomePage },
+      { path: 'activity', component: ActivityPage },
+      { path: 'accounts', component: AccountsPage },
+      { path: 'accounts/:accountId', component: AccountDetailPage },
+      { path: 'import', component: ImportPage },
+      { path: 'outlook', component: OutlookPage },
+      { path: 'settings', component: SettingsPage },
+      { path: 'status', component: StatusPage },
+    ],
+  },
+  { path: '**', redirectTo: '' },
 ];

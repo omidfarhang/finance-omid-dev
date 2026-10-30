@@ -1,0 +1,76 @@
+.home-page {
+  max-width: 44rem;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.page-header,
+.panel-header,
+.currency-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.lede {
+  color: var(--app-text-muted);
+}
+
+.projection {
+  font-style: italic;
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+.currency-group {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.account-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.account-link {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  text-decoration: none;
+  color: inherit;
+  font-weight: 600;
+}
+
+.account-name {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.meta {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--app-text-muted);
+}
+
+.balance {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.text-link {
+  font-weight: 600;
+  color: var(--app-accent);
+  text-decoration: none;
+}

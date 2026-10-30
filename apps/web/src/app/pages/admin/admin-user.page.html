@@ -1,0 +1,146 @@
+<section class="admin-user-page" *transloco="let t">
+  @if (user(); as user) {
+    <div class="acting-as" role="status">
+      <strong>{{ t('admin.actingAs', { name: user.displayName }) }}</strong>
+      <span class="meta">{{ user.email }}</span>
+      <a routerLink="/admin">{{ t('admin.backToUsers') }}</a>
+    </div>
+  }
+
+  <header class="page-header">
+    <div>
+      <h1>{{ t('admin.userMoney') }}</h1>
+      <p class="lede">{{ t('admin.userMoneyLede') }}</p>
+    </div>
+    <div class="header-actions">
+      <button pButton type="button" severity="secondary" (click)="toggleToman()">
+        {{ showToman() ? t('accounts.showRials') : t('accounts.showToman') }}
+      </button>
+      <button pButton type="button" severity="secondary" (click)="openWalletDialog()">
+        {{ t('accounts.createWallet') }}
+      </button>
+      <button
+        pButton
+        type="button"
+        (click)="openAccountDialog()"
+        [disabled]="wallets().length === 0"
+      >
+        {{ t('accounts.createAccount') }}
+      </button>
+    </div>
+  </header>
+
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+  @if (loading()) {
+    <p class="lede">{{ t('admin.loading') }}</p>
+  }
+
+  <div class="panel">
+    @for (wallet of wallets(); track wallet.id) {
+      <article class="wallet-block">
+        <h3>{{ wallet.name }}</h3>
+        <ul class="account-list">
+          @for (account of accountsFor(wallet.id); track account.id) {
+            <li>
+              <div class="account-row">
+                <span class="account-name">
+                  {{ account.name }}
+                  @if (account.isShared) {
+                    <span class="badge">{{ t('accounts.shared') }}</span>
+                  }
+                </span>
+                <span class="balance">{{ formatBalance(account) }}</span>
+              </div>
+              <p class="meta">{{ account.currency }}</p>
+            </li>
+          } @empty {
+            <li class="lede">{{ t('accounts.noAccounts') }}</li>
+          }
+        </ul>
+      </article>
+    } @empty {
+      @if (!loading() && user()) {
+        <p class="lede">{{ t('admin.noWallets') }}</p>
+      }
+    }
+  </div>
+
+  <p-dialog
+    [header]="t('accounts.createWallet')"
+    [modal]="true"
+    [style]="{ width: 'min(24rem, 92vw)' }"
+    [visible]="walletDialogVisible()"
+    (visibleChange)="walletDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="createWallet()" class="dialog-form">
+      <label>
+        {{ t('accounts.walletName') }}
+        <input pInputText name="walletName" [(ngModel)]="walletName" required class="w-full" />
+      </label>
+      <button pButton type="submit">{{ t('accounts.createWallet') }}</button>
+    </form>
+  </p-dialog>
+
+  <p-dialog
+    [header]="t('accounts.createAccount')"
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="accountDialogVisible()"
+    (visibleChange)="accountDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="createAccount()" class="dialog-form">
+      <label>
+        {{ t('accounts.wallet') }}
+        <p-select
+          [options]="walletOptions()"
+          [(ngModel)]="accountWalletId"
+          name="accountWalletId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('accounts.accountName') }}
+        <input pInputText name="accountName" [(ngModel)]="accountName" required class="w-full" />
+      </label>
+      <label>
+        {{ t('accounts.currency') }}
+        <p-select
+          [options]="currencies"
+          [(ngModel)]="accountCurrency"
+          name="accountCurrency"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('accounts.openingBalance') }}
+        <input
+          pInputText
+          name="openingBalanceMinor"
+          [(ngModel)]="openingBalanceMinor"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label class="checkbox-row">
+        <p-checkbox
+          [(ngModel)]="isShared"
+          [binary]="true"
+          inputId="adminIsShared"
+          name="isShared"
+        />
+        <span>{{ t('accounts.sharedAccount') }}</span>
+      </label>
+      <button pButton type="submit">{{ t('accounts.createAccount') }}</button>
+    </form>
+  </p-dialog>
+</section>

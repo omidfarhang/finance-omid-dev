@@ -1,32 +1,39 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import type { PublicAccount, PublicWallet } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
+import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
+import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
+import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { WalletsService } from '../../core/wallets.service';
 
 const CURRENCIES = ['IRR', 'USD'] as const;
 
 @Component({
-  selector: 'app-wallets-page',
+  selector: 'app-accounts-page',
   standalone: true,
   imports: [
     FormsModule,
+    RouterLink,
     ButtonDirective,
     Checkbox,
+    Dialog,
     InputText,
     Message,
+    Select,
     TranslocoDirective,
   ],
-  templateUrl: './wallets.page.html',
-  styleUrl: './wallets.page.scss',
+  templateUrl: './accounts.page.html',
+  styleUrl: './accounts.page.scss',
 })
-export class WalletsPage implements OnInit {
-  readonly currencies = CURRENCIES;
+export class AccountsPage implements OnInit {
+  readonly currencies = CURRENCIES.map((code) => ({ label: code, value: code }));
 
   wallets = signal<PublicWallet[]>([]);
   accounts = signal<PublicAccount[]>([]);
@@ -34,6 +41,8 @@ export class WalletsPage implements OnInit {
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   showToman = signal(false);
+  walletDialogVisible = signal(false);
+  accountDialogVisible = signal(false);
 
   walletName = 'Personal';
   accountWalletId = '';
@@ -41,8 +50,6 @@ export class WalletsPage implements OnInit {
   accountCurrency: (typeof CURRENCIES)[number] = 'IRR';
   openingBalanceMinor = '0';
   isShared = false;
-  memberEmail = '';
-  memberAccountId = '';
 
   readonly accountsByWallet = computed(() => {
     const map = new Map<string, PublicAccount[]>();
@@ -53,6 +60,10 @@ export class WalletsPage implements OnInit {
     }
     return map;
   });
+
+  readonly walletOptions = computed(() =>
+    this.wallets().map((w) => ({ label: w.name, value: w.id })),
+  );
 
   private readonly walletsApi = inject(WalletsService);
   private readonly i18n = inject(TranslocoService);
@@ -74,19 +85,31 @@ export class WalletsPage implements OnInit {
         if (!this.accountWalletId && wallets[0]) {
           this.accountWalletId = wallets[0].id;
         }
-        const shared = accounts.filter((a) => a.isShared);
-        if (!this.memberAccountId && shared[0]) {
-          this.memberAccountId = shared[0].id;
-        }
         this.loading.set(false);
       },
       error: (err: { error?: { message?: string } }) => {
         this.loading.set(false);
         this.error.set(
-          err.error?.message ?? this.i18n.translate('wallets.loadFailed'),
+          err.error?.message ?? this.i18n.translate('accounts.loadFailed'),
         );
       },
     });
+  }
+
+  openWalletDialog() {
+    this.walletName = 'Personal';
+    this.walletDialogVisible.set(true);
+  }
+
+  openAccountDialog() {
+    if (!this.accountWalletId && this.wallets()[0]) {
+      this.accountWalletId = this.wallets()[0].id;
+    }
+    this.accountName = '';
+    this.accountCurrency = 'IRR';
+    this.openingBalanceMinor = '0';
+    this.isShared = false;
+    this.accountDialogVisible.set(true);
   }
 
   createWallet() {
@@ -100,13 +123,13 @@ export class WalletsPage implements OnInit {
           if (!this.accountWalletId) {
             this.accountWalletId = wallet.id;
           }
-          this.message.set(this.i18n.translate('wallets.walletCreated'));
-          this.walletName = 'Personal';
+          this.message.set(this.i18n.translate('accounts.walletCreated'));
+          this.walletDialogVisible.set(false);
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
             err.error?.message ??
-              this.i18n.translate('wallets.walletCreateFailed'),
+              this.i18n.translate('accounts.walletCreateFailed'),
           );
         },
       });
@@ -116,11 +139,11 @@ export class WalletsPage implements OnInit {
     this.error.set(null);
     this.message.set(null);
     if (!this.accountWalletId) {
-      this.error.set(this.i18n.translate('wallets.needWallet'));
+      this.error.set(this.i18n.translate('accounts.needWallet'));
       return;
     }
     if (!/^-?\d+$/.test(this.openingBalanceMinor.trim())) {
-      this.error.set(this.i18n.translate('wallets.invalidOpening'));
+      this.error.set(this.i18n.translate('accounts.invalidOpening'));
       return;
     }
     this.walletsApi
@@ -134,41 +157,13 @@ export class WalletsPage implements OnInit {
       .subscribe({
         next: (account) => {
           this.accounts.update((list) => [...list, account]);
-          this.message.set(this.i18n.translate('wallets.accountCreated'));
-          this.accountName = '';
-          this.openingBalanceMinor = '0';
-          this.isShared = false;
+          this.message.set(this.i18n.translate('accounts.accountCreated'));
+          this.accountDialogVisible.set(false);
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
             err.error?.message ??
-              this.i18n.translate('wallets.accountCreateFailed'),
-          );
-        },
-      });
-  }
-
-  addMember() {
-    this.error.set(null);
-    this.message.set(null);
-    if (!this.memberAccountId || !this.memberEmail.trim()) {
-      this.error.set(this.i18n.translate('wallets.memberRequired'));
-      return;
-    }
-    this.walletsApi
-      .addMember(this.memberAccountId, this.memberEmail.trim())
-      .subscribe({
-        next: (account) => {
-          this.accounts.update((list) =>
-            list.map((item) => (item.id === account.id ? account : item)),
-          );
-          this.message.set(this.i18n.translate('wallets.memberAdded'));
-          this.memberEmail = '';
-        },
-        error: (err: { error?: { message?: string } }) => {
-          this.error.set(
-            err.error?.message ??
-              this.i18n.translate('wallets.memberAddFailed'),
+              this.i18n.translate('accounts.accountCreateFailed'),
           );
         },
       });
@@ -178,35 +173,24 @@ export class WalletsPage implements OnInit {
     return this.accountsByWallet().get(walletId) ?? [];
   }
 
-  /** Accounts the user can access whose home wallet they do not own. */
   externalAccounts(): PublicAccount[] {
     const owned = new Set(this.wallets().map((w) => w.id));
     return this.accounts().filter((a) => !owned.has(a.walletId));
   }
 
-  sharedAccounts(): PublicAccount[] {
-    return this.accounts().filter((a) => a.isShared);
-  }
-
   formatBalance(account: PublicAccount): string {
-    const minor = BigInt(account.balanceMinor);
-    if (account.currency === 'IRR' && this.showToman()) {
-      const toman = minor / 10n;
-      const rem = minor % 10n;
-      const body = rem === 0n ? toman.toString() : `${toman}.${rem.toString()}`;
-      return `${body} ${this.i18n.translate('wallets.toman')}`;
-    }
-    return `${account.balanceMinor} ${this.minorUnitLabel(account.currency)}`;
+    return formatBalanceMinor(account.balanceMinor, account.currency, this.showToman(), {
+      toman: this.i18n.translate('accounts.toman'),
+      rials: this.i18n.translate('accounts.rials'),
+      cents: this.i18n.translate('accounts.cents'),
+    });
   }
 
-  minorUnitLabel(currency: string): string {
-    if (currency === 'IRR') {
-      return this.i18n.translate('wallets.rials');
-    }
-    if (currency === 'USD') {
-      return this.i18n.translate('wallets.cents');
-    }
-    return currency;
+  unitLabel(currency: string): string {
+    return minorUnitLabel(currency, {
+      rials: this.i18n.translate('accounts.rials'),
+      cents: this.i18n.translate('accounts.cents'),
+    });
   }
 
   toggleToman() {

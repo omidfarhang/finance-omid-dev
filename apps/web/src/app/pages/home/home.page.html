@@ -1,0 +1,65 @@
+<section class="home-page" *transloco="let t">
+  <header class="page-header">
+    <div>
+      <h1>{{ t('home.title') }}</h1>
+      <p class="lede">{{ t('home.lede') }}</p>
+    </div>
+    <button pButton type="button" severity="secondary" (click)="toggleToman()">
+      {{ showToman() ? t('accounts.showRials') : t('accounts.showToman') }}
+    </button>
+  </header>
+
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>{{ t('home.balances') }}</h2>
+      <a routerLink="/accounts">{{ t('home.openAccounts') }}</a>
+    </div>
+
+    @if (loading()) {
+      <p class="lede">{{ t('home.loadingBalances') }}</p>
+    } @else if (accounts().length === 0) {
+      <p class="lede">{{ t('home.noAccounts') }}</p>
+      <a routerLink="/accounts" pButton>{{ t('home.createAccountCta') }}</a>
+    } @else {
+      @for (group of currencyGroups(); track group.currency) {
+        <article class="currency-group">
+          <div class="currency-header">
+            <h3>{{ group.currency }}</h3>
+            <span class="balance">{{ currencySubtotal(group) }}</span>
+          </div>
+          <ul class="account-list">
+            @for (row of group.accounts; track row.account.id) {
+              <li>
+                <a [routerLink]="['/accounts', row.account.id]" class="account-link">
+                  <span class="account-name">
+                    {{ row.account.name }}
+                    <span class="meta">{{ row.walletName }}</span>
+                  </span>
+                  <span class="balance">{{ formatBalance(row.account) }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    }
+  </section>
+
+  <section class="panel">
+    <h2>{{ t('home.quickAdd') }}</h2>
+    <p class="lede">{{ t('home.quickAddStub') }}</p>
+    <a routerLink="/activity" class="text-link">{{ t('home.quickAddLink') }}</a>
+  </section>
+
+  <section class="panel">
+    <div class="panel-header">
+      <h2>{{ t('home.outlook') }}</h2>
+      <a routerLink="/outlook">{{ t('home.outlookLink') }}</a>
+    </div>
+    <p class="lede projection">{{ t('home.outlookStub') }}</p>
+  </section>
+</section>

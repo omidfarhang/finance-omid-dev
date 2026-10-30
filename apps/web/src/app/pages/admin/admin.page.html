@@ -41,10 +41,10 @@
       @for (user of users(); track user.id) {
         <li class="user-row">
           <div class="user-main">
-            <button type="button" class="user-select" (click)="selectUser(user.id)">
+            <a [routerLink]="['/admin/users', user.id]" class="user-select">
               <span class="user-name">{{ user.displayName }}</span>
               <span class="meta">{{ user.email }}</span>
-            </button>
+            </a>
             <div class="badges">
               <span class="badge">{{ user.role }}</span>
               @if (user.disabledAt) {
@@ -113,99 +113,6 @@
         <li class="lede">{{ t('admin.noUsers') }}</li>
       }
     </ul>
+    <p class="lede hint">{{ t('admin.manageMoneyHint') }}</p>
   </div>
-
-  @if (selectedUser(); as user) {
-    <div class="panel">
-      <div class="detail-header">
-        <div>
-          <h2>{{ t('admin.userMoney') }}</h2>
-          <p class="lede">{{ user.displayName }} · {{ user.email }}</p>
-        </div>
-        <button pButton type="button" severity="secondary" (click)="clearSelection()">
-          {{ t('admin.clearSelection') }}
-        </button>
-      </div>
-
-      @for (wallet of wallets(); track wallet.id) {
-        <article class="wallet-block">
-          <h3>{{ wallet.name }}</h3>
-          <ul class="account-list">
-            @for (account of accountsFor(wallet.id); track account.id) {
-              <li>
-                <div class="account-row">
-                  <span class="account-name">
-                    {{ account.name }}
-                    @if (account.isShared) {
-                      <span class="badge">{{ t('wallets.shared') }}</span>
-                    }
-                  </span>
-                  <span class="balance">
-                    {{ account.balanceMinor }} {{ account.currency }}
-                  </span>
-                </div>
-              </li>
-            } @empty {
-              <li class="lede">{{ t('wallets.noAccounts') }}</li>
-            }
-          </ul>
-        </article>
-      } @empty {
-        <p class="lede">{{ t('admin.noWallets') }}</p>
-      }
-
-      <form (ngSubmit)="createWallet()" class="subpanel">
-        <h3>{{ t('wallets.createWallet') }}</h3>
-        <label>
-          {{ t('wallets.walletName') }}
-          <input pInputText name="walletName" [(ngModel)]="walletName" required />
-        </label>
-        <button pButton type="submit">{{ t('wallets.createWallet') }}</button>
-      </form>
-
-      <form (ngSubmit)="createAccount()" class="subpanel">
-        <h3>{{ t('wallets.createAccount') }}</h3>
-        <label>
-          {{ t('wallets.wallet') }}
-          <select name="accountWalletId" [(ngModel)]="accountWalletId" required>
-            @for (wallet of wallets(); track wallet.id) {
-              <option [value]="wallet.id">{{ wallet.name }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          {{ t('wallets.accountName') }}
-          <input pInputText name="accountName" [(ngModel)]="accountName" required />
-        </label>
-        <label>
-          {{ t('wallets.currency') }}
-          <select name="accountCurrency" [(ngModel)]="accountCurrency" required>
-            @for (code of currencies; track code) {
-              <option [value]="code">{{ code }}</option>
-            }
-          </select>
-        </label>
-        <label>
-          {{ t('wallets.openingBalance') }}
-          <input
-            pInputText
-            name="openingBalanceMinor"
-            [(ngModel)]="openingBalanceMinor"
-            inputmode="numeric"
-            required
-          />
-        </label>
-        <label class="checkbox-row">
-          <p-checkbox
-            [(ngModel)]="isShared"
-            [binary]="true"
-            inputId="adminIsShared"
-            name="isShared"
-          />
-          <span>{{ t('wallets.sharedAccount') }}</span>
-        </label>
-        <button pButton type="submit">{{ t('wallets.createAccount') }}</button>
-      </form>
-    </div>
-  }
 </section>

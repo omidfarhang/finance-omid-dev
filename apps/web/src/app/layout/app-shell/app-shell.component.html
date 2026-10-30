@@ -1,0 +1,56 @@
+<div class="shell app-shell" *transloco="let t">
+  <header class="topbar">
+    <a routerLink="/" class="brand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      {{ t('app.brand') }}
+    </a>
+    <div class="topbar-actions">
+      <nav class="nav primary-nav" [attr.aria-label]="t('app.nav.primary')">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          {{ t('app.nav.home') }}
+        </a>
+        <a routerLink="/activity" routerLinkActive="active">{{ t('app.nav.activity') }}</a>
+        <a routerLink="/accounts" routerLinkActive="active">{{ t('app.nav.accounts') }}</a>
+        <a routerLink="/import" routerLinkActive="active">{{ t('app.nav.import') }}</a>
+        <a routerLink="/outlook" routerLinkActive="active">{{ t('app.nav.outlook') }}</a>
+      </nav>
+      <div class="overflow">
+        <button
+          type="button"
+          class="overflow-toggle"
+          [attr.aria-expanded]="overflowOpen()"
+          [attr.aria-label]="t('app.nav.more')"
+          (click)="toggleOverflow($event)"
+        >
+          {{ t('app.nav.more') }}
+        </button>
+        @if (overflowOpen()) {
+          <div class="overflow-menu" role="menu" (click)="$event.stopPropagation()">
+            <a routerLink="/settings" role="menuitem" (click)="closeOverflow()">
+              {{ t('app.nav.settings') }}
+            </a>
+            @if (auth.isAdmin()) {
+              <a routerLink="/admin" role="menuitem" (click)="closeOverflow()">
+                {{ t('app.nav.admin') }}
+              </a>
+            }
+          </div>
+        }
+      </div>
+      <app-lang-switch />
+    </div>
+  </header>
+
+  <main class="shell-main">
+    <router-outlet />
+  </main>
+
+  <nav class="bottom-nav" [attr.aria-label]="t('app.nav.primary')">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      {{ t('app.nav.home') }}
+    </a>
+    <a routerLink="/activity" routerLinkActive="active">{{ t('app.nav.activity') }}</a>
+    <a routerLink="/accounts" routerLinkActive="active">{{ t('app.nav.accounts') }}</a>
+    <a routerLink="/import" routerLinkActive="active">{{ t('app.nav.import') }}</a>
+    <a routerLink="/outlook" routerLinkActive="active">{{ t('app.nav.outlook') }}</a>
+  </nav>
+</div>

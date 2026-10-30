@@ -1,0 +1,94 @@
+<section class="account-detail-page" *transloco="let t">
+  <header class="page-header">
+    <div>
+      <a routerLink="/accounts" class="back">{{ t('accounts.backToList') }}</a>
+      @if (account(); as account) {
+        <h1>{{ account.name }}</h1>
+        <p class="lede">
+          {{ wallet()?.name ?? t('accounts.sharedWithYou') }} · {{ account.currency }}
+          @if (account.isShared) {
+            <span class="badge">{{ t('accounts.shared') }}</span>
+          }
+        </p>
+      } @else if (!loading()) {
+        <h1>{{ t('accounts.notFoundTitle') }}</h1>
+      }
+    </div>
+    <div class="header-actions">
+      <button pButton type="button" severity="secondary" (click)="toggleToman()">
+        {{ showToman() ? t('accounts.showRials') : t('accounts.showToman') }}
+      </button>
+      @if (account()?.isShared) {
+        <button pButton type="button" (click)="openMemberDialog()">
+          {{ t('accounts.addMember') }}
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+  @if (loading()) {
+    <p class="lede">{{ t('accounts.loading') }}</p>
+  }
+
+  @if (account(); as account) {
+    <section class="panel">
+      <h2>{{ t('accounts.balanceStory') }}</h2>
+      <p class="balance-lg">{{ formatBalance(account) }}</p>
+      <p class="meta">
+        {{ t('accounts.opening') }}:
+        {{ account.openingBalanceMinor }}
+        {{ unitLabel(account.currency) }}
+        · {{ t('accounts.balanceFromOpening') }}
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>{{ t('accounts.movements') }}</h2>
+      <p class="lede">{{ t('accounts.movementsStub') }}</p>
+      <a routerLink="/activity">{{ t('accounts.activityLink') }}</a>
+    </section>
+
+    @if (account.isShared) {
+      <section class="panel">
+        <h2>{{ t('accounts.members') }}</h2>
+        <ul class="member-list">
+          @for (member of account.members; track member.userId) {
+            <li>
+              <span class="member-name">{{ member.displayName }}</span>
+              <span class="meta">{{ member.email }} · {{ member.role }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+
+  <p-dialog
+    [header]="t('accounts.addMember')"
+    [modal]="true"
+    [style]="{ width: 'min(24rem, 92vw)' }"
+    [visible]="memberDialogVisible()"
+    (visibleChange)="memberDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="addMember()" class="dialog-form">
+      <label>
+        {{ t('accounts.memberEmail') }}
+        <input
+          pInputText
+          type="email"
+          name="memberEmail"
+          [(ngModel)]="memberEmail"
+          required
+          class="w-full"
+        />
+      </label>
+      <button pButton type="submit">{{ t('accounts.addMember') }}</button>
+    </form>
+  </p-dialog>
+</section>

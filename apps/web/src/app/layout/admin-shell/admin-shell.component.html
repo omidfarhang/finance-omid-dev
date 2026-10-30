@@ -1,0 +1,16 @@
+<div class="shell admin-shell" *transloco="let t">
+  <header class="topbar">
+    <div class="topbar-start">
+      <span class="admin-badge">{{ t('app.nav.admin') }}</span>
+      <a routerLink="/admin" class="brand">{{ t('app.brand') }}</a>
+    </div>
+    <div class="topbar-actions">
+      <a routerLink="/" class="back-link">{{ t('admin.backToApp') }}</a>
+      <app-lang-switch />
+    </div>
+  </header>
+  <main class="shell-main">
+    <router-outlet />
+  </main>
+  <p-confirmdialog />
+</div>

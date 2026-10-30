@@ -8,12 +8,6 @@ Work that is ready to be done.
 
 ## Next
 
-- UI shell and IA per [docs/plans/ui-ux.md](../docs/plans/ui-ux.md) / [DEC-011](../docs/decisions/DEC-011-ui-ia.md) (do before stacking more form pages):
-  1. App shell + primary nav + route map (stubs OK for Activity / Import / Outlook)
-  2. Refactor `/wallets` → Accounts IA; create wallet/account via dialog or sub-route; redirect legacy `/wallets`
-  3. Hybrid home `/` (balances from current APIs; quick-add and outlook stubs until APIs exist); post-login → `/`
-  4. Settings consolidation (profile / TOTP / sign-out); demote Status out of primary nav; redirect `/profile`
-  5. Admin shell separation + acting-as banner on `/admin/users/:userId`
 - Manual transactions and same-currency transfers (fill Activity / home quick-add / account detail per ui-ux.md)
 - Generic/synthetic CSV import adapter + deduplication (fill `/import` per ui-ux.md)
 - Recurrings and next-month forecast (per currency) (fill Outlook + home strip per ui-ux.md)
@@ -23,6 +17,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- UI shell and IA ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md)): App/Guest/Admin shells, primary nav, hybrid home, Accounts IA + dialogs, Settings, Admin acting-as
 - UI/UX plan and IA decision ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md))
 - Instance admin and registration control ([DEC-010](../docs/decisions/DEC-010-instance-admin.md), [docs/plans/instance-admin.md](../docs/plans/instance-admin.md))
 - Upgrade Angular web app 19 → 22 and PrimeNG 19 → 22; Karma/Jasmine → Vitest (`@angular/build:unit-test`)

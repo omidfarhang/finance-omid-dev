@@ -56,7 +56,7 @@ export class LoginPage implements OnInit {
         .subscribe({
           next: () => {
             this.loading.set(false);
-            void this.router.navigateByUrl('/profile');
+            void this.router.navigateByUrl('/');
           },
           error: (err: { error?: { message?: string } }) => {
             this.loading.set(false);
@@ -76,7 +76,7 @@ export class LoginPage implements OnInit {
           this.pendingToken.set(res.pendingToken);
           return;
         }
-        void this.router.navigateByUrl('/profile');
+        void this.router.navigateByUrl('/');
       },
       error: (err: { error?: { message?: string } }) => {
         this.loading.set(false);

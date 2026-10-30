@@ -1,4 +1,4 @@
-.wallets-page {
+.accounts-page {
   max-width: 44rem;
   margin: 2rem auto;
   padding: 0 1.25rem;
@@ -6,22 +6,34 @@
   gap: 1.5rem;
 }
 
-.wallets-header {
+.page-header {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .lede {
-  color: var(--p-text-muted-color, #5b6472);
+  color: var(--app-text-muted);
 }
 
 .panel {
   display: grid;
   gap: 1rem;
   padding: 1.25rem 0;
-  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+.dialog-form {
+  display: grid;
+  gap: 1rem;
 }
 
 label {
@@ -33,17 +45,7 @@ label {
 .hint {
   font-weight: 400;
   font-size: 0.85rem;
-  color: var(--p-text-muted-color, #5b6472);
-}
-
-select {
-  width: 100%;
-  font: inherit;
-  padding: 0.55rem 0.65rem;
-  border: 1px solid rgba(28, 42, 39, 0.16);
-  border-radius: 0.4rem;
-  background: #fff;
-  color: inherit;
+  color: var(--app-text-muted);
 }
 
 .checkbox-row {
@@ -66,11 +68,13 @@ select {
   gap: 0.85rem;
 }
 
-.account-row {
+.account-link {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: baseline;
+  text-decoration: none;
+  color: inherit;
 }
 
 .account-name {
@@ -88,7 +92,7 @@ select {
 .meta {
   margin: 0.2rem 0 0;
   font-size: 0.85rem;
-  color: var(--p-text-muted-color, #5b6472);
+  color: var(--app-text-muted);
 }
 
 .badge {
@@ -97,6 +101,6 @@ select {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   padding: 0.1rem 0.4rem;
-  border: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-text) 20%, transparent);
   border-radius: 0.25rem;
 }

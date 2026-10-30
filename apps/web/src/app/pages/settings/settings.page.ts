@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
@@ -14,13 +14,20 @@ import {
 } from '../../core/i18n/time-zones';
 
 @Component({
-  selector: 'app-profile-page',
+  selector: 'app-settings-page',
   standalone: true,
-  imports: [FormsModule, ButtonDirective, InputText, Message, TranslocoDirective],
-  templateUrl: './profile.page.html',
-  styleUrl: './profile.page.scss',
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonDirective,
+    InputText,
+    Message,
+    TranslocoDirective,
+  ],
+  templateUrl: './settings.page.html',
+  styleUrl: './settings.page.scss',
 })
-export class ProfilePage implements OnInit {
+export class SettingsPage implements OnInit {
   displayName = '';
   timeZone = '';
   totpCode = '';
@@ -69,12 +76,12 @@ export class ProfilePage implements OnInit {
         next: () => {
           this.loading.set(false);
           void this.localeService.setLang(locale, { persistProfile: false });
-          this.message.set(this.i18n.translate('profile.updated'));
+          this.message.set(this.i18n.translate('settings.updated'));
         },
         error: (err: { error?: { message?: string } }) => {
           this.loading.set(false);
           this.error.set(
-            err.error?.message ?? this.i18n.translate('profile.updateFailed'),
+            err.error?.message ?? this.i18n.translate('settings.updateFailed'),
           );
         },
       });
@@ -89,7 +96,7 @@ export class ProfilePage implements OnInit {
       },
       error: (err: { error?: { message?: string } }) => {
         this.error.set(
-          err.error?.message ?? this.i18n.translate('profile.totp.setupFailed'),
+          err.error?.message ?? this.i18n.translate('settings.totp.setupFailed'),
         );
       },
     });
@@ -99,14 +106,14 @@ export class ProfilePage implements OnInit {
     this.error.set(null);
     this.auth.confirm2fa(this.totpCode).subscribe({
       next: () => {
-        this.message.set(this.i18n.translate('profile.totp.enabledMessage'));
+        this.message.set(this.i18n.translate('settings.totp.enabledMessage'));
         this.qrDataUrl.set(null);
         this.totpSecret.set(null);
         this.totpCode = '';
       },
       error: (err: { error?: { message?: string } }) => {
         this.error.set(
-          err.error?.message ?? this.i18n.translate('profile.totp.invalidCode'),
+          err.error?.message ?? this.i18n.translate('settings.totp.invalidCode'),
         );
       },
     });
@@ -116,13 +123,13 @@ export class ProfilePage implements OnInit {
     this.error.set(null);
     this.auth.disable2fa(this.disableCode).subscribe({
       next: () => {
-        this.message.set(this.i18n.translate('profile.totp.disabledMessage'));
+        this.message.set(this.i18n.translate('settings.totp.disabledMessage'));
         this.disableCode = '';
       },
       error: (err: { error?: { message?: string } }) => {
         this.error.set(
           err.error?.message ??
-            this.i18n.translate('profile.totp.disableFailed'),
+            this.i18n.translate('settings.totp.disableFailed'),
         );
       },
     });

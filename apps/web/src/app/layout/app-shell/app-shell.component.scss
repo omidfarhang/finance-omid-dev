@@ -1,0 +1,136 @@
+.shell {
+  min-height: 100vh;
+  background: var(--app-shell-bg);
+  color: var(--app-text);
+  padding-bottom: 4.5rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--app-page-ground) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.brand {
+  font-family: var(--app-font-brand);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.nav a,
+.bottom-nav a,
+.overflow-menu a {
+  text-decoration: none;
+  color: var(--app-text-muted);
+  font-weight: 600;
+}
+
+.nav a:hover,
+.bottom-nav a:hover,
+.overflow-menu a:hover,
+.nav a.active,
+.bottom-nav a.active {
+  color: var(--app-text);
+}
+
+.overflow {
+  position: relative;
+}
+
+.overflow-toggle {
+  font: inherit;
+  font-weight: 600;
+  color: var(--app-text-muted);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--app-text) 16%, transparent);
+  border-radius: 0.4rem;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.overflow-menu {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 10rem;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.45rem;
+  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  border-radius: 0.5rem;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--app-text) 12%, transparent);
+  z-index: 30;
+}
+
+.overflow-menu a {
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.35rem;
+}
+
+.overflow-menu a:hover {
+  background: color-mix(in srgb, var(--app-accent) 8%, transparent);
+}
+
+.shell-main {
+  padding-bottom: 1rem;
+}
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 20;
+  background: color-mix(in srgb, #fff 94%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
+  padding: 0.55rem 0.35rem calc(0.55rem + env(safe-area-inset-bottom));
+  justify-content: space-around;
+  gap: 0.15rem;
+}
+
+.bottom-nav a {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.15rem;
+}
+
+@media (max-width: 52rem) {
+  .primary-nav {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: flex;
+  }
+}
+
+@media (min-width: 52.01rem) {
+  .shell {
+    padding-bottom: 0;
+  }
+}

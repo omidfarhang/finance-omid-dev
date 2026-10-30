@@ -1,18 +1,29 @@
 @import "primeicons/primeicons.css";
 
 :root {
-  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --app-text: #1c2a27;
+  --app-text-muted: #5b6472;
+  --app-accent: #0f6b61;
+  --app-page-ground: #eef3f1;
+  --app-shell-bg:
+    radial-gradient(circle at top left, rgba(20, 120, 110, 0.12), transparent 40%),
+    linear-gradient(180deg, #f7faf9 0%, #eef3f1 100%);
+  --app-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --app-font-brand: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+
+  font-family: var(--app-font-body);
   line-height: 1.5;
   font-weight: 400;
-  color: #1c2a27;
-  background: #eef3f1;
+  color: var(--app-text);
+  background: var(--app-page-ground);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
 html[lang='fa'] {
-  font-family: "Vazirmatn", "IBM Plex Sans", "Segoe UI", sans-serif;
+  font-family: "Vazirmatn", var(--app-font-body);
+  --app-font-brand: "Vazirmatn", "Source Serif 4", Georgia, serif;
 }
 
 * {
@@ -25,19 +36,13 @@ body {
 
 h1,
 h2 {
-  font-family: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  font-family: var(--app-font-brand);
   font-weight: 650;
   line-height: 1.2;
 }
 
-html[lang='fa'] h1,
-html[lang='fa'] h2,
-html[lang='fa'] .brand {
-  font-family: "Vazirmatn", "Source Serif 4", Georgia, serif;
-}
-
 a {
-  color: #0f6b61;
+  color: var(--app-accent);
 }
 
 .w-full {
