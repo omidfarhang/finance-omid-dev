@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../src/generated/prisma/client';
 import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { App } from 'supertest/types';
@@ -23,6 +23,11 @@ describe('Instance admin (e2e)', () => {
     app.use(cookieParser());
     await app.init();
     prisma = app.get(PrismaService);
+    await prisma.appSettings.upsert({
+      where: { id: 1 },
+      create: { id: 1, registrationOpen: true },
+      update: { registrationOpen: true },
+    });
   });
 
   afterAll(async () => {

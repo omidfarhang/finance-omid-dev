@@ -1,5 +1,5 @@
 import type { AdminUser, PublicUser } from '@finance/shared';
-import type { User } from '@prisma/client';
+import type { User } from '../generated/prisma/client';
 
 export function toPublicUser(user: User): PublicUser {
   return {

@@ -7,19 +7,19 @@ describe('AdminService', () => {
   let service: AdminService;
   let prisma: {
     user: {
-      findMany: jest.Mock;
-      findUnique: jest.Mock;
-      update: jest.Mock;
-      count: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findUnique: Mock;
+      update: Mock;
+      count: Mock;
+      delete: Mock;
     };
-    session: { deleteMany: jest.Mock };
-    pendingLogin: { deleteMany: jest.Mock };
-    wallet: { findMany: jest.Mock; deleteMany: jest.Mock };
-    account: { deleteMany: jest.Mock };
-    accountMember: { deleteMany: jest.Mock };
-    appSettings: { upsert: jest.Mock };
-    $transaction: jest.Mock;
+    session: { deleteMany: Mock };
+    pendingLogin: { deleteMany: Mock };
+    wallet: { findMany: Mock; deleteMany: Mock };
+    account: { deleteMany: Mock };
+    accountMember: { deleteMany: Mock };
+    appSettings: { upsert: Mock };
+    $transaction: Mock;
   };
 
   const adminUser = {
@@ -47,24 +47,24 @@ describe('AdminService', () => {
   beforeEach(async () => {
     prisma = {
       user: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        update: jest.fn(),
-        count: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        update: vi.fn(),
+        count: vi.fn(),
+        delete: vi.fn(),
       },
-      session: { deleteMany: jest.fn() },
-      pendingLogin: { deleteMany: jest.fn() },
-      wallet: { findMany: jest.fn(), deleteMany: jest.fn() },
-      account: { deleteMany: jest.fn() },
-      accountMember: { deleteMany: jest.fn() },
+      session: { deleteMany: vi.fn() },
+      pendingLogin: { deleteMany: vi.fn() },
+      wallet: { findMany: vi.fn(), deleteMany: vi.fn() },
+      account: { deleteMany: vi.fn() },
+      accountMember: { deleteMany: vi.fn() },
       appSettings: {
-        upsert: jest.fn().mockResolvedValue({
+        upsert: vi.fn().mockResolvedValue({
           id: 1,
           registrationOpen: true,
         }),
       },
-      $transaction: jest.fn(async (fn) => fn(prisma)),
+      $transaction: vi.fn(async (fn) => fn(prisma)),
     };
 
     const module: TestingModule = await Test.createTestingModule({

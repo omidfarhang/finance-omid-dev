@@ -8,7 +8,7 @@ import type {
   UpdateAdminUserDto,
   UpdateAppSettingsDto,
 } from '@finance/shared';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { toAdminUser } from '../users/users.mapper';
 

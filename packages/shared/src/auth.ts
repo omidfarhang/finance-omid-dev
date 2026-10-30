@@ -1,14 +1,14 @@
 import { z } from 'zod';
 
 export const registerSchema = z.object({
-  email: z.string().email().max(320),
+  email: z.email().max(320),
   password: z.string().min(10).max(128),
   displayName: z.string().trim().min(1).max(100),
 });
 export type RegisterDto = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email().max(320),
+  email: z.email().max(320),
   password: z.string().min(1).max(128),
 });
 export type LoginDto = z.infer<typeof loginSchema>;
@@ -24,6 +24,6 @@ export const loginWithTotpSchema = loginSchema.merge(totpCodeSchema.partial());
 export type LoginWithTotpDto = z.infer<typeof loginWithTotpSchema>;
 
 export const completeTotpLoginSchema = totpCodeSchema.extend({
-  pendingToken: z.string().uuid(),
+  pendingToken: z.uuid(),
 });
 export type CompleteTotpLoginDto = z.infer<typeof completeTotpLoginSchema>;

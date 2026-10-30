@@ -16,7 +16,7 @@ export const accountMemberRoleSchema = z.enum(['OWNER', 'MEMBER']);
 export type AccountMemberRole = z.infer<typeof accountMemberRoleSchema>;
 
 export const createAccountSchema = z.object({
-  walletId: z.string().uuid(),
+  walletId: z.uuid(),
   name: z.string().trim().min(1).max(100),
   currency: currencyCodeSchema,
   openingBalanceMinor: minorUnitsSchema,
@@ -30,28 +30,28 @@ export const updateAccountSchema = z.object({
 export type UpdateAccountDto = z.infer<typeof updateAccountSchema>;
 
 export const addAccountMemberSchema = z.object({
-  email: z.string().email().max(320),
+  email: z.email().max(320),
 });
 export type AddAccountMemberDto = z.infer<typeof addAccountMemberSchema>;
 
 export const publicAccountMemberSchema = z.object({
-  userId: z.string().uuid(),
-  email: z.string().email(),
+  userId: z.uuid(),
+  email: z.email(),
   displayName: z.string(),
   role: accountMemberRoleSchema,
 });
 export type PublicAccountMember = z.infer<typeof publicAccountMemberSchema>;
 
 export const publicAccountSchema = z.object({
-  id: z.string().uuid(),
-  walletId: z.string().uuid(),
+  id: z.uuid(),
+  walletId: z.uuid(),
   name: z.string(),
   currency: z.string().length(3),
   openingBalanceMinor: minorUnitsSchema,
   balanceMinor: minorUnitsSchema,
   isShared: z.boolean(),
   members: z.array(publicAccountMemberSchema),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type PublicAccount = z.infer<typeof publicAccountSchema>;

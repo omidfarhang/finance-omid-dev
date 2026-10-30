@@ -13,9 +13,9 @@ import type {
   TotpCodeDto,
   UpdateProfileDto,
 } from '@finance/shared';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../generated/prisma/client';
 import * as argon2 from 'argon2';
-import { authenticator } from 'otplib';
+import { generate, generateSecret, generateURI, verify } from 'otplib';
 import * as QRCode from 'qrcode';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -88,7 +88,7 @@ export class AuthService {
 
     if (user.totpEnabled) {
       if (dto.code) {
-        this.assertTotp(user.totpSecret, dto.code);
+        await this.assertTotp(user.totpSecret, dto.code);
         const sessionId = await this.createSession(user.id);
         return { user: toPublicUser(user), sessionId };
       }
@@ -122,7 +122,7 @@ export class AuthService {
     }
 
     this.assertNotDisabled(pending.user.disabledAt);
-    this.assertTotp(pending.user.totpSecret, dto.code);
+    await this.assertTotp(pending.user.totpSecret, dto.code);
     await this.prisma.pendingLogin.delete({ where: { id: pending.id } });
     const sessionId = await this.createSession(pending.user.id);
     return { user: toPublicUser(pending.user), sessionId };
@@ -170,13 +170,17 @@ export class AuthService {
       throw new BadRequestException('2FA is already enabled');
     }
 
-    const secret = authenticator.generateSecret();
+    const secret = generateSecret();
     await this.prisma.user.update({
       where: { id: userId },
       data: { totpSecret: secret, totpEnabled: false },
     });
 
-    const otpauthUrl = authenticator.keyuri(user.email, 'Finance Omid', secret);
+    const otpauthUrl = generateURI({
+      issuer: 'Finance Omid',
+      label: user.email,
+      secret,
+    });
     const qrDataUrl = await QRCode.toDataURL(otpauthUrl);
     return { secret, otpauthUrl, qrDataUrl };
   }
@@ -190,7 +194,7 @@ export class AuthService {
       throw new BadRequestException('2FA is already enabled');
     }
 
-    this.assertTotp(user.totpSecret, dto.code);
+    await this.assertTotp(user.totpSecret, dto.code);
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { totpEnabled: true },
@@ -203,7 +207,7 @@ export class AuthService {
     if (!user.totpEnabled) {
       throw new BadRequestException('2FA is not enabled');
     }
-    this.assertTotp(user.totpSecret, dto.code);
+    await this.assertTotp(user.totpSecret, dto.code);
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data: { totpEnabled: false, totpSecret: null },
@@ -225,8 +229,12 @@ export class AuthService {
     }
   }
 
-  private assertTotp(secret: string | null, code: string) {
-    if (!secret || !authenticator.verify({ token: code, secret })) {
+  private async assertTotp(secret: string | null, code: string) {
+    if (!secret) {
+      throw new UnauthorizedException('Invalid authentication code');
+    }
+    const result = await verify({ secret, token: code });
+    if (!result.valid) {
       throw new UnauthorizedException('Invalid authentication code');
     }
   }

@@ -1,5 +1,5 @@
 import type { PublicWallet } from '@finance/shared';
-import type { Wallet } from '@prisma/client';
+import type { Wallet } from '../generated/prisma/client';
 
 export function toPublicWallet(wallet: Wallet): PublicWallet {
   return {

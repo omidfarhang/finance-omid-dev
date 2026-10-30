@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as argon2 from 'argon2';
-import { authenticator } from 'otplib';
+import { generate, generateSecret } from 'otplib';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 
@@ -13,25 +13,25 @@ describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
     user: {
-      findUnique: jest.Mock;
-      findUniqueOrThrow: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      count: jest.Mock;
+      findUnique: Mock;
+      findUniqueOrThrow: Mock;
+      create: Mock;
+      update: Mock;
+      count: Mock;
     };
     session: {
-      create: jest.Mock;
-      deleteMany: jest.Mock;
-      findUnique: jest.Mock;
-      delete: jest.Mock;
+      create: Mock;
+      deleteMany: Mock;
+      findUnique: Mock;
+      delete: Mock;
     };
     pendingLogin: {
-      create: jest.Mock;
-      findUnique: jest.Mock;
-      delete: jest.Mock;
+      create: Mock;
+      findUnique: Mock;
+      delete: Mock;
     };
     appSettings: {
-      upsert: jest.Mock;
+      upsert: Mock;
     };
   };
 
@@ -53,27 +53,27 @@ describe('AuthService', () => {
   beforeEach(async () => {
     prisma = {
       user: {
-        findUnique: jest.fn(),
-        findUniqueOrThrow: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        count: jest.fn().mockResolvedValue(0),
+        findUnique: vi.fn(),
+        findUniqueOrThrow: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        count: vi.fn().mockResolvedValue(0),
       },
       session: {
-        create: jest.fn().mockResolvedValue({
+        create: vi.fn().mockResolvedValue({
           id: '22222222-2222-2222-2222-222222222222',
         }),
-        deleteMany: jest.fn(),
-        findUnique: jest.fn(),
-        delete: jest.fn(),
+        deleteMany: vi.fn(),
+        findUnique: vi.fn(),
+        delete: vi.fn(),
       },
       pendingLogin: {
-        create: jest.fn(),
-        findUnique: jest.fn(),
-        delete: jest.fn(),
+        create: vi.fn(),
+        findUnique: vi.fn(),
+        delete: vi.fn(),
       },
       appSettings: {
-        upsert: jest.fn().mockResolvedValue({
+        upsert: vi.fn().mockResolvedValue({
           id: 1,
           registrationOpen: true,
         }),
@@ -164,7 +164,7 @@ describe('AuthService', () => {
   });
 
   it('requires TOTP when enabled', async () => {
-    const secret = authenticator.generateSecret();
+    const secret = generateSecret();
     prisma.user.findUnique.mockResolvedValue({
       ...baseUser,
       passwordHash: await argon2.hash('password-long'),
@@ -187,8 +187,8 @@ describe('AuthService', () => {
   });
 
   it('completes TOTP login with a valid code', async () => {
-    const secret = authenticator.generateSecret();
-    const code = authenticator.generate(secret);
+    const secret = generateSecret();
+    const code = await generate({ secret });
     prisma.pendingLogin.findUnique.mockResolvedValue({
       id: '33333333-3333-3333-3333-333333333333',
       expiresAt: new Date(Date.now() + 60_000),

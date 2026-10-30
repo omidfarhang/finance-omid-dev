@@ -11,10 +11,10 @@ export const updateWalletSchema = z.object({
 export type UpdateWalletDto = z.infer<typeof updateWalletSchema>;
 
 export const publicWalletSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   name: z.string(),
-  ownerUserId: z.string().uuid(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  ownerUserId: z.uuid(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type PublicWallet = z.infer<typeof publicWalletSchema>;

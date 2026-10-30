@@ -18,14 +18,14 @@ export const updateAppSettingsSchema = z.object({
 export type UpdateAppSettingsDto = z.infer<typeof updateAppSettingsSchema>;
 
 export const adminUserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   displayName: z.string(),
   role: userRoleSchema,
-  disabledAt: z.string().datetime().nullable(),
+  disabledAt: z.iso.datetime().nullable(),
   totpEnabled: z.boolean(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type AdminUser = z.infer<typeof adminUserSchema>;
 
@@ -35,6 +35,6 @@ export const updateAdminUserSchema = z
     disabled: z.boolean().optional(),
   })
   .refine((value) => value.role !== undefined || value.disabled !== undefined, {
-    message: 'At least one of role or disabled is required',
+    error: 'At least one of role or disabled is required',
   });
 export type UpdateAdminUserDto = z.infer<typeof updateAdminUserSchema>;

@@ -7,13 +7,13 @@ describe('WalletsService', () => {
   let service: WalletsService;
   let prisma: {
     wallet: {
-      findMany: jest.Mock;
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findUnique: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
-    account: { count: jest.Mock };
+    account: { count: Mock };
   };
 
   const userId = '11111111-1111-1111-1111-111111111111';
@@ -31,13 +31,13 @@ describe('WalletsService', () => {
   beforeEach(async () => {
     prisma = {
       wallet: {
-        findMany: jest.fn(),
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
-      account: { count: jest.fn() },
+      account: { count: vi.fn() },
     };
 
     const module: TestingModule = await Test.createTestingModule({

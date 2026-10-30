@@ -11,14 +11,14 @@ export const updateProfileSchema = z.object({
 export type UpdateProfileDto = z.infer<typeof updateProfileSchema>;
 
 export const publicUserSchema = z.object({
-  id: z.string().uuid(),
-  email: z.string().email(),
+  id: z.uuid(),
+  email: z.email(),
   displayName: z.string(),
   role: userRoleSchema,
   locale: z.string().nullable(),
   timeZone: z.string().nullable(),
   totpEnabled: z.boolean(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 export type PublicUser = z.infer<typeof publicUserSchema>;

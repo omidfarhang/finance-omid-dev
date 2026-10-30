@@ -8,9 +8,9 @@ When architecture or stack choices change, update this file in the same change s
 
 ## Shape
 
-- **System of record:** NestJS REST API over PostgreSQL (Prisma).
+- **System of record:** NestJS 12 REST API over PostgreSQL (Prisma 7 + `pg` adapter).
 - **First client:** Angular PWA with PrimeNG; installable shell; money data online-only.
-- **Contracts:** Zod schemas in a shared package for HTTP DTOs; do not expose Prisma models to the web app.
+- **Contracts:** Zod 4 schemas in a shared package for HTTP DTOs; do not expose Prisma models to the web app.
 - **Money:** integer minor units of each account’s ISO currency; IRR toman only as explicit UI presentation; no FX and no cross-currency net worth ([DEC-006](decisions/DEC-006-money-multi-currency.md)).
 - **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)); instance `ADMIN` / `USER` with registration toggle ([DEC-010](decisions/DEC-010-instance-admin.md)).
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).

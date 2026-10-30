@@ -1,5 +1,5 @@
 import type { PublicAccount, PublicAccountMember } from '@finance/shared';
-import type { Account, AccountMember, User } from '@prisma/client';
+import type { Account, AccountMember, User } from '../generated/prisma/client';
 
 type MemberWithUser = AccountMember & { user: User };
 type AccountWithMembers = Account & { members: MemberWithUser[] };

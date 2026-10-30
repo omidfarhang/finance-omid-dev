@@ -24,11 +24,21 @@ We needed a stack for a REST API, relational persistence, safe validation, and a
 - **Local Postgres:** **Docker Compose**.
 - Prefer Angular over React unless a future need clearly conflicts with Angular PWA constraints.
 
+### Current major versions (as of 2026-10-30)
+
+- **NestJS** 12 (TypeScript 6 for `@nestjs/schematics` peer).
+- **Prisma** 7 (`prisma-client` generator + `@prisma/adapter-pg`; `DATABASE_URL` in `prisma.config.ts`).
+- **Zod** 4 in `packages/shared` and `apps/api` (keep in lockstep).
+- **Web** stays on Angular 22 / TypeScript ~6 separately from the API toolchain.
+- **API tests:** Vitest (aligned with Nest 12 defaults and `apps/web`).
+
 ## Consequences
 
 - TypeScript can span API, shared contracts, and web client.
 - NestJS modules map cleanly to MVP nouns (auth, wallets, accounts, transactions, imports, etc.).
 - Local dev depends on pnpm and Compose for Postgres.
+- Prisma Client is generated under `apps/api/src/generated/prisma` (not `@prisma/client` in `node_modules`); Docker build must run `prisma generate` before `nest build`.
+- API unit/e2e tests run under Vitest; Nest DI still uses `@nestjs/testing`.
 
 ## Revisit when
 

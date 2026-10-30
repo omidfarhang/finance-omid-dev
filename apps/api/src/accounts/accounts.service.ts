@@ -8,7 +8,7 @@ import type {
   CreateAccountDto,
   UpdateAccountDto,
 } from '@finance/shared';
-import { AccountMemberRole, Prisma } from '@prisma/client';
+import { AccountMemberRole, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletsService } from '../wallets/wallets.service';
 import {

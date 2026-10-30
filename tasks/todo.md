@@ -17,6 +17,8 @@ Work that is ready to be done.
 
 ## Done recently
 
+- API tests: Jest → Vitest ([DEC-002](../docs/decisions/DEC-002-stack.md))
+- API stack bump: NestJS 12, Prisma 7 (`prisma-client` + adapter-pg), Zod 4 (shared + api); compatible TypeScript 6 / tooling ([DEC-002](../docs/decisions/DEC-002-stack.md))
 - UI shell and IA ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md)): App/Guest/Admin shells, primary nav, hybrid home, Accounts IA + dialogs, Settings, Admin acting-as
 - UI/UX plan and IA decision ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md))
 - Instance admin and registration control ([DEC-010](../docs/decisions/DEC-010-instance-admin.md), [docs/plans/instance-admin.md](../docs/plans/instance-admin.md))

@@ -1,6 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AccountMemberRole } from '@prisma/client';
+import { AccountMemberRole } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletsService } from '../wallets/wallets.service';
 import { AccountsService } from './accounts.service';
@@ -9,22 +9,22 @@ describe('AccountsService', () => {
   let service: AccountsService;
   let prisma: {
     account: {
-      findMany: jest.Mock;
-      findFirst: jest.Mock;
-      findUniqueOrThrow: jest.Mock;
-      create: jest.Mock;
-      update: jest.Mock;
-      delete: jest.Mock;
+      findMany: Mock;
+      findFirst: Mock;
+      findUniqueOrThrow: Mock;
+      create: Mock;
+      update: Mock;
+      delete: Mock;
     };
     accountMember: {
-      findUnique: jest.Mock;
-      create: jest.Mock;
-      count: jest.Mock;
-      delete: jest.Mock;
+      findUnique: Mock;
+      create: Mock;
+      count: Mock;
+      delete: Mock;
     };
-    user: { findFirst: jest.Mock };
+    user: { findFirst: Mock };
   };
-  let walletsService: { requireOwnedWallet: jest.Mock };
+  let walletsService: { requireOwnedWallet: Mock };
 
   const userId = '11111111-1111-1111-1111-111111111111';
   const otherUserId = '22222222-2222-2222-2222-222222222222';
@@ -67,23 +67,23 @@ describe('AccountsService', () => {
   beforeEach(async () => {
     prisma = {
       account: {
-        findMany: jest.fn(),
-        findFirst: jest.fn(),
-        findUniqueOrThrow: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+        findUniqueOrThrow: vi.fn(),
+        create: vi.fn(),
+        update: vi.fn(),
+        delete: vi.fn(),
       },
       accountMember: {
-        findUnique: jest.fn(),
-        create: jest.fn(),
-        count: jest.fn(),
-        delete: jest.fn(),
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        count: vi.fn(),
+        delete: vi.fn(),
       },
-      user: { findFirst: jest.fn() },
+      user: { findFirst: vi.fn() },
     };
     walletsService = {
-      requireOwnedWallet: jest.fn().mockResolvedValue({
+      requireOwnedWallet: vi.fn().mockResolvedValue({
         id: walletId,
         ownerUserId: userId,
       }),

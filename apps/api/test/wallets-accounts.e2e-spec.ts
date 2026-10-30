@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { AppModule } from './../src/app.module';
+import { PrismaService } from './../src/prisma/prisma.service';
 
 describe('Wallets and accounts (e2e)', () => {
   let app: INestApplication<App>;
@@ -19,6 +20,12 @@ describe('Wallets and accounts (e2e)', () => {
     app.setGlobalPrefix('api/v1');
     app.use(cookieParser());
     await app.init();
+    const prisma = app.get(PrismaService);
+    await prisma.appSettings.upsert({
+      where: { id: 1 },
+      create: { id: 1, registrationOpen: true },
+      update: { registrationOpen: true },
+    });
   });
 
   afterAll(async () => {
