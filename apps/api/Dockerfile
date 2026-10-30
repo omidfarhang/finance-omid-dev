@@ -19,6 +19,8 @@ COPY apps/api/src ./apps/api/src
 RUN pnpm install --frozen-lockfile --filter @finance/api...
 RUN pnpm --filter @finance/shared build
 WORKDIR /app/apps/api
+# prisma.config.ts requires DATABASE_URL at load time; generate does not connect.
+ENV DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build"
 RUN pnpm exec prisma generate && pnpm run build
 
 FROM node:26-bookworm-slim AS runtime
