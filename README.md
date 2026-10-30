@@ -55,6 +55,7 @@ App listens on **http://127.0.0.1:8080** by default (`APP_PORT`). If that host p
 | [docs/vision.md](docs/vision.md) | Why this exists, principles, non-goals |
 | [docs/design.md](docs/design.md) | Living system architecture overview |
 | [docs/plans/mvp.md](docs/plans/mvp.md) | First useful release and acceptance criteria |
+| [docs/plans/ui-ux.md](docs/plans/ui-ux.md) | UI sitemap, shells, hybrid home, screen patterns |
 | [docs/brainstorm/inbox.md](docs/brainstorm/inbox.md) | Unfiltered ideas and questions |
 | [docs/decisions/](docs/decisions/) | Expensive-to-reverse product and architecture choices |
 | [tasks/todo.md](tasks/todo.md) | Work ready to do |

@@ -54,5 +54,6 @@ The first useful release for personal (and soon household) use. Outcomes over im
 - **Day-to-day recording:** transfers as non-income/expense; joint-account movements as normal; personal shared pay = full expense + optional mark ([DEC-005](../decisions/DEC-005-wallets-and-accounts.md)).
 - **First import path:** generic/synthetic CSV adapter; real banks as follow-on adapters (no single bank locked for MVP).
 - **Money:** per-account currency, minor units, no FX / no cross-currency net worth ([DEC-006](../decisions/DEC-006-money-multi-currency.md)).
+- **UI structure:** hybrid home; App vs Admin shells; dedicated Activity / Accounts / Import / Outlook / Settings routes — follow [ui-ux.md](ui-ux.md) and [DEC-011](../decisions/DEC-011-ui-ia.md). Feature slices fill those slots; do not invent parallel nav or always-on form stacks.
 
 Capture further discoveries in [../brainstorm/inbox.md](../brainstorm/inbox.md); promote settled behavior into this MVP or a future specification.

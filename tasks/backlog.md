@@ -16,6 +16,8 @@ Potential future work. Nothing here is a commitment.
 
 ## Later
 
+- UI polish beyond IA (PrimeNG theme customization, richer empty-state illustration, bottom-nav motion) — only after shell acceptance in [ui-ux.md](../docs/plans/ui-ux.md)
+- Jalali date pickers and calendar UX (product needs Persian + Gregorian; formatting separate from Transloco — [DEC-009](../docs/decisions/DEC-009-i18n.md))
 - Recipe / ingredient unit costing (partial usage, e.g. sandwich from shared groceries)
   - **Problem:** Package prices do not equal the cost of what was actually used.
   - **Expected outcome:** Deterministic cost from unit prices, quantities, and yields.
