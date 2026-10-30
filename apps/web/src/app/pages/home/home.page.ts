@@ -6,6 +6,7 @@ import { ButtonDirective } from 'primeng/button';
 import { Message } from 'primeng/message';
 import { forkJoin } from 'rxjs';
 import { formatBalanceMinor } from '../../core/money-display';
+import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { WalletsService } from '../../core/wallets.service';
 
 type CurrencyGroup = {
@@ -28,7 +29,6 @@ export class HomePage implements OnInit {
   accounts = signal<PublicAccount[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-  showToman = signal(false);
 
   readonly currencyGroups = computed((): CurrencyGroup[] => {
     const walletsById = new Map(this.wallets().map((w) => [w.id, w]));
@@ -47,6 +47,7 @@ export class HomePage implements OnInit {
   });
 
   private readonly walletsApi = inject(WalletsService);
+  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
@@ -75,11 +76,16 @@ export class HomePage implements OnInit {
   }
 
   formatBalance(account: PublicAccount): string {
-    return formatBalanceMinor(account.balanceMinor, account.currency, this.showToman(), {
-      toman: this.i18n.translate('accounts.toman'),
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return formatBalanceMinor(
+      account.balanceMinor,
+      account.currency,
+      this.moneyDisplay.showToman(),
+      {
+        toman: this.i18n.translate('accounts.toman'),
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+    );
   }
 
   currencySubtotal(group: CurrencyGroup): string {
@@ -87,14 +93,15 @@ export class HomePage implements OnInit {
       (sum, row) => sum + BigInt(row.account.balanceMinor),
       0n,
     );
-    return formatBalanceMinor(total.toString(), group.currency, this.showToman(), {
-      toman: this.i18n.translate('accounts.toman'),
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
-  }
-
-  toggleToman() {
-    this.showToman.update((v) => !v);
+    return formatBalanceMinor(
+      total.toString(),
+      group.currency,
+      this.moneyDisplay.showToman(),
+      {
+        toman: this.i18n.translate('accounts.toman'),
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+    );
   }
 }

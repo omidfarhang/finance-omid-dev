@@ -115,7 +115,7 @@ On narrow viewports, primary nav may collapse to a bottom bar or drawer; labels 
 
 One composition with three sections. Missing data uses empty states, not blank panels.
 
-1. **Balances** — accounts grouped by currency (and wallet as secondary grouping). Show per-account balance; optional per-currency subtotal. **No** single cross-currency total. IRR toman presentation uses the shared money display + labeled toggle ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). CTA: open Accounts or an account detail.
+1. **Balances** — accounts grouped by currency (and wallet as secondary grouping). Show per-account balance; optional per-currency subtotal. **No** single cross-currency total. IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
 2. **Quick add** — income or expense for a chosen account (category when categories exist). Transfers and “shared” mark belong on Activity or account detail, not the home strip.
 3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until forecast API exists, show a stub empty state (“Outlook comes after recurrings”) without inventing numbers.
 
@@ -166,7 +166,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Settings (`/settings`)
 
-- Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
+- Purpose: display name, locale, timezone, language alignment with [DEC-009](../decisions/DEC-009-i18n.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
 
 ### Admin (`/admin`, `/admin/users/:userId`)
 
@@ -180,8 +180,9 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Money display
 
 - Input/storage: integer minor units as digit strings on the wire.
-- Display: shared formatter; currency code visible; IRR may offer **labeled** toman toggle (`÷ 10`); toggle preference may be local (document persistence when implemented).
-- Same component on home, accounts, activity amounts, admin-as-user views.
+- Display: shared formatter; currency code visible; IRR may present as **labeled** toman (`÷ 10`) when the user opts in.
+- **Preference control lives only in Settings** (not on home or other money lists). Preference is local (`localStorage`) for MVP; applies app-wide including admin-as-user views.
+- Same formatter on home, accounts, activity amounts, admin-as-user views.
 - Never show a merged multi-currency “net worth”.
 
 ### Dates

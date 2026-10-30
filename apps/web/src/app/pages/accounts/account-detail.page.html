@@ -14,16 +14,13 @@
         <h1>{{ t('accounts.notFoundTitle') }}</h1>
       }
     </div>
-    <div class="header-actions">
-      <button pButton type="button" severity="secondary" (click)="toggleToman()">
-        {{ showToman() ? t('accounts.showRials') : t('accounts.showToman') }}
-      </button>
-      @if (account()?.isShared) {
+    @if (account()?.isShared) {
+      <div class="header-actions">
         <button pButton type="button" (click)="openMemberDialog()">
           {{ t('accounts.addMember') }}
         </button>
-      }
-    </div>
+      </div>
+    }
   </header>
 
   @if (message()) {

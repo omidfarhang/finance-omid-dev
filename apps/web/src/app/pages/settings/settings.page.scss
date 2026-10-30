@@ -30,6 +30,19 @@ label {
   font-weight: 600;
 }
 
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+}
+
+.checkbox-row input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--app-accent);
+}
+
 select {
   width: 100%;
   font: inherit;

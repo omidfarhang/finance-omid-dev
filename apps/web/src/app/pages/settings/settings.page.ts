@@ -12,6 +12,7 @@ import {
   ensureTimeZoneOption,
   listTimeZones,
 } from '../../core/i18n/time-zones';
+import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 
 @Component({
   selector: 'app-settings-page',
@@ -41,6 +42,7 @@ export class SettingsPage implements OnInit {
 
   readonly auth = inject(AuthService);
   readonly localeService = inject(LocaleService);
+  readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly router = inject(Router);
   private readonly i18n = inject(TranslocoService);
 
@@ -59,6 +61,10 @@ export class SettingsPage implements OnInit {
 
   onLocaleChange(lang: UiLang) {
     void this.localeService.setLang(lang, { persistProfile: false });
+  }
+
+  onShowTomanChange(checked: boolean) {
+    this.moneyDisplay.setShowToman(checked);
   }
 
   saveProfile() {

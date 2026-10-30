@@ -11,6 +11,7 @@ import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
+import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { WalletsService } from '../../core/wallets.service';
 
 const CURRENCIES = ['IRR', 'USD'] as const;
@@ -40,7 +41,6 @@ export class AccountsPage implements OnInit {
   loading = signal(false);
   message = signal<string | null>(null);
   error = signal<string | null>(null);
-  showToman = signal(false);
   walletDialogVisible = signal(false);
   accountDialogVisible = signal(false);
 
@@ -66,6 +66,7 @@ export class AccountsPage implements OnInit {
   );
 
   private readonly walletsApi = inject(WalletsService);
+  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
@@ -179,11 +180,16 @@ export class AccountsPage implements OnInit {
   }
 
   formatBalance(account: PublicAccount): string {
-    return formatBalanceMinor(account.balanceMinor, account.currency, this.showToman(), {
-      toman: this.i18n.translate('accounts.toman'),
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return formatBalanceMinor(
+      account.balanceMinor,
+      account.currency,
+      this.moneyDisplay.showToman(),
+      {
+        toman: this.i18n.translate('accounts.toman'),
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+    );
   }
 
   unitLabel(currency: string): string {
@@ -191,9 +197,5 @@ export class AccountsPage implements OnInit {
       rials: this.i18n.translate('accounts.rials'),
       cents: this.i18n.translate('accounts.cents'),
     });
-  }
-
-  toggleToman() {
-    this.showToman.update((v) => !v);
   }
 }

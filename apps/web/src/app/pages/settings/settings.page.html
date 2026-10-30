@@ -52,6 +52,20 @@
   </form>
 
   <section class="panel">
+    <h2>{{ t('settings.moneyDisplayTitle') }}</h2>
+    <p class="lede">{{ t('settings.moneyDisplayLede') }}</p>
+    <label class="checkbox-row">
+      <input
+        type="checkbox"
+        name="showToman"
+        [checked]="moneyDisplay.showToman()"
+        (change)="onShowTomanChange($any($event.target).checked)"
+      />
+      <span>{{ t('settings.showToman') }}</span>
+    </label>
+  </section>
+
+  <section class="panel">
     <h2>{{ t('settings.totp.title') }}</h2>
     <p class="lede">
       {{ t('settings.totp.status') }}
