@@ -20,12 +20,16 @@ export const routes: Routes = [
   { path: 'wallets', redirectTo: 'accounts', pathMatch: 'full' },
   { path: 'profile', redirectTo: 'settings', pathMatch: 'full' },
   {
-    path: '',
+    path: 'login',
     component: GuestShellComponent,
-    children: [
-      { path: 'login', component: LoginPage, canActivate: [guestGuard] },
-      { path: 'register', component: RegisterPage, canActivate: [guestGuard] },
-    ],
+    canActivate: [guestGuard],
+    children: [{ path: '', component: LoginPage }],
+  },
+  {
+    path: 'register',
+    component: GuestShellComponent,
+    canActivate: [guestGuard],
+    children: [{ path: '', component: RegisterPage }],
   },
   {
     path: 'admin',
