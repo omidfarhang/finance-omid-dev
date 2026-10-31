@@ -9,6 +9,11 @@
     "nextYear": "سال بعد",
     "prevMonth": "ماه قبل",
     "nextMonth": "ماه بعد",
+    "prevDay": "روز قبل",
+    "nextDay": "روز بعد",
+    "today": "امروز",
+    "yesterday": "دیروز",
+    "tomorrow": "فردا",
     "hour": "ساعت",
     "minute": "دقیقه",
     "done": "تأیید"

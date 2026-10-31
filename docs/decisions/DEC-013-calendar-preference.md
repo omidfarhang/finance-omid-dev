@@ -21,7 +21,7 @@ The product needs Persian (Jalali) and Gregorian calendars for display, form inp
 - Store and exchange all event times as **ISO-8601 instants** (`DateTime` / `z.iso.datetime()`). Never store Jalali strings in the database.
 - **Full month semantics:** Activity “this month” and Outlook “next month” use the user’s calendar in their profile timezone. Unset timezone → **`UTC`** for month bounds (deterministic server forecast).
 - Shared pure helpers (`jalaali-js`) compute civil dates and month ISO bounds for API and web.
-- Form pickers and list formatting follow the preference; Gregorian uses PrimeNG DatePicker; Jalali uses a custom month grid (no fragile third-party PrimeNG forks).
+- Form pickers and list formatting follow the preference via one in-house `app-date-time-field` for both calendars (no third-party PrimeNG Jalali forks / no Gregorian PrimeNG DatePicker).
 - Recurring `anchorDay` (1–28) means day-of-month **in the user’s calendar** for the forecast month window.
 
 ## Consequences
@@ -29,7 +29,7 @@ The product needs Persian (Jalali) and Gregorian calendars for display, form inp
 - Forecast responses include `calendar` plus `year` / `month` **in that calendar**.
 - Contributors must not treat `locale === 'fa'` as Jalali.
 - Profile API and Prisma schema gain a `calendar` field; migrations default existing users to Jalali.
-- The custom Jalali picker must stay in-house (no third-party PrimeNG Jalali forks) but match usable form UX: typeable date/time, body overlay (dialog-safe), year jump, and typeable time — see [ui-ux.md](../plans/ui-ux.md) Dates.
+- The custom picker stays in-house and serves both calendars: compact ±1 day strip with relative labels, typeable date/time, body overlay (dialog-safe), weekday-aligned month grid (Jalali Sat→Fri; Gregorian Sun→Sat), year jump, typeable time, optional `minUnix`/`maxUnix` — see [ui-ux.md](../plans/ui-ux.md) Dates.
 
 ## Revisit when
 

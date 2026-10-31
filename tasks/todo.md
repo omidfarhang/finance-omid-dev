@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Extend datepicker: unified Jalali/Gregorian field, weekday headers, ±1 day strip + relative labels, optional minUnix/maxUnix ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Dates, [DEC-013](../docs/decisions/DEC-013-calendar-preference.md))
 - Category catalog upgrade: system codes + i18n, icons, palette colors, TRANSFER kind required, expanded defaults ([docs/plans/transactions.md](../docs/plans/transactions.md), [DEC-016](../docs/decisions/DEC-016-category-catalog.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 
 - Settings polish: surface panels (home language), PrimeNG selects, category skeletons, shell nav ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))

@@ -1,4 +1,5 @@
 import {
+  addCivilDays,
   civilDateTimeToUtc,
   daysInMonth,
   getZonedParts,
@@ -44,11 +45,21 @@ export type ParsedCivilDateTime = CivilDate & {
   minute: number;
 };
 
+export type RelativeDayKind = 'today' | 'yesterday' | 'tomorrow' | 'other';
+
+export type RelativeDayLabel = {
+  kind: RelativeDayKind;
+  /** Short civil date: `M/D` or `yyyy/M/D` when year differs from "now". */
+  shortDate: string;
+};
+
 /**
- * Format civil wall-clock for the Jalali typed input: `yyyy/MM/dd HH:mm`.
+ * Format civil wall-clock for the typed input: `yyyy/MM/dd HH:mm`
+ * in the given calendar + timezone.
  */
-export function formatJalaliInput(
+export function formatCalendarInput(
   iso: string | Date | null | undefined,
+  calendar: CalendarSystem,
   timeZone: string | null | undefined,
 ): string {
   if (iso == null || iso === '') {
@@ -58,17 +69,26 @@ export function formatJalaliInput(
   if (Number.isNaN(date.getTime())) {
     return '';
   }
-  const civil = instantToCivilDate(date, 'JALALI', timeZone);
+  const civil = instantToCivilDate(date, calendar, timeZone);
   const parts = getZonedParts(date, timeZone);
   return `${civil.year}/${pad2(civil.month)}/${pad2(civil.day)} ${pad2(parts.hour)}:${pad2(parts.minute)}`;
 }
 
+/** @deprecated Prefer formatCalendarInput(..., 'JALALI', tz). */
+export function formatJalaliInput(
+  iso: string | Date | null | undefined,
+  timeZone: string | null | undefined,
+): string {
+  return formatCalendarInput(iso, 'JALALI', timeZone);
+}
+
 /**
  * Parse `yyyy/MM/dd HH:mm` (optional seconds ignored). Accepts `-` or `/` separators
- * and Persian digits. Returns null when invalid.
+ * and Persian digits. Validates against the given calendar's month lengths.
  */
-export function parseJalaliInput(
+export function parseCalendarInput(
   raw: string,
+  calendar: CalendarSystem,
 ): ParsedCivilDateTime | null {
   const normalized = normalizeDigits(raw.trim()).replace(/\s+/g, ' ');
   if (!normalized) {
@@ -97,19 +117,25 @@ export function parseJalaliInput(
   if (month < 1 || month > 12 || day < 1 || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
     return null;
   }
-  const maxDay = daysInMonth(year, month, 'JALALI');
+  const maxDay = daysInMonth(year, month, calendar);
   if (day > maxDay) {
     return null;
   }
   return { year, month, day, hour, minute };
 }
 
-/** Parse Jalali typed input and convert to ISO instant in the given timezone. */
-export function jalaliInputToIso(
+/** @deprecated Prefer parseCalendarInput(..., 'JALALI'). */
+export function parseJalaliInput(raw: string): ParsedCivilDateTime | null {
+  return parseCalendarInput(raw, 'JALALI');
+}
+
+/** Parse typed civil input and convert to ISO instant in the given timezone. */
+export function calendarInputToIso(
   raw: string,
+  calendar: CalendarSystem,
   timeZone: string | null | undefined,
 ): string | null {
-  const parsed = parseJalaliInput(raw);
+  const parsed = parseCalendarInput(raw, calendar);
   if (!parsed) {
     return null;
   }
@@ -118,9 +144,17 @@ export function jalaliInputToIso(
     parsed.hour,
     parsed.minute,
     0,
-    'JALALI' satisfies CalendarSystem,
+    calendar,
     timeZone,
   ).toISOString();
+}
+
+/** @deprecated Prefer calendarInputToIso(..., 'JALALI', tz). */
+export function jalaliInputToIso(
+  raw: string,
+  timeZone: string | null | undefined,
+): string | null {
+  return calendarInputToIso(raw, 'JALALI', timeZone);
 }
 
 /**
@@ -149,4 +183,46 @@ export function parseTimeInput(raw: string): { hour: number; minute: number } | 
 
 export function formatTimeInput(hour: number, minute: number): string {
   return `${pad2(hour)}:${pad2(minute)}`;
+}
+
+function formatShortCivilDate(civil: CivilDate, refYear: number): string {
+  if (civil.year !== refYear) {
+    return `${civil.year}/${civil.month}/${civil.day}`;
+  }
+  return `${civil.month}/${civil.day}`;
+}
+
+/**
+ * Relative day kind + short civil date for the compact stepper label.
+ */
+export function formatRelativeDayLabel(
+  iso: string | Date,
+  calendar: CalendarSystem,
+  timeZone: string | null | undefined,
+  now: Date = new Date(),
+): RelativeDayLabel {
+  const date = typeof iso === 'string' ? new Date(iso) : iso;
+  if (Number.isNaN(date.getTime())) {
+    return { kind: 'other', shortDate: '' };
+  }
+  const civil = instantToCivilDate(date, calendar, timeZone);
+  const todayCivil = instantToCivilDate(now, calendar, timeZone);
+  const shortDate = formatShortCivilDate(civil, todayCivil.year);
+
+  const yesterday = addCivilDays(todayCivil, -1, calendar);
+  const tomorrow = addCivilDays(todayCivil, 1, calendar);
+
+  const sameDay = (a: CivilDate, b: CivilDate) =>
+    a.year === b.year && a.month === b.month && a.day === b.day;
+
+  if (sameDay(civil, todayCivil)) {
+    return { kind: 'today', shortDate };
+  }
+  if (sameDay(civil, yesterday)) {
+    return { kind: 'yesterday', shortDate };
+  }
+  if (sameDay(civil, tomorrow)) {
+    return { kind: 'tomorrow', shortDate };
+  }
+  return { kind: 'other', shortDate };
 }

@@ -9,6 +9,11 @@
     "nextYear": "Next year",
     "prevMonth": "Previous month",
     "nextMonth": "Next month",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "today": "today",
+    "yesterday": "yesterday",
+    "tomorrow": "tomorrow",
     "hour": "Hour",
     "minute": "Minute",
     "done": "Done"

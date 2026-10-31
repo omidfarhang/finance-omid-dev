@@ -2,9 +2,12 @@ import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import {
   Component,
   computed,
+  ElementRef,
   forwardRef,
   inject,
+  input,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -13,24 +16,29 @@ import {
 } from '@angular/forms';
 import {
   DEFAULT_BOUNDS_TIME_ZONE,
+  addCivilDays,
   civilDateTimeToUtc,
   daysInMonth,
+  firstDayOfWeek,
   getZonedParts,
   instantToCivilDate,
+  monthGridStartOffset,
   type CalendarSystem,
+  type CivilDate,
 } from '@finance/shared';
-import { TranslocoDirective } from '@jsverse/transloco';
+import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
-import { DatePicker } from 'primeng/datepicker';
 import { InputText } from 'primeng/inputtext';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { LocaleService } from '../../core/i18n/locale.service';
 import {
-  formatJalaliInput,
+  calendarInputToIso,
+  formatCalendarInput,
+  formatRelativeDayLabel,
   formatTimeInput,
-  jalaliInputToIso,
   parseTimeInput,
+  type RelativeDayKind,
 } from '../../core/parse-app-date';
 
 const OVERLAY_POSITIONS = [
@@ -57,13 +65,17 @@ const OVERLAY_POSITIONS = [
   },
 ];
 
+export type DayCell = {
+  day: number | null;
+  disabled: boolean;
+};
+
 @Component({
   selector: 'app-date-time-field',
   standalone: true,
   imports: [
     FormsModule,
     ButtonDirective,
-    DatePicker,
     InputText,
     TranslocoDirective,
     CdkOverlayOrigin,
@@ -83,11 +95,19 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
   private readonly calendarPref = inject(CalendarPreferenceService);
   private readonly auth = inject(AuthService);
   private readonly locale = inject(LocaleService);
+  private readonly i18n = inject(TranslocoService);
+
+  /** Inclusive lower bound (epoch ms). Null = no minimum. */
+  readonly minUnix = input<number | null>(null);
+  /** Inclusive upper bound (epoch ms). Null = no maximum. */
+  readonly maxUnix = input<number | null>(null);
 
   readonly calendar = this.calendarPref.calendar;
   readonly open = signal(false);
-  readonly gregorianDate = signal<Date | null>(null);
+  readonly editing = signal(false);
   readonly overlayPositions = OVERLAY_POSITIONS;
+  private readonly dateInput =
+    viewChild<ElementRef<HTMLInputElement>>('dateInput');
 
   readonly viewYear = signal(1404);
   readonly viewMonth = signal(1);
@@ -95,17 +115,46 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
   readonly hour = signal(12);
   readonly minute = signal(0);
 
-  /** Draft text in the Jalali typed input. */
+  /** Draft text in the typed input. */
   readonly typedText = signal('');
   /** Draft text for panel HH:mm. */
   readonly timeText = signal('12:00');
 
-  readonly dayCells = computed(() => {
+  readonly weekdayLabels = computed(() => {
+    const cal = this.calendar();
+    const first = firstDayOfWeek(cal);
+    const lang = this.locale.activeLang();
+    const labels: string[] = [];
+    // Anchor: 2023-01-01 was Sunday → index 0
+    for (let i = 0; i < 7; i++) {
+      const dayIndex = (first + i) % 7;
+      const anchor = new Date(Date.UTC(2023, 0, 1 + dayIndex, 12));
+      labels.push(
+        new Intl.DateTimeFormat(lang, { weekday: 'short', timeZone: 'UTC' }).format(
+          anchor,
+        ),
+      );
+    }
+    return labels;
+  });
+
+  readonly dayCells = computed((): DayCell[] => {
     const cal = this.calendar();
     const y = this.viewYear();
     const m = this.viewMonth();
     const len = daysInMonth(y, m, cal);
-    return Array.from({ length: len }, (_, i) => i + 1);
+    const offset = monthGridStartOffset(y, m, cal);
+    const cells: DayCell[] = [];
+    for (let i = 0; i < offset; i++) {
+      cells.push({ day: null, disabled: true });
+    }
+    for (let day = 1; day <= len; day++) {
+      cells.push({
+        day,
+        disabled: !this.isCivilDayAllowed(y, m, day),
+      });
+    }
+    return cells;
   });
 
   readonly monthLabel = computed(() => {
@@ -130,6 +179,34 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
       mid,
     );
   });
+
+  readonly relativeLabel = computed(() => {
+    const iso = this.isoValue();
+    if (!iso) {
+      return { kind: 'other' as RelativeDayKind, shortDate: '' };
+    }
+    return formatRelativeDayLabel(
+      iso,
+      this.calendar(),
+      this.timeZone(),
+      new Date(),
+    );
+  });
+
+  readonly stripCaption = computed(() => {
+    const { kind, shortDate } = this.relativeLabel();
+    if (!shortDate) {
+      return '';
+    }
+    if (kind === 'other') {
+      return shortDate;
+    }
+    const relative = this.i18n.translate(`common.${kind}`);
+    return `(${relative}, ${shortDate})`;
+  });
+
+  readonly canStepPrev = computed(() => this.canStep(-1));
+  readonly canStepNext = computed(() => this.canStep(1));
 
   private readonly isoValue = signal<string>('');
   private onChange: (value: string) => void = () => undefined;
@@ -182,26 +259,13 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     }
   }
 
-  onGregorianChange(date: Date | null): void {
-    this.gregorianDate.set(date);
-    if (!date) {
+  startEditing(): void {
+    if (this.disabled) {
       return;
     }
-    // Interpret picker wall-clock as profile timezone, not browser TZ alone.
-    const iso = civilDateTimeToUtc(
-      {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate(),
-      },
-      date.getHours(),
-      date.getMinutes(),
-      0,
-      'GREGORIAN',
-      this.timeZone(),
-    ).toISOString();
-    this.isoValue.set(iso);
-    this.onChange(iso);
+    this.editing.set(true);
+    this.refreshTypedFromIso();
+    queueMicrotask(() => this.dateInput()?.nativeElement.focus());
   }
 
   onTypedTextInput(value: string): void {
@@ -210,13 +274,14 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
 
   commitTypedText(): void {
     this.onTouched();
+    this.editing.set(false);
     const raw = this.typedText().trim();
     if (!raw) {
       this.refreshTypedFromIso();
       return;
     }
-    const iso = jalaliInputToIso(raw, this.timeZone());
-    if (!iso) {
+    const iso = calendarInputToIso(raw, this.calendar(), this.timeZone());
+    if (!iso || !this.isInstantAllowed(new Date(iso).getTime())) {
       this.refreshTypedFromIso();
       return;
     }
@@ -229,12 +294,41 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     if (event.key === 'Enter') {
       event.preventDefault();
       this.commitTypedText();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      this.editing.set(false);
+      this.refreshTypedFromIso();
     }
   }
 
+  stepDay(delta: number): void {
+    if (this.disabled || !this.canStep(delta)) {
+      return;
+    }
+    const cal = this.calendar();
+    const next = addCivilDays(
+      {
+        year: this.viewYear(),
+        month: this.viewMonth(),
+        day: this.selectedDay(),
+      },
+      delta,
+      cal,
+    );
+    this.viewYear.set(next.year);
+    this.viewMonth.set(next.month);
+    this.selectedDay.set(next.day);
+    this.emitSelection();
+    this.onTouched();
+  }
+
   selectDay(day: number): void {
+    const cell = this.dayCells().find((c) => c.day === day);
+    if (!cell || cell.disabled) {
+      return;
+    }
     this.selectedDay.set(day);
-    this.emitJalali();
+    this.emitSelection();
   }
 
   prevMonth(): void {
@@ -279,10 +373,21 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
       this.timeText.set(formatTimeInput(this.hour(), this.minute()));
       return;
     }
+    const trialMs = this.civilDaySampleMs(
+      this.viewYear(),
+      this.viewMonth(),
+      this.selectedDay(),
+      parsed.hour,
+      parsed.minute,
+    );
+    if (!this.isInstantAllowed(trialMs)) {
+      this.timeText.set(formatTimeInput(this.hour(), this.minute()));
+      return;
+    }
     this.hour.set(parsed.hour);
     this.minute.set(parsed.minute);
     this.timeText.set(formatTimeInput(parsed.hour, parsed.minute));
-    this.emitJalali();
+    this.emitSelection();
   }
 
   onTimeKeydown(event: KeyboardEvent): void {
@@ -292,32 +397,182 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     }
   }
 
-  private clampSelectedDay(): void {
-    const max = daysInMonth(this.viewYear(), this.viewMonth(), this.calendar());
-    if (this.selectedDay() > max) {
-      this.selectedDay.set(max);
-      this.emitJalali();
+  isInstantAllowed(ms: number): boolean {
+    if (Number.isNaN(ms)) {
+      return false;
     }
+    const min = this.minUnix();
+    const max = this.maxUnix();
+    if (min != null && ms < min) {
+      return false;
+    }
+    if (max != null && ms > max) {
+      return false;
+    }
+    return true;
   }
 
-  private emitJalali(): void {
-    const cal: CalendarSystem = this.calendar();
-    const date = civilDateTimeToUtc(
+  /** True when any wall-clock on that civil day can fall inside min/max. */
+  private isCivilDayAllowed(year: number, month: number, day: number): boolean {
+    const dayStart = civilDateTimeToUtc(
+      { year, month, day },
+      0,
+      0,
+      0,
+      this.calendar(),
+      this.timeZone(),
+    ).getTime();
+    const dayEnd = civilDateTimeToUtc(
+      { year, month, day },
+      23,
+      59,
+      59,
+      this.calendar(),
+      this.timeZone(),
+    ).getTime();
+    const min = this.minUnix();
+    const max = this.maxUnix();
+    if (min != null && dayEnd < min) {
+      return false;
+    }
+    if (max != null && dayStart > max) {
+      return false;
+    }
+    return true;
+  }
+
+  private canStep(delta: number): boolean {
+    const next = addCivilDays(
       {
         year: this.viewYear(),
         month: this.viewMonth(),
         day: this.selectedDay(),
       },
-      this.hour(),
-      this.minute(),
+      delta,
+      this.calendar(),
+    );
+    return this.isCivilDayAllowed(next.year, next.month, next.day);
+  }
+
+  private civilDaySampleMs(
+    year: number,
+    month: number,
+    day: number,
+    hour = this.hour(),
+    minute = this.minute(),
+  ): number {
+    return civilDateTimeToUtc(
+      { year, month, day },
+      hour,
+      minute,
+      0,
+      this.calendar(),
+      this.timeZone(),
+    ).getTime();
+  }
+
+  private clampSelectedDay(): void {
+    const max = daysInMonth(this.viewYear(), this.viewMonth(), this.calendar());
+    if (this.selectedDay() > max) {
+      this.selectedDay.set(max);
+      this.emitSelection();
+    }
+  }
+
+  private emitSelection(): void {
+    const cal: CalendarSystem = this.calendar();
+    const civil = {
+      year: this.viewYear(),
+      month: this.viewMonth(),
+      day: this.selectedDay(),
+    };
+    let hour = this.hour();
+    let minute = this.minute();
+    let date = civilDateTimeToUtc(
+      civil,
+      hour,
+      minute,
       0,
       cal,
       this.timeZone(),
     );
+    if (!this.isInstantAllowed(date.getTime())) {
+      const clamped = this.clampInstantToBounds(civil);
+      if (!clamped) {
+        this.refreshTypedFromIso();
+        return;
+      }
+      date = clamped;
+      const parts = getZonedParts(date, this.timeZone());
+      hour = parts.hour;
+      minute = parts.minute;
+      this.hour.set(hour);
+      this.minute.set(minute);
+    }
     const iso = date.toISOString();
     this.isoValue.set(iso);
     this.refreshTypedFromIso();
     this.onChange(iso);
+  }
+
+  /** Pick nearest in-bound wall clock on the given civil day, or null. */
+  private clampInstantToBounds(civil: CivilDate): Date | null {
+    if (!this.isCivilDayAllowed(civil.year, civil.month, civil.day)) {
+      return null;
+    }
+    const min = this.minUnix();
+    const max = this.maxUnix();
+    const preferred = civilDateTimeToUtc(
+      civil,
+      this.hour(),
+      this.minute(),
+      0,
+      this.calendar(),
+      this.timeZone(),
+    ).getTime();
+    let target = preferred;
+    if (min != null && target < min) {
+      target = min;
+    }
+    if (max != null && target > max) {
+      target = max;
+    }
+    const date = new Date(target);
+    const parts = getZonedParts(date, this.timeZone());
+    const landed = instantToCivilDate(date, this.calendar(), this.timeZone());
+    if (
+      landed.year !== civil.year ||
+      landed.month !== civil.month ||
+      landed.day !== civil.day
+    ) {
+      // Bound landed on a different civil day — use start or end of requested day.
+      if (min != null && preferred < min) {
+        return civilDateTimeToUtc(
+          civil,
+          23,
+          59,
+          0,
+          this.calendar(),
+          this.timeZone(),
+        );
+      }
+      return civilDateTimeToUtc(
+        civil,
+        0,
+        0,
+        0,
+        this.calendar(),
+        this.timeZone(),
+      );
+    }
+    return civilDateTimeToUtc(
+      civil,
+      parts.hour,
+      parts.minute,
+      0,
+      this.calendar(),
+      this.timeZone(),
+    );
   }
 
   private refreshTypedFromIso(): void {
@@ -326,7 +581,9 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
       this.typedText.set('');
       return;
     }
-    this.typedText.set(formatJalaliInput(iso, this.timeZone()));
+    this.typedText.set(
+      formatCalendarInput(iso, this.calendar(), this.timeZone()),
+    );
     this.timeText.set(formatTimeInput(this.hour(), this.minute()));
   }
 
@@ -338,24 +595,13 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     const cal = this.calendar();
     const tz = this.timeZone();
     const parts = getZonedParts(date, tz);
-    // DatePicker edits in "local Date" fields that we treat as profile TZ wall clock.
-    this.gregorianDate.set(
-      new Date(
-        parts.year,
-        parts.month - 1,
-        parts.day,
-        parts.hour,
-        parts.minute,
-        0,
-      ),
-    );
-    const civil = instantToCivilDate(date, cal, tz);
+    const civil: CivilDate = instantToCivilDate(date, cal, tz);
     this.viewYear.set(civil.year);
     this.viewMonth.set(civil.month);
     this.selectedDay.set(civil.day);
     this.hour.set(parts.hour);
     this.minute.set(parts.minute);
-    this.typedText.set(formatJalaliInput(iso, tz));
+    this.typedText.set(formatCalendarInput(iso, cal, tz));
     this.timeText.set(formatTimeInput(parts.hour, parts.minute));
   }
 }

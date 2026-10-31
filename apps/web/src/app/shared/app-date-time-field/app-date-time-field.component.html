@@ -1,26 +1,26 @@
 <div class="app-date-time-field" *transloco="let t">
-  @if (calendar() === 'GREGORIAN') {
-    <p-datepicker
-      [ngModel]="gregorianDate()"
-      (ngModelChange)="onGregorianChange($event)"
-      [ngModelOptions]="{ standalone: true }"
-      [showTime]="true"
-      hourFormat="24"
-      [disabled]="disabled"
-      appendTo="body"
-      styleClass="w-full"
-      inputStyleClass="w-full"
-    />
-  } @else {
-    <div
-      class="jalali-field"
-      cdkOverlayOrigin
-      #jalaliOrigin="cdkOverlayOrigin"
-    >
+  <div
+    class="date-strip"
+    cdkOverlayOrigin
+    #fieldOrigin="cdkOverlayOrigin"
+  >
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      icon="pi pi-chevron-left"
+      class="step-btn"
+      [disabled]="disabled || !canStepPrev()"
+      [attr.aria-label]="t('common.prevDay')"
+      (click)="stepDay(-1)"
+    ></button>
+
+    @if (editing()) {
       <input
+        #dateInput
         pInputText
         type="text"
-        class="jalali-input"
+        class="date-input"
         [disabled]="disabled"
         [placeholder]="t('common.dateTimePlaceholder')"
         [attr.aria-label]="t('common.pickDateTime')"
@@ -30,113 +30,149 @@
         (blur)="commitTypedText()"
         (keydown)="onTypedKeydown($event)"
       />
+    } @else {
       <button
-        pButton
         type="button"
-        severity="secondary"
-        icon="pi pi-calendar"
-        class="jalali-toggle"
+        class="strip-caption"
         [disabled]="disabled"
-        [attr.aria-label]="t('common.openCalendar')"
-        [attr.aria-expanded]="open()"
-        (click)="toggleOpen()"
-      ></button>
-    </div>
+        [attr.aria-label]="t('common.pickDateTime')"
+        (click)="startEditing()"
+      >
+        {{ stripCaption() }}
+      </button>
+    }
 
-    <ng-template
-      cdkConnectedOverlay
-      [cdkConnectedOverlayOrigin]="jalaliOrigin"
-      [cdkConnectedOverlayOpen]="open()"
-      [cdkConnectedOverlayHasBackdrop]="true"
-      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
-      [cdkConnectedOverlayPositions]="overlayPositions"
-      [cdkConnectedOverlayPush]="true"
-      [cdkConnectedOverlayViewportMargin]="8"
-      (backdropClick)="closePanel()"
-      (overlayKeydown)="onOverlayKeydown($event)"
-    >
-      <div class="jalali-panel" role="dialog" [attr.aria-label]="t('common.pickDateTime')">
-        <div class="jalali-nav">
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            size="small"
-            [attr.aria-label]="t('common.prevYear')"
-            (click)="prevYear()"
-          >
-            «
-          </button>
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            size="small"
-            [attr.aria-label]="t('common.prevMonth')"
-            (click)="prevMonth()"
-          >
-            ‹
-          </button>
-          <span class="month-label">{{ monthLabel() }}</span>
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            size="small"
-            [attr.aria-label]="t('common.nextMonth')"
-            (click)="nextMonth()"
-          >
-            ›
-          </button>
-          <button
-            pButton
-            type="button"
-            severity="secondary"
-            size="small"
-            [attr.aria-label]="t('common.nextYear')"
-            (click)="nextYear()"
-          >
-            »
-          </button>
-        </div>
-        <div class="day-grid">
-          @for (day of dayCells(); track day) {
-            <button
-              type="button"
-              class="day-cell"
-              [class.selected]="day === selectedDay()"
-              (click)="selectDay(day)"
-            >
-              {{ day }}
-            </button>
-          }
-        </div>
-        <div class="time-row">
-          <label class="time-label">
-            {{ t('common.time') }}
-            <input
-              pInputText
-              type="text"
-              class="time-input"
-              [placeholder]="t('common.timePlaceholder')"
-              [ngModel]="timeText()"
-              (ngModelChange)="onTimeTextInput($event)"
-              [ngModelOptions]="{ standalone: true }"
-              (blur)="commitTimeText()"
-              (keydown)="onTimeKeydown($event)"
-            />
-          </label>
-        </div>
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      icon="pi pi-chevron-right"
+      class="step-btn"
+      [disabled]="disabled || !canStepNext()"
+      [attr.aria-label]="t('common.nextDay')"
+      (click)="stepDay(1)"
+    ></button>
+
+    <button
+      pButton
+      type="button"
+      severity="secondary"
+      icon="pi pi-calendar"
+      class="calendar-toggle"
+      [disabled]="disabled"
+      [attr.aria-label]="t('common.openCalendar')"
+      [attr.aria-expanded]="open()"
+      (click)="toggleOpen()"
+    ></button>
+  </div>
+
+  <ng-template
+    cdkConnectedOverlay
+    [cdkConnectedOverlayOrigin]="fieldOrigin"
+    [cdkConnectedOverlayOpen]="open()"
+    [cdkConnectedOverlayHasBackdrop]="true"
+    cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+    [cdkConnectedOverlayPositions]="overlayPositions"
+    [cdkConnectedOverlayPush]="true"
+    [cdkConnectedOverlayViewportMargin]="8"
+    (backdropClick)="closePanel()"
+    (overlayKeydown)="onOverlayKeydown($event)"
+  >
+    <div class="calendar-panel" role="dialog" [attr.aria-label]="t('common.pickDateTime')">
+      <div class="calendar-nav">
         <button
           pButton
           type="button"
+          severity="secondary"
           size="small"
-          class="w-full"
-          (click)="closePanel()"
+          [attr.aria-label]="t('common.prevYear')"
+          (click)="prevYear()"
         >
-          {{ t('common.done') }}
+          «
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          [attr.aria-label]="t('common.prevMonth')"
+          (click)="prevMonth()"
+        >
+          ‹
+        </button>
+        <span class="month-label">{{ monthLabel() }}</span>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          [attr.aria-label]="t('common.nextMonth')"
+          (click)="nextMonth()"
+        >
+          ›
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          size="small"
+          [attr.aria-label]="t('common.nextYear')"
+          (click)="nextYear()"
+        >
+          »
         </button>
       </div>
-    </ng-template>
-  }
+
+      <div class="day-grid weekday-row" aria-hidden="true">
+        @for (label of weekdayLabels(); track $index) {
+          <span class="weekday-cell">{{ label }}</span>
+        }
+      </div>
+
+      <div class="day-grid">
+        @for (cell of dayCells(); track $index) {
+          @if (cell.day == null) {
+            <span class="day-cell empty"></span>
+          } @else {
+            <button
+              type="button"
+              class="day-cell"
+              [class.selected]="cell.day === selectedDay()"
+              [disabled]="cell.disabled"
+              (click)="selectDay(cell.day)"
+            >
+              {{ cell.day }}
+            </button>
+          }
+        }
+      </div>
+
+      <div class="time-row">
+        <label class="time-label">
+          {{ t('common.time') }}
+          <input
+            pInputText
+            type="text"
+            class="time-input"
+            [placeholder]="t('common.timePlaceholder')"
+            [ngModel]="timeText()"
+            (ngModelChange)="onTimeTextInput($event)"
+            [ngModelOptions]="{ standalone: true }"
+            (blur)="commitTimeText()"
+            (keydown)="onTimeKeydown($event)"
+          />
+        </label>
+      </div>
+
+      <button
+        pButton
+        type="button"
+        size="small"
+        class="w-full"
+        (click)="closePanel()"
+      >
+        {{ t('common.done') }}
+      </button>
+    </div>
+  </ng-template>
 </div>

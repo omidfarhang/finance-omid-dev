@@ -1,8 +1,12 @@
 import {
+  calendarInputToIso,
+  formatCalendarInput,
   formatJalaliInput,
+  formatRelativeDayLabel,
   formatTimeInput,
   jalaliInputToIso,
   normalizeDigits,
+  parseCalendarInput,
   parseJalaliInput,
   parseTimeInput,
 } from './parse-app-date';
@@ -60,11 +64,37 @@ describe('parseJalaliInput', () => {
   });
 });
 
+describe('parseCalendarInput (Gregorian)', () => {
+  it('parses Gregorian wall clock', () => {
+    expect(parseCalendarInput('2026/10/31 14:30', 'GREGORIAN')).toEqual({
+      year: 2026,
+      month: 10,
+      day: 31,
+      hour: 14,
+      minute: 30,
+    });
+  });
+
+  it('rejects Feb 30 Gregorian', () => {
+    expect(parseCalendarInput('2026/02/30', 'GREGORIAN')).toBeNull();
+  });
+});
+
 describe('jalaliInputToIso / formatJalaliInput', () => {
   it('round-trips through UTC timezone', () => {
     const iso = jalaliInputToIso('1404/01/01 00:00', 'UTC');
     expect(iso).toBeTruthy();
     expect(formatJalaliInput(iso!, 'UTC')).toBe('1404/01/01 00:00');
+  });
+});
+
+describe('calendarInputToIso / formatCalendarInput', () => {
+  it('round-trips Gregorian through UTC', () => {
+    const iso = calendarInputToIso('2026/10/31 12:00', 'GREGORIAN', 'UTC');
+    expect(iso).toBeTruthy();
+    expect(formatCalendarInput(iso!, 'GREGORIAN', 'UTC')).toBe(
+      '2026/10/31 12:00',
+    );
   });
 });
 
@@ -79,5 +109,47 @@ describe('parseTimeInput / formatTimeInput', () => {
     expect(parseTimeInput('24:00')).toBeNull();
     expect(parseTimeInput('12')).toBeNull();
     expect(parseTimeInput('12:60')).toBeNull();
+  });
+});
+
+describe('formatRelativeDayLabel', () => {
+  const now = new Date('2026-10-31T15:00:00.000Z');
+
+  it('labels today / yesterday / tomorrow in Gregorian UTC', () => {
+    expect(
+      formatRelativeDayLabel(
+        '2026-10-31T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'today', shortDate: '10/31' });
+    expect(
+      formatRelativeDayLabel(
+        '2026-10-30T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'yesterday', shortDate: '10/30' });
+    expect(
+      formatRelativeDayLabel(
+        '2026-11-01T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'tomorrow', shortDate: '11/1' });
+  });
+
+  it('uses year in shortDate when year differs', () => {
+    expect(
+      formatRelativeDayLabel(
+        '2025-10-31T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'other', shortDate: '2025/10/31' });
   });
 });

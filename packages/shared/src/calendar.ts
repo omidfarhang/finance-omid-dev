@@ -234,3 +234,68 @@ export function daysInMonth(
 export function formatCivilDate(civil: CivilDate): string {
   return `${civil.year}-${pad(civil.month)}-${pad(civil.day)}`;
 }
+
+/** Convert a civil date to Gregorian Y/M/D (identity when already Gregorian). */
+function civilToGregorianYmd(
+  civil: CivilDate,
+  calendar: CalendarSystem,
+): { gy: number; gm: number; gd: number } {
+  if (calendar === 'GREGORIAN') {
+    return { gy: civil.year, gm: civil.month, gd: civil.day };
+  }
+  const g = jalaali.toGregorian(civil.year, civil.month, civil.day);
+  return { gy: g.gy, gm: g.gm, gd: g.gd };
+}
+
+/**
+ * Weekday index for a civil date: 0 = Sunday … 6 = Saturday
+ * (UTC noon on the matching Gregorian day to avoid DST edge cases).
+ */
+export function weekdayIndex(
+  civil: CivilDate,
+  calendar: CalendarSystem,
+): number {
+  const { gy, gm, gd } = civilToGregorianYmd(civil, calendar);
+  return new Date(Date.UTC(gy, gm - 1, gd, 12, 0, 0)).getUTCDay();
+}
+
+/**
+ * First column of the month grid: Gregorian Sunday (0), Jalali Saturday (6).
+ */
+export function firstDayOfWeek(calendar: CalendarSystem): number {
+  return calendar === 'JALALI' ? 6 : 0;
+}
+
+/** Offset of day 1 within a 7-column grid that starts at `firstDayOfWeek`. */
+export function monthGridStartOffset(
+  year: number,
+  month: number,
+  calendar: CalendarSystem,
+): number {
+  const wd = weekdayIndex({ year, month, day: 1 }, calendar);
+  const first = firstDayOfWeek(calendar);
+  return (wd - first + 7) % 7;
+}
+
+/** Add (or subtract) civil days, crossing month/year boundaries. */
+export function addCivilDays(
+  civil: CivilDate,
+  deltaDays: number,
+  calendar: CalendarSystem,
+): CivilDate {
+  if (deltaDays === 0) {
+    return { ...civil };
+  }
+  const { gy, gm, gd } = civilToGregorianYmd(civil, calendar);
+  const utc = new Date(Date.UTC(gy, gm - 1, gd + deltaDays, 12, 0, 0));
+  const nextG: CivilDate = {
+    year: utc.getUTCFullYear(),
+    month: utc.getUTCMonth() + 1,
+    day: utc.getUTCDate(),
+  };
+  if (calendar === 'GREGORIAN') {
+    return nextG;
+  }
+  const j = jalaali.toJalaali(nextG.year, nextG.month, nextG.day);
+  return { year: j.jy, month: j.jm, day: j.jd };
+}
