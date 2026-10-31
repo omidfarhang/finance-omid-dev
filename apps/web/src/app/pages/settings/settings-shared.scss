@@ -1,0 +1,50 @@
+:host {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.lede {
+  color: var(--app-text-muted);
+}
+
+.panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 600;
+}
+
+.checkbox-row input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--app-accent);
+}
+
+select {
+  width: 100%;
+  font: inherit;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--app-text) 16%, transparent);
+  border-radius: 0.4rem;
+  background: var(--app-surface);
+  color: inherit;
+}
+
+a {
+  font-weight: 600;
+  color: var(--app-accent);
+  text-decoration: none;
+}

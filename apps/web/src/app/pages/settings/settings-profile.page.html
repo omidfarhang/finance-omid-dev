@@ -1,0 +1,101 @@
+<div class="settings-section" *transloco="let t">
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+
+  <form (ngSubmit)="saveProfile()" class="panel">
+    <h2>{{ t('settings.accountDetails') }}</h2>
+    <label>
+      {{ t('settings.displayName') }}
+      <input pInputText name="displayName" [(ngModel)]="displayName" required />
+    </label>
+    <label>
+      {{ t('settings.locale') }}
+      <select
+        name="locale"
+        [ngModel]="localeService.activeLang()"
+        (ngModelChange)="onLocaleChange($event)"
+      >
+        @for (lang of localeService.langs; track lang.id) {
+          <option [value]="lang.id">{{ t(lang.labelKey) }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ t('settings.timeZone') }}
+      <select name="timeZone" [(ngModel)]="timeZone">
+        <option value="">{{ t('settings.timeZoneUnset') }}</option>
+        @for (zone of timeZones; track zone) {
+          <option [value]="zone">{{ zone }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      {{ t('settings.calendar') }}
+      <select
+        name="calendar"
+        [ngModel]="calendar"
+        (ngModelChange)="onCalendarChange($event)"
+      >
+        @for (opt of calendarOptions; track opt.value) {
+          <option [value]="opt.value">{{ t(opt.labelKey) }}</option>
+        }
+      </select>
+    </label>
+    <p class="lede">{{ t('settings.calendarLede') }}</p>
+    <div class="theme-field">
+      <span class="theme-label">{{ t('settings.theme') }}</span>
+      <p-selectbutton
+        [options]="themeOptions()"
+        [ngModel]="theme"
+        (ngModelChange)="onThemeChange($event)"
+        name="theme"
+        optionLabel="label"
+        optionValue="value"
+        [allowEmpty]="false"
+        styleClass="theme-select"
+        [attr.aria-label]="t('settings.theme')"
+      >
+        <ng-template #item let-option>
+          <span
+            class="theme-option"
+            [attr.aria-label]="option.label"
+            [attr.title]="option.label"
+          >
+            <i [class]="option.icon" aria-hidden="true"></i>
+          </span>
+        </ng-template>
+      </p-selectbutton>
+      <p class="lede">{{ t('settings.themeLede') }}</p>
+    </div>
+    <button pButton type="submit" [disabled]="loading()">
+      @if (loading()) {
+        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+      }
+      {{ t('settings.save') }}
+    </button>
+  </form>
+
+  <section class="panel">
+    <h2>{{ t('settings.moneyDisplayTitle') }}</h2>
+    <p class="lede">{{ t('settings.moneyDisplayLede') }}</p>
+    <label class="checkbox-row">
+      <input
+        type="checkbox"
+        name="showToman"
+        [checked]="moneyDisplay.showToman()"
+        (change)="onShowTomanChange($any($event.target).checked)"
+      />
+      <span>{{ t('settings.showToman') }}</span>
+    </label>
+  </section>
+
+  <section class="panel">
+    <h2>{{ t('settings.statusLinkTitle') }}</h2>
+    <p class="lede">{{ t('settings.statusLinkLede') }}</p>
+    <a routerLink="/status">{{ t('settings.statusLink') }}</a>
+  </section>
+</div>

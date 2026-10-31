@@ -1,0 +1,24 @@
+@use './settings-shared';
+
+.theme-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.theme-label {
+  font-weight: 600;
+}
+
+.theme-option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2rem;
+  font-size: 1.05rem;
+}
+
+:host ::ng-deep .theme-select .p-togglebutton {
+  flex: 1;
+  justify-content: center;
+}

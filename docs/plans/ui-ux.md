@@ -64,7 +64,10 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | `/accounts/:accountId` | Account detail, movements, shared members |
 | `/import` | Statement upload, adapter choice, dedup feedback |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
-| `/settings` | Profile, locale/timezone/calendar, theme (Light/Dark/System), money display, TOTP, sign-out; link to Status/health if kept |
+| `/settings` | Settings shell; redirects to `/settings/profile` |
+| `/settings/profile` | Display name, locale/timezone/calendar, theme, money display, Status link; sign-out on shell |
+| `/settings/categories` | Income/expense category lists (add / rename / delete non-system) |
+| `/settings/security` | TOTP enroll/disable |
 | `/support` | Lightweight help / contact stub (user-menu entry only; not primary nav) |
 
 Legacy `/wallets` and `/profile` should redirect into Accounts and Settings when the shell lands.
@@ -177,9 +180,11 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Settings (`/settings`)
 
-- Purpose: display name, locale, timezone, **calendar** (Gregorian / Jalali) alignment with [DEC-009](../decisions/DEC-009-i18n.md) and [DEC-013](../decisions/DEC-013-calendar-preference.md); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
-- Authenticated language changes happen here (not in App/Admin toolbar).
-- Category management lives here — not a primary-nav peer ([transactions.md](transactions.md)).
+- Shell at `/settings` with header (title, email, sign-out) and horizontal section nav (`routerLink` + active state). Bare `/settings` redirects to `/settings/profile`. Legacy `/profile` redirects to `/settings`.
+- **Profile** (`/settings/profile`): display name, locale, timezone, **calendar** (Gregorian / Jalali) ([DEC-009](../decisions/DEC-009-i18n.md), [DEC-013](../decisions/DEC-013-calendar-preference.md)); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`); optional Status/health link.
+- **Categories** (`/settings/categories`): income/expense lists (add / rename / delete non-system; system Uncategorized locked) — not a primary-nav peer ([transactions.md](transactions.md)).
+- **Security** (`/settings/security`): TOTP enroll/disable.
+- Authenticated language changes happen on Profile (not in App/Admin toolbar). Admin entry remains in the user menu for admins.
 
 ### Support (`/support`)
 
@@ -240,12 +245,12 @@ Document in implementation, do not rebrand:
 | Manual income/expense | Shared Add dialog (Home, Activity, Account detail) |
 | Same-currency transfers | Shared Add dialog (Home, Activity, Account detail) |
 | Shared mark on personal expense | Shared Add expense + edit forms |
-| Categories (typed, required) | Add/edit fields on shared Add / Activity edit / account detail edit; manage lists in Settings |
+| Categories (typed, required) | Add/edit fields on shared Add / Activity edit / account detail edit; manage lists in `/settings/categories` |
 | CSV import + dedup | `/import` |
 | Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |
 | Wallets/accounts (done API) | `/accounts`, `/accounts/:accountId` |
-| Auth / profile / TOTP (done) | Guest routes + `/settings` |
+| Auth / profile / TOTP (done) | Guest routes + `/settings/profile` + `/settings/security` |
 | Instance admin (done API) | Admin shell |
 
 Later feature slices must **fill these routes**, not invent new top-level nav items without updating this plan.

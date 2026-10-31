@@ -1,0 +1,47 @@
+.settings-shell {
+  max-width: 40rem;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.lede {
+  color: var(--app-text-muted);
+}
+
+.settings-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+}
+
+.settings-nav a {
+  text-decoration: none;
+  color: var(--app-text-muted);
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.4rem;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.settings-nav a:hover {
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-text) 6%, transparent);
+}
+
+.settings-nav a.active {
+  color: var(--app-accent);
+  background: color-mix(in srgb, var(--app-accent) 12%, transparent);
+}

@@ -223,6 +223,11 @@
   "settings": {
     "title": "Settings",
     "signOut": "Sign out",
+    "nav": {
+      "profile": "Profile",
+      "categories": "Categories",
+      "security": "Security"
+    },
     "accountDetails": "Account details",
     "displayName": "Display name",
     "locale": "Language",

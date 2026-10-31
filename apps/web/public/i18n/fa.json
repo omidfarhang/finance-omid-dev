@@ -223,6 +223,11 @@
   "settings": {
     "title": "تنظیمات",
     "signOut": "خروج",
+    "nav": {
+      "profile": "پروفایل",
+      "categories": "دسته‌بندی‌ها",
+      "security": "امنیت"
+    },
     "accountDetails": "جزئیات حساب",
     "displayName": "نام نمایشی",
     "locale": "زبان",

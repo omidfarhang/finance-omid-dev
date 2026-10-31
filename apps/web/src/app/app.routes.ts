@@ -13,7 +13,10 @@ import { ImportPage } from './pages/import/import.page';
 import { LoginPage } from './pages/login/login.page';
 import { OutlookPage } from './pages/outlook/outlook.page';
 import { RegisterPage } from './pages/register/register.page';
-import { SettingsPage } from './pages/settings/settings.page';
+import { SettingsCategoriesPage } from './pages/settings/settings-categories.page';
+import { SettingsProfilePage } from './pages/settings/settings-profile.page';
+import { SettingsSecurityPage } from './pages/settings/settings-security.page';
+import { SettingsShellComponent } from './pages/settings/settings-shell.component';
 import { StatusPage } from './pages/status/status.page';
 import { SupportPage } from './pages/support/support.page';
 
@@ -52,7 +55,16 @@ export const routes: Routes = [
       { path: 'accounts/:accountId', component: AccountDetailPage },
       { path: 'import', component: ImportPage },
       { path: 'outlook', component: OutlookPage },
-      { path: 'settings', component: SettingsPage },
+      {
+        path: 'settings',
+        component: SettingsShellComponent,
+        children: [
+          { path: '', pathMatch: 'full', redirectTo: 'profile' },
+          { path: 'profile', component: SettingsProfilePage },
+          { path: 'categories', component: SettingsCategoriesPage },
+          { path: 'security', component: SettingsSecurityPage },
+        ],
+      },
       { path: 'support', component: SupportPage },
       { path: 'status', component: StatusPage },
     ],

@@ -1,0 +1,59 @@
+<div class="settings-section" *transloco="let t">
+  @if (message()) {
+    <p-message severity="success" class="block">{{ message() }}</p-message>
+  }
+  @if (error()) {
+    <p-message severity="error" class="block">{{ error() }}</p-message>
+  }
+
+  <section class="panel">
+    <h2>{{ t('settings.totp.title') }}</h2>
+    <p class="lede">
+      {{ t('settings.totp.status') }}
+      <strong>
+        {{
+          auth.user()?.totpEnabled
+            ? t('settings.totp.enabled')
+            : t('settings.totp.optional')
+        }}
+      </strong>
+    </p>
+
+    @if (!auth.user()?.totpEnabled) {
+      @if (!qrDataUrl()) {
+        <button pButton type="button" (click)="start2fa()">
+          {{ t('settings.totp.setup') }}
+        </button>
+      } @else {
+        <p>{{ t('settings.totp.scan') }}</p>
+        <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
+        <p class="secret">{{ t('settings.totp.secret') }} {{ totpSecret() }}</p>
+        <label>
+          {{ t('settings.totp.confirmCode') }}
+          <input
+            pInputText
+            name="totpCode"
+            [(ngModel)]="totpCode"
+            inputmode="numeric"
+          />
+        </label>
+        <button pButton type="button" (click)="confirm2fa()">
+          {{ t('settings.totp.confirm') }}
+        </button>
+      }
+    } @else {
+      <label>
+        {{ t('settings.totp.disableCode') }}
+        <input
+          pInputText
+          name="disableCode"
+          [(ngModel)]="disableCode"
+          inputmode="numeric"
+        />
+      </label>
+      <button pButton type="button" severity="danger" (click)="disable2fa()">
+        {{ t('settings.totp.disable') }}
+      </button>
+    }
+  </section>
+</div>

@@ -1,0 +1,14 @@
+@use './settings-shared';
+
+.qr {
+  width: 12rem;
+  height: 12rem;
+  background: #fff;
+  padding: 0.5rem;
+}
+
+.secret {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  word-break: break-all;
+}

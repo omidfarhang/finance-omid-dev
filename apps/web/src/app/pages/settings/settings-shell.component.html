@@ -1,0 +1,29 @@
+<section class="settings-shell" *transloco="let t">
+  <header class="page-header">
+    <div>
+      <h1>{{ t('settings.title') }}</h1>
+      <p class="lede">{{ auth.user()?.email }}</p>
+    </div>
+    <button pButton type="button" severity="secondary" (click)="logout()">
+      {{ t('settings.signOut') }}
+    </button>
+  </header>
+
+  <nav class="settings-nav" [attr.aria-label]="t('settings.title')">
+    <a
+      routerLink="/settings/profile"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >
+      {{ t('settings.nav.profile') }}
+    </a>
+    <a routerLink="/settings/categories" routerLinkActive="active">
+      {{ t('settings.nav.categories') }}
+    </a>
+    <a routerLink="/settings/security" routerLinkActive="active">
+      {{ t('settings.nav.security') }}
+    </a>
+  </nav>
+
+  <router-outlet />
+</section>
