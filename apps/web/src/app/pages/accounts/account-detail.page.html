@@ -16,14 +16,8 @@
     </div>
     <div class="header-actions">
       @if (account(); as account) {
-        <button pButton type="button" severity="secondary" (click)="openMovementDialog('INCOME')">
-          {{ t('activity.addIncome') }}
-        </button>
-        <button pButton type="button" (click)="openMovementDialog('EXPENSE')">
-          {{ t('activity.addExpense') }}
-        </button>
-        <button pButton type="button" severity="secondary" (click)="openTransferDialog()">
-          {{ t('activity.addTransfer') }}
+        <button pButton type="button" (click)="openAddDialog()">
+          {{ t('activity.add') }}
         </button>
         @if (account.isShared) {
           <button pButton type="button" severity="secondary" (click)="openMemberDialog()">
@@ -130,6 +124,14 @@
     }
   }
 
+  <app-add-movement-dialog
+    [(visible)]="addDialogVisible"
+    [accounts]="allAccounts()"
+    [categories]="categories()"
+    [defaultAccountId]="account()?.id ?? null"
+    (saved)="onMovementSaved($event)"
+  />
+
   <p-dialog
     [header]="t('accounts.addMember')"
     [modal]="true"
@@ -154,13 +156,7 @@
   </p-dialog>
 
   <p-dialog
-    [header]="
-      editingTransactionId
-        ? t('activity.editMovement')
-        : movementType === 'INCOME'
-          ? t('activity.addIncome')
-          : t('activity.addExpense')
-    "
+    [header]="t('activity.editMovement')"
     [modal]="true"
     [style]="{ width: 'min(28rem, 92vw)' }"
     [visible]="movementDialogVisible()"
@@ -227,26 +223,16 @@
   </p-dialog>
 
   <p-dialog
-    [header]="editingTransferId ? t('activity.editTransfer') : t('activity.addTransfer')"
+    [header]="t('activity.editTransfer')"
     [modal]="true"
     [style]="{ width: 'min(28rem, 92vw)' }"
     [visible]="transferDialogVisible()"
     (visibleChange)="transferDialogVisible.set($event)"
   >
     <form (ngSubmit)="saveTransfer()" class="dialog-form">
-      @if (!editingTransferId) {
-        <label>
-          {{ t('activity.toAccount') }}
-          <p-select
-            [options]="transferToOptions()"
-            [(ngModel)]="transferToId"
-            name="transferToId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-      }
+      <p class="meta">
+        {{ counterName(transferFromId) }} → {{ counterName(transferToId) }}
+      </p>
       <label>
         {{ t('activity.amount') }}
         <input

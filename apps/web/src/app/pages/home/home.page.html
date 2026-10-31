@@ -95,84 +95,10 @@
     }
   </section>
 
-  <p-dialog
-    [header]="
-      movementType === 'INCOME' ? t('activity.addIncome') : t('activity.addExpense')
-    "
-    [modal]="true"
-    [style]="{ width: 'min(28rem, 92vw)' }"
-    [visible]="addDialogVisible()"
-    (visibleChange)="addDialogVisible.set($event)"
-  >
-    <form (ngSubmit)="saveMovement()" class="dialog-form">
-      <label>
-        {{ t('activity.typeLabel') }}
-        <p-select
-          [options]="typeOptions()"
-          [ngModel]="movementType"
-          (ngModelChange)="onMovementTypeChange($event)"
-          name="movementType"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </label>
-      <label>
-        {{ t('activity.account') }}
-        <p-select
-          [options]="accountOptions()"
-          [(ngModel)]="movementAccountId"
-          name="movementAccountId"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </label>
-      <label>
-        {{ t('activity.amount') }}
-        <span class="hint">
-          @if (selectedMovementAccount(); as acc) {
-            {{ t('activity.amountHint', { unit: unitLabel(acc.currency) }) }}
-          }
-        </span>
-        <input
-          pInputText
-          name="movementAmount"
-          [(ngModel)]="movementAmount"
-          inputmode="numeric"
-          required
-          class="w-full"
-        />
-      </label>
-      <label>
-        {{ t('activity.when') }}
-        <app-date-time-field
-          name="movementOccurredAt"
-          [(ngModel)]="movementOccurredAt"
-          required
-        />
-      </label>
-      <label>
-        {{ t('activity.category') }}
-        <p-select
-          [options]="categoryOptionsFor(movementType)"
-          [(ngModel)]="movementCategoryId"
-          name="movementCategoryId"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </label>
-      <label>
-        {{ t('activity.description') }}
-        <input
-          pInputText
-          name="movementDescription"
-          [(ngModel)]="movementDescription"
-          class="w-full"
-        />
-      </label>
-      <button pButton type="submit">{{ t('activity.save') }}</button>
-    </form>
-  </p-dialog>
+  <app-add-movement-dialog
+    [(visible)]="addDialogVisible"
+    [accounts]="accounts()"
+    [categories]="categories()"
+    (saved)="onMovementSaved($event)"
+  />
 </section>

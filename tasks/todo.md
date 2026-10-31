@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Unify Add: shared SelectButton dialog (Income / Expense / Transfer) on Home, Activity, Account detail; remove older create dialogs ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Home layout refresh: balance boxes, recent log + Add dialog, drop title ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - App shell: remove top bar; place user menu in rail foot (desktop) / bottom-bar trailing end (mobile) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - App shell nav chrome: desktop start-side vertical rail + improved mobile bottom bar with SVG icons ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md))

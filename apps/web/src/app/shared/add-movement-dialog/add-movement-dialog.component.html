@@ -1,0 +1,157 @@
+<p-dialog
+  *transloco="let t"
+  [header]="t('activity.add')"
+  [modal]="true"
+  [style]="{ width: 'min(28rem, 92vw)' }"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+>
+  @if (formError()) {
+    <p-message severity="error" class="block dialog-error">{{ formError() }}</p-message>
+  }
+
+  <form (ngSubmit)="submit()" class="dialog-form">
+    <p-selectbutton
+      [options]="typeOptions()"
+      [ngModel]="selectedType"
+      (ngModelChange)="onTypeChange($event)"
+      name="selectedType"
+      optionLabel="label"
+      optionValue="value"
+      [allowEmpty]="false"
+      [fluid]="true"
+      styleClass="type-select"
+    >
+      <ng-template #item let-option>
+        <span class="type-option">
+          <i [class]="option.icon" aria-hidden="true"></i>
+          <span>{{ option.label }}</span>
+        </span>
+      </ng-template>
+    </p-selectbutton>
+
+    @if (selectedType === 'TRANSFER') {
+      <label>
+        {{ t('activity.fromAccount') }}
+        <p-select
+          [options]="accountOptions()"
+          [(ngModel)]="transferFromId"
+          name="transferFromId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.toAccount') }}
+        <p-select
+          [options]="accountOptions()"
+          [(ngModel)]="transferToId"
+          name="transferToId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.amount') }}
+        <input
+          pInputText
+          name="transferAmount"
+          [(ngModel)]="transferAmount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.when') }}
+        <app-date-time-field
+          name="transferOccurredAt"
+          [(ngModel)]="transferOccurredAt"
+          required
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input
+          pInputText
+          name="transferDescription"
+          [(ngModel)]="transferDescription"
+          class="w-full"
+        />
+      </label>
+    } @else {
+      <label>
+        {{ t('activity.account') }}
+        <p-select
+          [options]="accountOptions()"
+          [(ngModel)]="movementAccountId"
+          name="movementAccountId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.amount') }}
+        <span class="hint">
+          @if (selectedMovementAccount(); as acc) {
+            {{ t('activity.amountHint', { unit: unitLabel(acc.currency) }) }}
+          }
+        </span>
+        <input
+          pInputText
+          name="movementAmount"
+          [(ngModel)]="movementAmount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.when') }}
+        <app-date-time-field
+          name="movementOccurredAt"
+          [(ngModel)]="movementOccurredAt"
+          required
+        />
+      </label>
+      <label>
+        {{ t('activity.category') }}
+        <p-select
+          [options]="categoryOptionsFor(selectedType)"
+          [(ngModel)]="movementCategoryId"
+          name="movementCategoryId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input
+          pInputText
+          name="movementDescription"
+          [(ngModel)]="movementDescription"
+          class="w-full"
+        />
+      </label>
+      @if (selectedType === 'EXPENSE' && selectedMovementAccount(); as acc) {
+        @if (!acc.isShared) {
+          <label class="checkbox-row">
+            <p-checkbox
+              [(ngModel)]="movementShared"
+              [binary]="true"
+              inputId="addMovementShared"
+              name="movementShared"
+            />
+            <span>{{ t('activity.sharedMark') }}</span>
+          </label>
+        }
+      }
+    }
+
+    <button pButton type="submit" [disabled]="saving()">{{ t('activity.save') }}</button>
+  </form>
+</p-dialog>

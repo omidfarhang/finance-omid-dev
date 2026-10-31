@@ -5,15 +5,11 @@
       <p class="lede">{{ t('activity.lede') }}</p>
     </div>
     <div class="header-actions">
-      <button pButton type="button" severity="secondary" (click)="openMovementDialog('INCOME')">
-        {{ t('activity.addIncome') }}
-      </button>
-      <button pButton type="button" (click)="openMovementDialog('EXPENSE')">
-        {{ t('activity.addExpense') }}
-      </button>
-      <button pButton type="button" severity="secondary" (click)="openTransferDialog()">
-        {{ t('activity.addTransfer') }}
-      </button>
+      @if (accounts().length > 0) {
+        <button pButton type="button" (click)="openAddDialog()">
+          {{ t('activity.add') }}
+        </button>
+      }
     </div>
   </header>
 
@@ -104,35 +100,22 @@
     </ul>
   }
 
+  <app-add-movement-dialog
+    [(visible)]="addDialogVisible"
+    [accounts]="accounts()"
+    [categories]="categories()"
+    (saved)="onMovementSaved($event)"
+  />
+
   <p-dialog
-    [header]="
-      editingTransactionId
-        ? t('activity.editMovement')
-        : movementType === 'INCOME'
-          ? t('activity.addIncome')
-          : t('activity.addExpense')
-    "
+    [header]="t('activity.editMovement')"
     [modal]="true"
     [style]="{ width: 'min(28rem, 92vw)' }"
     [visible]="movementDialogVisible()"
     (visibleChange)="movementDialogVisible.set($event)"
   >
     <form (ngSubmit)="saveMovement()" class="dialog-form">
-      @if (!editingTransactionId) {
-        <label>
-          {{ t('activity.account') }}
-          <p-select
-            [options]="accountOptions()"
-            [(ngModel)]="movementAccountId"
-            name="movementAccountId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-      } @else {
-        <p class="meta">{{ accountName(movementAccountId) }} · {{ typeLabel(movementType) }}</p>
-      }
+      <p class="meta">{{ accountName(movementAccountId) }} · {{ typeLabel(movementType) }}</p>
       <label>
         {{ t('activity.amount') }}
         <span class="hint">
@@ -195,41 +178,16 @@
   </p-dialog>
 
   <p-dialog
-    [header]="editingTransferId ? t('activity.editTransfer') : t('activity.addTransfer')"
+    [header]="t('activity.editTransfer')"
     [modal]="true"
     [style]="{ width: 'min(28rem, 92vw)' }"
     [visible]="transferDialogVisible()"
     (visibleChange)="transferDialogVisible.set($event)"
   >
     <form (ngSubmit)="saveTransfer()" class="dialog-form">
-      @if (!editingTransferId) {
-        <label>
-          {{ t('activity.fromAccount') }}
-          <p-select
-            [options]="accountOptions()"
-            [(ngModel)]="transferFromId"
-            name="transferFromId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-        <label>
-          {{ t('activity.toAccount') }}
-          <p-select
-            [options]="accountOptions()"
-            [(ngModel)]="transferToId"
-            name="transferToId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-      } @else {
-        <p class="meta">
-          {{ accountName(transferFromId) }} → {{ accountName(transferToId) }}
-        </p>
-      }
+      <p class="meta">
+        {{ accountName(transferFromId) }} → {{ accountName(transferToId) }}
+      </p>
       <label>
         {{ t('activity.amount') }}
         <input

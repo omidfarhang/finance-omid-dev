@@ -119,23 +119,6 @@
   font-weight: 600;
 }
 
-.dialog-form {
-  display: grid;
-  gap: 1rem;
-}
-
-.dialog-form label {
-  display: grid;
-  gap: 0.4rem;
-  font-weight: 600;
-}
-
-.hint {
-  font-weight: 400;
-  font-size: 0.85rem;
-  color: var(--app-text-muted);
-}
-
 .panel-header a,
 .panel-actions a {
   font-weight: 600;

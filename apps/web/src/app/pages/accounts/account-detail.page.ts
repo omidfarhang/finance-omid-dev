@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import type {
@@ -21,12 +21,17 @@ import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
+import {
+  AddMovementDialogComponent,
+  type AddMovementSavedEvent,
+} from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 @Component({
   selector: 'app-account-detail-page',
   standalone: true,
   imports: [
+    AddMovementDialogComponent,
     AppDateTimeFieldComponent,
     AppDateTimePipe,
     FormsModule,
@@ -51,6 +56,7 @@ export class AccountDetailPage implements OnInit {
   loading = signal(false);
   message = signal<string | null>(null);
   error = signal<string | null>(null);
+  addDialogVisible = signal(false);
   memberDialogVisible = signal(false);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
@@ -65,21 +71,11 @@ export class AccountDetailPage implements OnInit {
   movementCategoryId = '';
   movementShared = false;
 
+  transferFromId = '';
   transferToId = '';
   transferAmount = '';
   transferOccurredAt = '';
   transferDescription = '';
-
-  readonly transferToOptions = computed(() => {
-    const current = this.account();
-    return this.allAccounts()
-      .filter(
-        (a) =>
-          a.id !== current?.id &&
-          (!current || a.currency === current.currency),
-      )
-      .map((a) => ({ label: `${a.name} (${a.currency})`, value: a.id }));
-  });
 
   private readonly route = inject(ActivatedRoute);
   private readonly walletsApi = inject(WalletsService);
@@ -120,14 +116,6 @@ export class AccountDetailPage implements OnInit {
         if (!account) {
           this.error.set(this.i18n.translate('accounts.notFound'));
         }
-        const other = accounts.find(
-          (a) =>
-            a.id !== accountId &&
-            (!account || a.currency === account.currency),
-        );
-        if (other) {
-          this.transferToId = other.id;
-        }
         this.loading.set(false);
       },
       error: (err: { error?: { message?: string } }) => {
@@ -151,26 +139,29 @@ export class AccountDetailPage implements OnInit {
       }));
   }
 
+  openAddDialog() {
+    this.addDialogVisible.set(true);
+  }
+
+  onMovementSaved(event: AddMovementSavedEvent) {
+    this.message.set(
+      event.type === 'TRANSFER'
+        ? this.i18n.translate('activity.transferCreated')
+        : this.i18n.translate('activity.created'),
+    );
+    this.reload();
+  }
+
   openMemberDialog() {
     this.memberEmail = '';
     this.memberDialogVisible.set(true);
   }
 
-  openMovementDialog(type: 'INCOME' | 'EXPENSE') {
-    this.editingTransactionId = null;
-    this.movementType = type;
-    this.movementAmount = '';
-    this.movementOccurredAt = new Date().toISOString();
-    this.movementDescription = '';
-    this.movementCategoryId = this.defaultCategoryId(type);
-    this.movementShared = false;
-    this.movementDialogVisible.set(true);
-  }
-
   openEditDialog(tx: PublicTransaction) {
     if (tx.type === 'TRANSFER') {
       this.editingTransferId = tx.id;
-      this.transferToId = tx.counterAccountId ?? this.transferToId;
+      this.transferFromId = tx.accountId;
+      this.transferToId = tx.counterAccountId ?? '';
       this.transferAmount = tx.amountMinor;
       this.transferOccurredAt = tx.occurredAt;
       this.transferDescription = tx.description ?? '';
@@ -185,14 +176,6 @@ export class AccountDetailPage implements OnInit {
     this.movementCategoryId = tx.categoryId ?? this.defaultCategoryId(tx.type);
     this.movementShared = tx.shared;
     this.movementDialogVisible.set(true);
-  }
-
-  openTransferDialog() {
-    this.editingTransferId = null;
-    this.transferAmount = '';
-    this.transferOccurredAt = new Date().toISOString();
-    this.transferDescription = '';
-    this.transferDialogVisible.set(true);
   }
 
   confirmDelete(tx: PublicTransaction) {
@@ -245,6 +228,7 @@ export class AccountDetailPage implements OnInit {
     const account = this.account();
     if (
       !account ||
+      !this.editingTransactionId ||
       !this.movementCategoryId ||
       !/^\d+$/.test(this.movementAmount.trim())
     ) {
@@ -262,34 +246,8 @@ export class AccountDetailPage implements OnInit {
       !account.isShared &&
       this.movementShared;
 
-    if (this.editingTransactionId) {
-      this.txApi
-        .updateTransaction(this.editingTransactionId, {
-          amountMinor: this.movementAmount.trim(),
-          occurredAt: new Date(this.movementOccurredAt).toISOString(),
-          description: this.movementDescription.trim() || null,
-          categoryId: this.movementCategoryId,
-          shared,
-        })
-        .subscribe({
-          next: () => {
-            this.message.set(this.i18n.translate('activity.updated'));
-            this.movementDialogVisible.set(false);
-            this.reload();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.error.set(
-              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
-            );
-          },
-        });
-      return;
-    }
-
     this.txApi
-      .createTransaction({
-        type: this.movementType,
-        accountId: account.id,
+      .updateTransaction(this.editingTransactionId, {
         amountMinor: this.movementAmount.trim(),
         occurredAt: new Date(this.movementOccurredAt).toISOString(),
         description: this.movementDescription.trim() || null,
@@ -298,71 +256,44 @@ export class AccountDetailPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.message.set(this.i18n.translate('activity.created'));
+          this.message.set(this.i18n.translate('activity.updated'));
           this.movementDialogVisible.set(false);
           this.reload();
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
-            err.error?.message ?? this.i18n.translate('activity.createFailed'),
+            err.error?.message ?? this.i18n.translate('activity.updateFailed'),
           );
         },
       });
   }
 
   saveTransfer() {
-    const account = this.account();
-    if (!/^\d+$/.test(this.transferAmount.trim())) {
+    if (
+      !this.editingTransferId ||
+      !/^\d+$/.test(this.transferAmount.trim())
+    ) {
       this.error.set(this.i18n.translate('activity.invalidAmount'));
       return;
     }
     this.error.set(null);
     this.message.set(null);
 
-    if (this.editingTransferId) {
-      this.txApi
-        .updateTransaction(this.editingTransferId, {
-          amountMinor: this.transferAmount.trim(),
-          occurredAt: new Date(this.transferOccurredAt).toISOString(),
-          description: this.transferDescription.trim() || null,
-        })
-        .subscribe({
-          next: () => {
-            this.message.set(this.i18n.translate('activity.updated'));
-            this.transferDialogVisible.set(false);
-            this.reload();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.error.set(
-              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
-            );
-          },
-        });
-      return;
-    }
-
-    if (!account || !this.transferToId) {
-      this.error.set(this.i18n.translate('activity.invalidAmount'));
-      return;
-    }
     this.txApi
-      .createTransaction({
-        type: 'TRANSFER',
-        accountId: account.id,
-        counterAccountId: this.transferToId,
+      .updateTransaction(this.editingTransferId, {
         amountMinor: this.transferAmount.trim(),
         occurredAt: new Date(this.transferOccurredAt).toISOString(),
         description: this.transferDescription.trim() || null,
       })
       .subscribe({
         next: () => {
-          this.message.set(this.i18n.translate('activity.transferCreated'));
+          this.message.set(this.i18n.translate('activity.updated'));
           this.transferDialogVisible.set(false);
           this.reload();
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
-            err.error?.message ?? this.i18n.translate('activity.createFailed'),
+            err.error?.message ?? this.i18n.translate('activity.updateFailed'),
           );
         },
       });
@@ -430,5 +361,4 @@ export class AccountDetailPage implements OnInit {
       list[0];
     return preferred?.id ?? '';
   }
-
 }

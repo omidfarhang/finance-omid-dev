@@ -24,6 +24,10 @@ import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
+import {
+  AddMovementDialogComponent,
+  type AddMovementSavedEvent,
+} from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 type RangeKey = 'all' | '30d' | 'month';
@@ -32,6 +36,7 @@ type RangeKey = 'all' | '30d' | 'month';
   selector: 'app-activity-page',
   standalone: true,
   imports: [
+    AddMovementDialogComponent,
     AppDateTimeFieldComponent,
     AppDateTimePipe,
     FormsModule,
@@ -54,6 +59,7 @@ export class ActivityPage implements OnInit {
   loading = signal(false);
   message = signal<string | null>(null);
   error = signal<string | null>(null);
+  addDialogVisible = signal(false);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
   editingTransactionId: string | null = null;
@@ -128,15 +134,6 @@ export class ActivityPage implements OnInit {
         this.accounts.set(accounts);
         this.categories.set(categories);
         this.transactions.set(transactions);
-        if (!this.movementAccountId && accounts[0]) {
-          this.movementAccountId = accounts[0].id;
-        }
-        if (!this.transferFromId && accounts[0]) {
-          this.transferFromId = accounts[0].id;
-        }
-        if (!this.transferToId && accounts[1]) {
-          this.transferToId = accounts[1].id;
-        }
         this.loading.set(false);
       },
       error: (err: { error?: { message?: string } }) => {
@@ -149,6 +146,19 @@ export class ActivityPage implements OnInit {
   }
 
   applyFilters() {
+    this.reload();
+  }
+
+  openAddDialog() {
+    this.addDialogVisible.set(true);
+  }
+
+  onMovementSaved(event: AddMovementSavedEvent) {
+    this.message.set(
+      event.type === 'TRANSFER'
+        ? this.i18n.translate('activity.transferCreated')
+        : this.i18n.translate('activity.created'),
+    );
     this.reload();
   }
 
@@ -166,20 +176,6 @@ export class ActivityPage implements OnInit {
       return this.i18n.translate('activity.uncategorized');
     }
     return category.name;
-  }
-
-  openMovementDialog(type: 'INCOME' | 'EXPENSE' = 'EXPENSE') {
-    this.editingTransactionId = null;
-    this.movementType = type;
-    this.movementAmount = '';
-    this.movementOccurredAt = new Date().toISOString();
-    this.movementDescription = '';
-    this.movementCategoryId = this.defaultCategoryId(type);
-    this.movementShared = false;
-    if (!this.movementAccountId && this.accounts()[0]) {
-      this.movementAccountId = this.accounts()[0].id;
-    }
-    this.movementDialogVisible.set(true);
   }
 
   openEditDialog(tx: PublicTransaction) {
@@ -204,14 +200,6 @@ export class ActivityPage implements OnInit {
     this.movementDialogVisible.set(true);
   }
 
-  openTransferDialog() {
-    this.editingTransferId = null;
-    this.transferAmount = '';
-    this.transferOccurredAt = new Date().toISOString();
-    this.transferDescription = '';
-    this.transferDialogVisible.set(true);
-  }
-
   confirmDelete(tx: PublicTransaction) {
     this.confirm.confirm({
       message: this.i18n.translate('activity.confirmDelete'),
@@ -230,6 +218,7 @@ export class ActivityPage implements OnInit {
     this.error.set(null);
     this.message.set(null);
     if (
+      !this.editingTransactionId ||
       !this.movementCategoryId ||
       !/^\d+$/.test(this.movementAmount.trim())
     ) {
@@ -241,40 +230,6 @@ export class ActivityPage implements OnInit {
       return;
     }
 
-    if (this.editingTransactionId) {
-      const account = this.selectedMovementAccount();
-      const shared =
-        this.movementType === 'EXPENSE' &&
-        !!account &&
-        !account.isShared &&
-        this.movementShared;
-      this.txApi
-        .updateTransaction(this.editingTransactionId, {
-          amountMinor: this.movementAmount.trim(),
-          occurredAt: new Date(this.movementOccurredAt).toISOString(),
-          description: this.movementDescription.trim() || null,
-          categoryId: this.movementCategoryId,
-          shared,
-        })
-        .subscribe({
-          next: () => {
-            this.message.set(this.i18n.translate('activity.updated'));
-            this.movementDialogVisible.set(false);
-            this.reload();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.error.set(
-              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
-            );
-          },
-        });
-      return;
-    }
-
-    if (!this.movementAccountId) {
-      this.error.set(this.i18n.translate('activity.invalidAmount'));
-      return;
-    }
     const account = this.selectedMovementAccount();
     const shared =
       this.movementType === 'EXPENSE' &&
@@ -282,9 +237,7 @@ export class ActivityPage implements OnInit {
       !account.isShared &&
       this.movementShared;
     this.txApi
-      .createTransaction({
-        type: this.movementType,
-        accountId: this.movementAccountId,
+      .updateTransaction(this.editingTransactionId, {
         amountMinor: this.movementAmount.trim(),
         occurredAt: new Date(this.movementOccurredAt).toISOString(),
         description: this.movementDescription.trim() || null,
@@ -293,13 +246,13 @@ export class ActivityPage implements OnInit {
       })
       .subscribe({
         next: () => {
-          this.message.set(this.i18n.translate('activity.created'));
+          this.message.set(this.i18n.translate('activity.updated'));
           this.movementDialogVisible.set(false);
           this.reload();
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
-            err.error?.message ?? this.i18n.translate('activity.createFailed'),
+            err.error?.message ?? this.i18n.translate('activity.updateFailed'),
           );
         },
       });
@@ -308,55 +261,29 @@ export class ActivityPage implements OnInit {
   saveTransfer() {
     this.error.set(null);
     this.message.set(null);
-    if (!/^\d+$/.test(this.transferAmount.trim())) {
+    if (
+      !this.editingTransferId ||
+      !/^\d+$/.test(this.transferAmount.trim())
+    ) {
       this.error.set(this.i18n.translate('activity.invalidAmount'));
       return;
     }
 
-    if (this.editingTransferId) {
-      this.txApi
-        .updateTransaction(this.editingTransferId, {
-          amountMinor: this.transferAmount.trim(),
-          occurredAt: new Date(this.transferOccurredAt).toISOString(),
-          description: this.transferDescription.trim() || null,
-        })
-        .subscribe({
-          next: () => {
-            this.message.set(this.i18n.translate('activity.updated'));
-            this.transferDialogVisible.set(false);
-            this.reload();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.error.set(
-              err.error?.message ?? this.i18n.translate('activity.updateFailed'),
-            );
-          },
-        });
-      return;
-    }
-
-    if (!this.transferFromId || !this.transferToId) {
-      this.error.set(this.i18n.translate('activity.invalidAmount'));
-      return;
-    }
     this.txApi
-      .createTransaction({
-        type: 'TRANSFER',
-        accountId: this.transferFromId,
-        counterAccountId: this.transferToId,
+      .updateTransaction(this.editingTransferId, {
         amountMinor: this.transferAmount.trim(),
         occurredAt: new Date(this.transferOccurredAt).toISOString(),
         description: this.transferDescription.trim() || null,
       })
       .subscribe({
         next: () => {
-          this.message.set(this.i18n.translate('activity.transferCreated'));
+          this.message.set(this.i18n.translate('activity.updated'));
           this.transferDialogVisible.set(false);
           this.reload();
         },
         error: (err: { error?: { message?: string } }) => {
           this.error.set(
-            err.error?.message ?? this.i18n.translate('activity.createFailed'),
+            err.error?.message ?? this.i18n.translate('activity.updateFailed'),
           );
         },
       });

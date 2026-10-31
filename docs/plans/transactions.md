@@ -91,9 +91,10 @@ Unknown or inaccessible ids return **404**.
 
 ## UI (fill existing slots)
 
-- **Activity** (`/activity`): list + time-range filter; add/edit dialogs; delete with confirm; required category on income/expense
-- **Home quick-add**: income/expense with required category (not transfer / shared mark)
-- **Account detail**: movements list with edit/delete; add movement/transfer with required category on income/expense
+- **Shared Add dialog**: one create entry point on Home, Activity, and Account detail — SelectButton (icon + label) for Income / Expense / Transfer; required category on income/expense; shared-cost mark on personal-account expense; Account detail preselects the current account
+- **Activity** (`/activity`): list + time-range filter; shared Add; type-specific edit dialogs; delete with confirm
+- **Home**: recent income/expense log + shared Add (transfers created here show on Activity, not in home recent)
+- **Account detail**: movements list with edit/delete; shared Add; type-specific edit dialogs
 - **Settings**: manage income and expense category lists (add / rename / delete non-system)
 
 ## Acceptance

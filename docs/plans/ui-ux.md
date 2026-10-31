@@ -125,7 +125,7 @@ Primary labels and order stay the same across breakpoints. Do not invent extra p
 One composition with three sections. No page title/lede — content starts with the panels. Missing data uses empty states, not blank panels.
 
 1. **Balances** — wrapping **row of account boxes** (name, wallet, currency, balance). Each box links to account detail. **No** single cross-currency total and no per-currency subtotal headers on home (currency is shown on each box). IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
-2. **Recent + Add** — short recent **income/expense** list (actuals only; exclude transfers; no forecast). Panel header includes an **Add** button that opens a dialog for income or expense (required category by type, amount, date/time, optional description). Transfers and “shared” mark belong on Activity or account detail, not the home dialog. Link to `/activity` for the full ledger.
+2. **Recent + Add** — short recent **income/expense** list (actuals only; exclude transfers; no forecast). Panel header includes an **Add** button that opens the shared Add dialog (PrimeNG SelectButton for Income / Expense / Transfer, each with icon + label; required category on income/expense; shared-cost mark on personal-account expense; amount, date/time, optional description). Transfers created here appear on Activity (not in the home recent list). Link to `/activity` for the full ledger.
 3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
 
 When the user has no accounts: balances empty state with primary CTA “Create account”; Add and outlook disabled or explanatory.
@@ -146,7 +146,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Activity (`/activity`)
 
 - Purpose: chronological ledger of actual movements; filter by useful time range.
-- Primary actions: add income/expense (required category); add transfer; open row to edit (amount + metadata) or delete (ConfirmDialog). Account and type are not editable — delete + re-add.
+- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); open row to edit (amount + metadata) or delete (ConfirmDialog). Account and type are not editable — delete + re-add. Edit uses type-specific dialogs (no type switcher).
 - Empty: “No movements yet” + CTA to add or import.
 - Must not mix unlabeled forecast rows into this list.
 
@@ -160,7 +160,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Account detail (`/accounts/:accountId`)
 
 - Purpose: one account’s balance story, movements, shared badge, member management (email add/remove per [wallets-accounts.md](wallets-accounts.md)).
-- Primary actions: add movement/transfer (required category on income/expense); edit/delete movements; manage members if shared; edit name when API allows.
+- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); edit/delete movements; manage members if shared; edit name when API allows. Edit stays type-specific.
 
 ### Import (`/import`)
 
@@ -235,10 +235,10 @@ Document in implementation, do not rebrand:
 
 | MVP capability | UI slot |
 | --- | --- |
-| Manual income/expense | Home Add dialog; Activity; Account detail |
-| Same-currency transfers | Activity; Account detail (not home Add) |
-| Shared mark on personal expense | Activity / detail forms |
-| Categories (typed, required) | Add/edit fields on Activity / home Add / account detail; manage lists in Settings |
+| Manual income/expense | Shared Add dialog (Home, Activity, Account detail) |
+| Same-currency transfers | Shared Add dialog (Home, Activity, Account detail) |
+| Shared mark on personal expense | Shared Add expense + edit forms |
+| Categories (typed, required) | Add/edit fields on shared Add / Activity edit / account detail edit; manage lists in Settings |
 | CSV import + dedup | `/import` |
 | Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |
@@ -251,7 +251,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 ## Acceptance criteria (“feels like an app”)
 
 - Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
-- Hybrid home shows balance boxes (from available APIs), a recent income/expense log with an Add dialog (not an inline form), and an outlook strip.
+- Hybrid home shows balance boxes (from available APIs), a recent income/expense log with a shared Add dialog (SelectButton for income/expense/transfer; not an inline form), and an outlook strip.
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.
 - Admin user-money views show an acting-as context banner and use the same money presentation rules as App.
