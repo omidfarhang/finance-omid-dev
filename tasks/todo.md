@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- App shell nav chrome: desktop start-side vertical rail + improved mobile bottom bar with SVG icons ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md))
 - Improve in-house Jalali datepicker UX: typeable input, body overlay, year jump, typeable time ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Dates, [DEC-013](../docs/decisions/DEC-013-calendar-preference.md))
 - Fix UI language not hydrating from profile on login/session (guest localStorage no longer overrides settings locale) ([DEC-009](../docs/decisions/DEC-009-i18n.md))
 - Calendar preference (Gregorian / Jalali): profile field, Settings, shared helpers, date pipe/picker, Activity month filters, Outlook next-month bounds ([DEC-013](../docs/decisions/DEC-013-calendar-preference.md))

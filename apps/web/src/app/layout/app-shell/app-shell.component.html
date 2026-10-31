@@ -1,35 +1,53 @@
 <div class="shell app-shell" *transloco="let t">
-  <header class="topbar">
-    <a routerLink="/" class="brand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+  <aside class="side-rail">
+    <a routerLink="/" class="brand side-brand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
       {{ t('app.brand') }}
     </a>
-    <div class="topbar-actions">
-      <nav class="nav primary-nav" [attr.aria-label]="t('app.nav.primary')">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          {{ t('app.nav.home') }}
+    <nav class="nav side-nav" [attr.aria-label]="t('app.nav.primary')">
+      @for (item of navItems; track item.path) {
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.exact === true }"
+        >
+          <span class="nav-icon" aria-hidden="true">
+            <app-nav-icon [name]="item.icon" />
+          </span>
+          <span class="nav-label">{{ t(item.labelKey) }}</span>
         </a>
-        <a routerLink="/activity" routerLinkActive="active">{{ t('app.nav.activity') }}</a>
-        <a routerLink="/accounts" routerLinkActive="active">{{ t('app.nav.accounts') }}</a>
-        <a routerLink="/import" routerLinkActive="active">{{ t('app.nav.import') }}</a>
-        <a routerLink="/outlook" routerLinkActive="active">{{ t('app.nav.outlook') }}</a>
-      </nav>
-      <app-user-menu />
-    </div>
-  </header>
+      }
+    </nav>
+  </aside>
 
-  <p-confirmdialog />
+  <div class="shell-body">
+    <header class="topbar">
+      <a routerLink="/" class="brand top-brand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        {{ t('app.brand') }}
+      </a>
+      <div class="topbar-actions">
+        <app-user-menu />
+      </div>
+    </header>
 
-  <main class="shell-main">
-    <router-outlet />
-  </main>
+    <p-confirmdialog />
+
+    <main class="shell-main">
+      <router-outlet />
+    </main>
+  </div>
 
   <nav class="bottom-nav" [attr.aria-label]="t('app.nav.primary')">
-    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-      {{ t('app.nav.home') }}
-    </a>
-    <a routerLink="/activity" routerLinkActive="active">{{ t('app.nav.activity') }}</a>
-    <a routerLink="/accounts" routerLinkActive="active">{{ t('app.nav.accounts') }}</a>
-    <a routerLink="/import" routerLinkActive="active">{{ t('app.nav.import') }}</a>
-    <a routerLink="/outlook" routerLinkActive="active">{{ t('app.nav.outlook') }}</a>
+    @for (item of navItems; track item.path) {
+      <a
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.exact === true }"
+      >
+        <span class="nav-icon" aria-hidden="true">
+          <app-nav-icon [name]="item.icon" />
+        </span>
+        <span class="nav-label">{{ t(item.labelKey) }}</span>
+      </a>
+    }
   </nav>
 </div>

@@ -1,0 +1,72 @@
+<svg class="nav-icon-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  @switch (name) {
+    @case ('home') {
+      <path
+        d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5.2v-5.4H10.2V21H5a1 1 0 0 1-1-1v-9.5Z"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linejoin="round"
+      />
+    }
+    @case ('activity') {
+      <path
+        d="M7 7h10M7 12h10M7 17h6"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+      />
+      <rect
+        x="3.75"
+        y="3.75"
+        width="16.5"
+        height="16.5"
+        rx="2.5"
+        stroke="currentColor"
+        stroke-width="1.75"
+      />
+    }
+    @case ('accounts') {
+      <rect
+        x="3.5"
+        y="6.5"
+        width="17"
+        height="11.5"
+        rx="2.5"
+        stroke="currentColor"
+        stroke-width="1.75"
+      />
+      <path d="M3.5 10h17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+      <circle cx="16.25" cy="14.25" r="1.15" fill="currentColor" />
+    }
+    @case ('import') {
+      <path
+        d="M12 4v10.5M8.5 11 12 14.5 15.5 11"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M5 17.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-1.5"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+      />
+    }
+    @case ('outlook') {
+      <path
+        d="M4.5 18V9.5L12 5l7.5 4.5V18"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M8 18v-5h8v5"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linejoin="round"
+      />
+    }
+  }
+</svg>
