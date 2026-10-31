@@ -200,6 +200,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 - Profile **calendar** preference (`GREGORIAN` | `JALALI`, default Jalali) is independent of UI language ([DEC-013](../decisions/DEC-013-calendar-preference.md)). Storage and API remain ISO instants.
 - Shared datetime pipe and field drive list formatting, form pickers, and Activity “this month” bounds (user calendar + timezone; unset TZ → UTC). Outlook “next month” labels follow the forecast payload’s calendar year/month.
 - Preference control lives in Settings (profile + localStorage cache), same dual-write pattern as UI language.
+- **Jalali form field** (`app-date-time-field`): typeable wall-clock input (`yyyy/MM/dd HH:mm`, Persian digits accepted); calendar toggle opens a **body overlay** (not inline under the field) so dialogs do not clip it; year jump in the panel; typeable `HH:mm` time; dismiss via outside click, Escape, or Done. Invalid typed values revert to the last good value (no silent wrong date). Gregorian continues to use PrimeNG DatePicker.
 
 ### Forms and chrome
 

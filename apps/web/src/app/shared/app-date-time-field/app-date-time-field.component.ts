@@ -1,3 +1,4 @@
+import { CdkConnectedOverlay, CdkOverlayOrigin } from '@angular/cdk/overlay';
 import {
   Component,
   computed,
@@ -25,7 +26,36 @@ import { InputText } from 'primeng/inputtext';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { LocaleService } from '../../core/i18n/locale.service';
-import { formatAppDateTime } from '../../core/format-app-date';
+import {
+  formatJalaliInput,
+  formatTimeInput,
+  jalaliInputToIso,
+  parseTimeInput,
+} from '../../core/parse-app-date';
+
+const OVERLAY_POSITIONS = [
+  {
+    originX: 'start' as const,
+    originY: 'bottom' as const,
+    overlayX: 'start' as const,
+    overlayY: 'top' as const,
+    offsetY: 4,
+  },
+  {
+    originX: 'start' as const,
+    originY: 'top' as const,
+    overlayX: 'start' as const,
+    overlayY: 'bottom' as const,
+    offsetY: -4,
+  },
+  {
+    originX: 'end' as const,
+    originY: 'bottom' as const,
+    overlayX: 'end' as const,
+    overlayY: 'top' as const,
+    offsetY: 4,
+  },
+];
 
 @Component({
   selector: 'app-date-time-field',
@@ -36,6 +66,8 @@ import { formatAppDateTime } from '../../core/format-app-date';
     DatePicker,
     InputText,
     TranslocoDirective,
+    CdkOverlayOrigin,
+    CdkConnectedOverlay,
   ],
   templateUrl: './app-date-time-field.component.html',
   styleUrl: './app-date-time-field.component.scss',
@@ -55,12 +87,18 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
   readonly calendar = this.calendarPref.calendar;
   readonly open = signal(false);
   readonly gregorianDate = signal<Date | null>(null);
+  readonly overlayPositions = OVERLAY_POSITIONS;
 
   readonly viewYear = signal(1404);
   readonly viewMonth = signal(1);
   readonly selectedDay = signal(1);
   readonly hour = signal(12);
   readonly minute = signal(0);
+
+  /** Draft text in the Jalali typed input. */
+  readonly typedText = signal('');
+  /** Draft text for panel HH:mm. */
+  readonly timeText = signal('12:00');
 
   readonly dayCells = computed(() => {
     const cal = this.calendar();
@@ -93,19 +131,6 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     );
   });
 
-  readonly displayLabel = computed(() => {
-    const iso = this.isoValue();
-    if (!iso) {
-      return '';
-    }
-    return formatAppDateTime(
-      iso,
-      this.calendar(),
-      this.timeZone(),
-      this.locale.activeLang(),
-    );
-  });
-
   private readonly isoValue = signal<string>('');
   private onChange: (value: string) => void = () => undefined;
   private onTouched: () => void = () => undefined;
@@ -122,6 +147,7 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
       this.syncFromIso(iso);
     } else {
       this.syncFromIso(new Date().toISOString());
+      this.typedText.set('');
     }
   }
 
@@ -143,6 +169,17 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     }
     this.open.update((v) => !v);
     this.onTouched();
+  }
+
+  closePanel(): void {
+    this.open.set(false);
+  }
+
+  onOverlayKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.closePanel();
+    }
   }
 
   onGregorianChange(date: Date | null): void {
@@ -167,6 +204,34 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     this.onChange(iso);
   }
 
+  onTypedTextInput(value: string): void {
+    this.typedText.set(value);
+  }
+
+  commitTypedText(): void {
+    this.onTouched();
+    const raw = this.typedText().trim();
+    if (!raw) {
+      this.refreshTypedFromIso();
+      return;
+    }
+    const iso = jalaliInputToIso(raw, this.timeZone());
+    if (!iso) {
+      this.refreshTypedFromIso();
+      return;
+    }
+    this.isoValue.set(iso);
+    this.syncFromIso(iso);
+    this.onChange(iso);
+  }
+
+  onTypedKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.commitTypedText();
+    }
+  }
+
   selectDay(day: number): void {
     this.selectedDay.set(day);
     this.emitJalali();
@@ -180,6 +245,7 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     } else {
       this.viewMonth.set(m - 1);
     }
+    this.clampSelectedDay();
   }
 
   nextMonth(): void {
@@ -190,18 +256,48 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     } else {
       this.viewMonth.set(m + 1);
     }
+    this.clampSelectedDay();
   }
 
-  onHourChange(value: string): void {
-    const n = Math.min(23, Math.max(0, Number(value) || 0));
-    this.hour.set(n);
+  prevYear(): void {
+    this.viewYear.update((y) => y - 1);
+    this.clampSelectedDay();
+  }
+
+  nextYear(): void {
+    this.viewYear.update((y) => y + 1);
+    this.clampSelectedDay();
+  }
+
+  onTimeTextInput(value: string): void {
+    this.timeText.set(value);
+  }
+
+  commitTimeText(): void {
+    const parsed = parseTimeInput(this.timeText());
+    if (!parsed) {
+      this.timeText.set(formatTimeInput(this.hour(), this.minute()));
+      return;
+    }
+    this.hour.set(parsed.hour);
+    this.minute.set(parsed.minute);
+    this.timeText.set(formatTimeInput(parsed.hour, parsed.minute));
     this.emitJalali();
   }
 
-  onMinuteChange(value: string): void {
-    const n = Math.min(59, Math.max(0, Number(value) || 0));
-    this.minute.set(n);
-    this.emitJalali();
+  onTimeKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.commitTimeText();
+    }
+  }
+
+  private clampSelectedDay(): void {
+    const max = daysInMonth(this.viewYear(), this.viewMonth(), this.calendar());
+    if (this.selectedDay() > max) {
+      this.selectedDay.set(max);
+      this.emitJalali();
+    }
   }
 
   private emitJalali(): void {
@@ -220,7 +316,18 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     );
     const iso = date.toISOString();
     this.isoValue.set(iso);
+    this.refreshTypedFromIso();
     this.onChange(iso);
+  }
+
+  private refreshTypedFromIso(): void {
+    const iso = this.isoValue();
+    if (!iso) {
+      this.typedText.set('');
+      return;
+    }
+    this.typedText.set(formatJalaliInput(iso, this.timeZone()));
+    this.timeText.set(formatTimeInput(this.hour(), this.minute()));
   }
 
   private syncFromIso(iso: string): void {
@@ -248,5 +355,7 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     this.selectedDay.set(civil.day);
     this.hour.set(parts.hour);
     this.minute.set(parts.minute);
+    this.typedText.set(formatJalaliInput(iso, tz));
+    this.timeText.set(formatTimeInput(parts.hour, parts.minute));
   }
 }

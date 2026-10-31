@@ -1,6 +1,14 @@
 {
   "common": {
     "pickDateTime": "Pick date and time",
+    "dateTimePlaceholder": "yyyy/MM/dd HH:mm",
+    "openCalendar": "Open calendar",
+    "time": "Time",
+    "timePlaceholder": "HH:mm",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
     "hour": "Hour",
     "minute": "Minute",
     "done": "Done"

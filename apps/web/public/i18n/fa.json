@@ -1,6 +1,14 @@
 {
   "common": {
     "pickDateTime": "انتخاب تاریخ و زمان",
+    "dateTimePlaceholder": "yyyy/MM/dd HH:mm",
+    "openCalendar": "باز کردن تقویم",
+    "time": "زمان",
+    "timePlaceholder": "HH:mm",
+    "prevYear": "سال قبل",
+    "nextYear": "سال بعد",
+    "prevMonth": "ماه قبل",
+    "nextMonth": "ماه بعد",
     "hour": "ساعت",
     "minute": "دقیقه",
     "done": "تأیید"

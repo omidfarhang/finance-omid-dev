@@ -12,25 +12,91 @@
       inputStyleClass="w-full"
     />
   } @else {
-    <button
-      pButton
-      type="button"
-      severity="secondary"
-      class="w-full date-trigger"
-      [disabled]="disabled"
-      (click)="toggleOpen()"
+    <div
+      class="jalali-field"
+      cdkOverlayOrigin
+      #jalaliOrigin="cdkOverlayOrigin"
     >
-      {{ displayLabel() || t('common.pickDateTime') }}
-    </button>
-    @if (open()) {
-      <div class="jalali-panel" role="dialog">
+      <input
+        pInputText
+        type="text"
+        class="jalali-input"
+        [disabled]="disabled"
+        [placeholder]="t('common.dateTimePlaceholder')"
+        [attr.aria-label]="t('common.pickDateTime')"
+        [ngModel]="typedText()"
+        (ngModelChange)="onTypedTextInput($event)"
+        [ngModelOptions]="{ standalone: true }"
+        (blur)="commitTypedText()"
+        (keydown)="onTypedKeydown($event)"
+      />
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        icon="pi pi-calendar"
+        class="jalali-toggle"
+        [disabled]="disabled"
+        [attr.aria-label]="t('common.openCalendar')"
+        [attr.aria-expanded]="open()"
+        (click)="toggleOpen()"
+      ></button>
+    </div>
+
+    <ng-template
+      cdkConnectedOverlay
+      [cdkConnectedOverlayOrigin]="jalaliOrigin"
+      [cdkConnectedOverlayOpen]="open()"
+      [cdkConnectedOverlayHasBackdrop]="true"
+      cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+      [cdkConnectedOverlayPositions]="overlayPositions"
+      [cdkConnectedOverlayPush]="true"
+      [cdkConnectedOverlayViewportMargin]="8"
+      (backdropClick)="closePanel()"
+      (overlayKeydown)="onOverlayKeydown($event)"
+    >
+      <div class="jalali-panel" role="dialog" [attr.aria-label]="t('common.pickDateTime')">
         <div class="jalali-nav">
-          <button pButton type="button" severity="secondary" size="small" (click)="prevMonth()">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            size="small"
+            [attr.aria-label]="t('common.prevYear')"
+            (click)="prevYear()"
+          >
+            «
+          </button>
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            size="small"
+            [attr.aria-label]="t('common.prevMonth')"
+            (click)="prevMonth()"
+          >
             ‹
           </button>
           <span class="month-label">{{ monthLabel() }}</span>
-          <button pButton type="button" severity="secondary" size="small" (click)="nextMonth()">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            size="small"
+            [attr.aria-label]="t('common.nextMonth')"
+            (click)="nextMonth()"
+          >
             ›
+          </button>
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            size="small"
+            [attr.aria-label]="t('common.nextYear')"
+            (click)="nextYear()"
+          >
+            »
           </button>
         </div>
         <div class="day-grid">
@@ -46,28 +112,18 @@
           }
         </div>
         <div class="time-row">
-          <label>
-            {{ t('common.hour') }}
+          <label class="time-label">
+            {{ t('common.time') }}
             <input
               pInputText
-              type="number"
-              min="0"
-              max="23"
-              [ngModel]="hour()"
-              (ngModelChange)="onHourChange($event)"
+              type="text"
+              class="time-input"
+              [placeholder]="t('common.timePlaceholder')"
+              [ngModel]="timeText()"
+              (ngModelChange)="onTimeTextInput($event)"
               [ngModelOptions]="{ standalone: true }"
-            />
-          </label>
-          <label>
-            {{ t('common.minute') }}
-            <input
-              pInputText
-              type="number"
-              min="0"
-              max="59"
-              [ngModel]="minute()"
-              (ngModelChange)="onMinuteChange($event)"
-              [ngModelOptions]="{ standalone: true }"
+              (blur)="commitTimeText()"
+              (keydown)="onTimeKeydown($event)"
             />
           </label>
         </div>
@@ -76,11 +132,11 @@
           type="button"
           size="small"
           class="w-full"
-          (click)="toggleOpen()"
+          (click)="closePanel()"
         >
           {{ t('common.done') }}
         </button>
       </div>
-    }
+    </ng-template>
   }
 </div>

@@ -29,6 +29,7 @@ The product needs Persian (Jalali) and Gregorian calendars for display, form inp
 - Forecast responses include `calendar` plus `year` / `month` **in that calendar**.
 - Contributors must not treat `locale === 'fa'` as Jalali.
 - Profile API and Prisma schema gain a `calendar` field; migrations default existing users to Jalali.
+- The custom Jalali picker must stay in-house (no third-party PrimeNG Jalali forks) but match usable form UX: typeable date/time, body overlay (dialog-safe), year jump, and typeable time — see [ui-ux.md](../plans/ui-ux.md) Dates.
 
 ## Revisit when
 
