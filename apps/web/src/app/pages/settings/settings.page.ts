@@ -16,7 +16,7 @@ import { Select } from 'primeng/select';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { LocaleService } from '../../core/i18n/locale.service';
-import { UiLang, toUiLang } from '../../core/i18n/supported-langs';
+import { UiLang } from '../../core/i18n/supported-langs';
 import {
   ensureTimeZoneOption,
   listTimeZones,
@@ -97,11 +97,8 @@ export class SettingsPage implements OnInit {
       this.timeZone = user.timeZone ?? '';
       this.calendar = user.calendar;
       this.calendarPreference.hydrateFromUser(user);
+      this.localeService.hydrateFromUser(user);
       this.timeZones = ensureTimeZoneOption(this.timeZones, user.timeZone);
-      const fromProfile = toUiLang(user.locale);
-      if (fromProfile && fromProfile !== this.localeService.activeLang()) {
-        void this.localeService.setLang(fromProfile, { persistProfile: false });
-      }
     } else {
       this.calendar = this.calendarPreference.calendar();
     }

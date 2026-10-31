@@ -15,7 +15,7 @@ When architecture or stack choices change, update this file in the same change s
 - **Identity:** httpOnly cookie sessions; optional TOTP 2FA; profile ([DEC-007](decisions/DEC-007-auth.md)); instance `ADMIN` / `USER` with registration toggle ([DEC-010](decisions/DEC-010-instance-admin.md)).
 - **Household:** personal wallets + optional shared accounts ([DEC-005](decisions/DEC-005-wallets-and-accounts.md)).
 - **Deploy:** Docker Compose (`postgres` + `api` + `web`); same-origin `/api` proxy; TLS at host nginx ([DEC-008](decisions/DEC-008-self-hosted-docker.md)).
-- **UI language:** runtime Transloco catalogs (`fa`, `en`); preference via localStorage + profile `locale`; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
+- **UI language:** runtime Transloco catalogs (`fa`, `en`); localStorage cache + profile `locale`; profile hydrates (and overrides cache) on login/session; RTL via `html[dir]` ([DEC-009](decisions/DEC-009-i18n.md)).
 - **Calendar:** profile `calendar` (`GREGORIAN` | `JALALI`, default Jalali) + timezone; ISO storage; display, pickers, month filters, and next-month forecast follow the preference ([DEC-013](decisions/DEC-013-calendar-preference.md)).
 - **UI information architecture:** hybrid home; App vs Admin shells; user menu (Settings / Support / Sign out); language switcher on Guest shell and Settings only; dedicated routes for activity, accounts, import, outlook, settings, support ([plans/ui-ux.md](plans/ui-ux.md), [DEC-011](decisions/DEC-011-ui-ia.md)).
 

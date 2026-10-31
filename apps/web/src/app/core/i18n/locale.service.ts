@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
+import type { PublicUser } from '@finance/shared';
 import { TranslocoService } from '@jsverse/transloco';
 import { PrimeNG } from 'primeng/config';
 import { firstValueFrom } from 'rxjs';
@@ -26,23 +27,32 @@ export class LocaleService {
 
   /** Resolve preference and load translations before first paint. */
   async init(): Promise<void> {
-    let userLocale: string | null = null;
-    if (!this.readStoredLang()) {
-      const user = await firstValueFrom(this.auth.refreshSession());
-      userLocale = user?.locale ?? null;
-    }
-    await this.applyLang(this.resolvePreferredLang(userLocale), { persistProfile: false });
+    const user = await firstValueFrom(this.auth.refreshSession());
+    const fromProfile = toUiLang(user?.locale);
+    await this.applyLang(fromProfile ?? this.resolveGuestLang(), {
+      persistProfile: false,
+    });
   }
 
-  resolvePreferredLang(userLocale?: string | null): UiLang {
+  /**
+   * Apply profile locale over the guest/localStorage cache when authenticated.
+   * Mirrors CalendarPreferenceService.hydrateFromUser ([DEC-009], [DEC-013]).
+   */
+  hydrateFromUser(user: PublicUser | null): void {
+    if (!user) {
+      return;
+    }
+    const fromProfile = toUiLang(user.locale);
+    if (fromProfile && fromProfile !== this.activeLang()) {
+      void this.setLang(fromProfile, { persistProfile: false });
+    }
+  }
+
+  /** Guest / cold-start order when no profile locale is available. */
+  resolveGuestLang(): UiLang {
     const stored = this.readStoredLang();
     if (stored) {
       return stored;
-    }
-
-    const fromUser = toUiLang(userLocale);
-    if (fromUser) {
-      return fromUser;
     }
 
     const fromBrowser = toUiLang(

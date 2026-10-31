@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, Injector, computed, inject, signal } from '@angular/core';
 import type {
   CalendarSystem,
   PublicUser,
@@ -8,6 +8,7 @@ import type {
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CalendarPreferenceService } from './calendar-preference.service';
+import { LocaleService } from './i18n/locale.service';
 
 type AuthResponse = { user: PublicUser };
 type TotpChallenge = { requiresTotp: true; pendingToken: string };
@@ -21,10 +22,13 @@ export class AuthService {
 
   private readonly http = inject(HttpClient);
   private readonly calendarPreference = inject(CalendarPreferenceService);
+  /** Lazy resolve avoids AuthService ↔ LocaleService circular DI. */
+  private readonly injector = inject(Injector);
 
   private applyUser(user: PublicUser | null): void {
     this.user.set(user);
     this.calendarPreference.hydrateFromUser(user);
+    this.injector.get(LocaleService).hydrateFromUser(user);
   }
 
   registrationStatus(): Observable<RegistrationStatus> {
