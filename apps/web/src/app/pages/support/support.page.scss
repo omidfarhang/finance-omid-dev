@@ -10,6 +10,19 @@
   color: var(--app-text-muted);
 }
 
+.panel {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-border, color-mix(in srgb, var(--app-text-muted) 25%, transparent));
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
 a {
   font-weight: 600;
   color: var(--app-accent);

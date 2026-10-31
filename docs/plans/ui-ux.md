@@ -41,7 +41,7 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | **Admin** | Instance `ADMIN` | Distinct admin header/context; back to app; same user menu; not the personal Accounts mental model |
 | **Guest** | Unauthenticated | Minimal chrome (brand + **language** switcher); centered auth forms; no primary money nav |
 
-**Status / API health** is not a primary-nav peer. Expose under Settings (or a hidden/dev route) only.
+**Status / API health** is not a primary-nav peer. Expose under Support (or a hidden/dev route) only.
 
 **Post-login / post-register** navigates to **`/`** (hybrid home), not profile.
 
@@ -65,10 +65,10 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | `/import` | Statement upload, adapter choice, dedup feedback |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
 | `/settings` | Settings shell; redirects to `/settings/profile` |
-| `/settings/profile` | Display name, locale/timezone/calendar, theme, money display, Status link; sign-out on shell |
+| `/settings/profile` | Display name, locale/timezone/calendar, theme, money display; sign-out on shell |
 | `/settings/categories` | Income/expense category lists (add / rename / delete non-system) |
 | `/settings/security` | TOTP enroll/disable |
-| `/support` | Lightweight help / contact stub (user-menu entry only; not primary nav) |
+| `/support` | Lightweight help / contact stub; API status link (user-menu entry only; not primary nav) |
 
 Legacy `/wallets` and `/profile` should redirect into Accounts and Settings when the shell lands.
 
@@ -181,7 +181,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Settings (`/settings`)
 
 - Shell at `/settings` with header (title, email, sign-out) and horizontal section nav (`routerLink` + active state). Bare `/settings` redirects to `/settings/profile`. Legacy `/profile` redirects to `/settings`.
-- **Profile** (`/settings/profile`): display name, locale, timezone, **calendar** (Gregorian / Jalali) ([DEC-009](../decisions/DEC-009-i18n.md), [DEC-013](../decisions/DEC-013-calendar-preference.md)); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`); optional Status/health link.
+- **Profile** (`/settings/profile`): display name, locale, timezone, **calendar** (Gregorian / Jalali) ([DEC-009](../decisions/DEC-009-i18n.md), [DEC-013](../decisions/DEC-013-calendar-preference.md)); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`).
 - **Categories** (`/settings/categories`): income/expense lists (add / rename / delete non-system; system Uncategorized locked) — not a primary-nav peer ([transactions.md](transactions.md)).
 - **Security** (`/settings/security`): TOTP enroll/disable.
 - Authenticated language changes happen on Profile (not in App/Admin toolbar). Admin entry remains in the user menu for admins.
@@ -190,6 +190,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Purpose: short help / how to get support stub; reachable from the user menu only.
 - Keep empty-state honest until a real support channel is specified.
+- Expose **API status / health** link here (route `/status` remains; not primary nav).
 
 ### Admin (`/admin`, `/admin/users/:userId`)
 

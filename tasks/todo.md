@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Move API status link from Settings profile to Support ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Settings nested routes: shell + Profile / Categories / Security sections ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Theme preference (Light / Dark / System): profile field, Settings icon control, PrimeNG + CSS tokens ([DEC-015](../docs/decisions/DEC-015-theme-preference.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Home dashboard polish: surface panels (no leading separators), wide Recent|Outlook grid, richer outlook strip, skeleton loading ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))

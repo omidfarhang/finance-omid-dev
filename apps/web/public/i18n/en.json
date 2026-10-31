@@ -45,7 +45,10 @@
     "title": "Support",
     "lede": "Help for using this personal finance app.",
     "empty": "A support channel is not wired yet. Use Settings for account and language preferences for now.",
-    "settingsLink": "Open Settings"
+    "settingsLink": "Open Settings",
+    "statusLinkTitle": "API status",
+    "statusLinkLede": "Health check for the API. Not part of primary navigation.",
+    "statusLink": "Open status"
   },
   "home": {
     "balances": "Balances",
@@ -268,9 +271,6 @@
       "loadFailed": "Could not load categories",
       "confirmDelete": "Delete “{{name}}”? Movements using it move to Uncategorized."
     },
-    "statusLinkTitle": "API status",
-    "statusLinkLede": "Health check for the API. Not part of primary navigation.",
-    "statusLink": "Open status",
     "totp": {
       "title": "Two-factor authentication",
       "status": "Status:",
