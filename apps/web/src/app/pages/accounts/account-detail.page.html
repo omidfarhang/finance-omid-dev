@@ -179,13 +179,10 @@
         @if (account(); as account) {
           <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(account.currency) }) }}</span>
         }
-        <input
-          pInputText
+        <app-amount-input
           name="movementAmount"
           [(ngModel)]="movementAmount"
-          inputmode="numeric"
-          required
-          class="w-full"
+          [required]="true"
         />
       </label>
       <label>
@@ -258,13 +255,10 @@
       </p>
       <label>
         {{ t('activity.amount') }}
-        <input
-          pInputText
+        <app-amount-input
           name="transferAmount"
           [(ngModel)]="transferAmount"
-          inputmode="numeric"
-          required
-          class="w-full"
+          [required]="true"
         />
       </label>
       <label>

@@ -121,13 +121,10 @@
       <label>
         {{ t('activity.amount') }}
         <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(currency) }) }}</span>
-        <input
-          pInputText
+        <app-amount-input
           name="amount"
           [(ngModel)]="amount"
-          inputmode="numeric"
-          required
-          class="w-full"
+          [required]="true"
         />
       </label>
       <label>

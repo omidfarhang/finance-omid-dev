@@ -35,6 +35,7 @@ import {
   AddMovementDialogComponent,
   type AddMovementSavedEvent,
 } from '../../shared/add-movement-dialog/add-movement-dialog.component';
+import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 type RangeKey = 'all' | '30d' | 'month';
@@ -44,6 +45,7 @@ type RangeKey = 'all' | '30d' | 'month';
   standalone: true,
   imports: [
     AddMovementDialogComponent,
+    AppAmountInputComponent,
     AppDateTimeFieldComponent,
     AppDateTimePipe,
     FormsModule,

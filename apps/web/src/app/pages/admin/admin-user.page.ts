@@ -13,6 +13,7 @@ import { forkJoin, of, switchMap } from 'rxjs';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { AdminService } from '../../core/admin.service';
+import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 
 const CURRENCIES = ['IRR', 'USD'] as const;
 
@@ -20,6 +21,7 @@ const CURRENCIES = ['IRR', 'USD'] as const;
   selector: 'app-admin-user-page',
   standalone: true,
   imports: [
+    AppAmountInputComponent,
     FormsModule,
     RouterLink,
     ButtonDirective,

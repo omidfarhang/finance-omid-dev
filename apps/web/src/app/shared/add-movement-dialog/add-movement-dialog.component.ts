@@ -25,6 +25,7 @@ import {
 } from '../../core/category-display';
 import { minorUnitLabel } from '../../core/money-display';
 import { TransactionsService } from '../../core/transactions.service';
+import { AppAmountInputComponent } from '../app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../app-date-time-field/app-date-time-field.component';
 
 export type AddMovementType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
@@ -43,6 +44,7 @@ type TypeOption = {
   selector: 'app-add-movement-dialog',
   standalone: true,
   imports: [
+    AppAmountInputComponent,
     AppDateTimeFieldComponent,
     FormsModule,
     ButtonDirective,

@@ -1,0 +1,13 @@
+<input
+  pInputText
+  type="text"
+  class="amount-input"
+  [attr.name]="name() || null"
+  [attr.inputmode]="'numeric'"
+  autocomplete="off"
+  [disabled]="disabled"
+  [required]="required()"
+  [value]="display()"
+  (input)="onInput($event)"
+  (blur)="onBlur()"
+/>

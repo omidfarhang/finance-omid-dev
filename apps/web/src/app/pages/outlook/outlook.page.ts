@@ -17,6 +17,7 @@ import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
+import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 
 const CURRENCIES = ['IRR', 'USD'] as const;
 
@@ -24,6 +25,7 @@ const CURRENCIES = ['IRR', 'USD'] as const;
   selector: 'app-outlook-page',
   standalone: true,
   imports: [
+    AppAmountInputComponent,
     FormsModule,
     ButtonDirective,
     Checkbox,

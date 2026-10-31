@@ -207,6 +207,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Input/storage: integer minor units as digit strings on the wire.
 - Display: shared formatter; currency code visible; IRR may present as **labeled** toman (`÷ 10`) when the user opts in.
+- **Amount inputs:** shared `app-amount-input` — typeable digit field with locale thousand separators while editing (`en`: `,`; `fa`: `٬`); Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits are accepted on type/paste, counted for caret placement, and normalized to Latin digits in the field and model; model value stays an ungrouped digit string (optional leading `-` only where opening balance allows negatives). Never use binary floating-point inputs for money.
 - **Preference control lives only in Settings** (not on home or other money lists). Preference is local (`localStorage`) for MVP; applies app-wide including admin-as-user views.
 - Same formatter on home, accounts, activity amounts, admin-as-user views.
 - Never show a merged multi-currency “net worth”.

@@ -154,13 +154,11 @@
       <label>
         {{ t('accounts.openingBalance') }}
         <span class="hint">{{ t('accounts.openingHint', { unit: unitLabel(accountCurrency) }) }}</span>
-        <input
-          pInputText
+        <app-amount-input
           name="openingBalanceMinor"
           [(ngModel)]="openingBalanceMinor"
-          inputmode="numeric"
-          required
-          class="w-full"
+          [allowNegative]="true"
+          [required]="true"
         />
       </label>
       <label class="checkbox-row">
