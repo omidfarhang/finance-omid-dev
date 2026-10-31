@@ -7,6 +7,12 @@
   --app-page-ground: #eef0f2;
   --app-surface: #ffffff;
   --app-shell-bg: linear-gradient(180deg, #f7f8f9 0%, #eef0f2 100%);
+  --app-panel-bg: color-mix(in srgb, var(--app-surface) 86%, transparent);
+  --app-panel-border: color-mix(in srgb, var(--app-text) 8%, transparent);
+  --app-panel-shadow: 0 1px 2px color-mix(in srgb, var(--app-text) 4%, transparent);
+  --app-panel-radius: 0.75rem;
+  --app-row-bg: color-mix(in srgb, var(--app-page-ground) 55%, var(--app-surface));
+  --app-row-border: color-mix(in srgb, var(--app-text) 12%, transparent);
   --app-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
   --app-font-brand: "Source Serif 4", "Iowan Old Style", Georgia, serif;
 

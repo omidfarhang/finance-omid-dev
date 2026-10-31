@@ -11,6 +11,7 @@ import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
 import { TransactionsService } from '../../core/transactions.service';
 
 @Component({
@@ -23,6 +24,7 @@ import { TransactionsService } from '../../core/transactions.service';
     InputText,
     Message,
     Select,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './settings-categories.page.html',
@@ -31,11 +33,13 @@ import { TransactionsService } from '../../core/transactions.service';
 export class SettingsCategoriesPage implements OnInit {
   message = signal<string | null>(null);
   error = signal<string | null>(null);
+  loading = signal(true);
   categories = signal<PublicCategory[]>([]);
   categoryDialogVisible = signal(false);
   editingCategoryId: string | null = null;
   categoryName = '';
   categoryKind: CategoryKind = 'EXPENSE';
+  readonly skeletonRows = [0, 1, 2];
 
   private readonly i18n = inject(TranslocoService);
   private readonly txApi = inject(TransactionsService);
@@ -65,9 +69,14 @@ export class SettingsCategoriesPage implements OnInit {
   }
 
   reloadCategories() {
+    this.loading.set(true);
     this.txApi.listCategories().subscribe({
-      next: (categories) => this.categories.set(categories),
+      next: (categories) => {
+        this.categories.set(categories);
+        this.loading.set(false);
+      },
       error: (err: { error?: { message?: string } }) => {
+        this.loading.set(false);
         this.error.set(
           err.error?.message ??
             this.i18n.translate('settings.categories.loadFailed'),

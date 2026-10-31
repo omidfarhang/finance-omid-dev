@@ -7,43 +7,50 @@
   }
 
   <form (ngSubmit)="saveProfile()" class="panel">
-    <h2>{{ t('settings.accountDetails') }}</h2>
+    <div class="panel-header">
+      <h2>{{ t('settings.accountDetails') }}</h2>
+    </div>
     <label>
       {{ t('settings.displayName') }}
       <input pInputText name="displayName" [(ngModel)]="displayName" required />
     </label>
     <label>
       {{ t('settings.locale') }}
-      <select
-        name="locale"
+      <p-select
+        [options]="localeOptions()"
         [ngModel]="localeService.activeLang()"
         (ngModelChange)="onLocaleChange($event)"
-      >
-        @for (lang of localeService.langs; track lang.id) {
-          <option [value]="lang.id">{{ t(lang.labelKey) }}</option>
-        }
-      </select>
+        name="locale"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
     </label>
     <label>
       {{ t('settings.timeZone') }}
-      <select name="timeZone" [(ngModel)]="timeZone">
-        <option value="">{{ t('settings.timeZoneUnset') }}</option>
-        @for (zone of timeZones; track zone) {
-          <option [value]="zone">{{ zone }}</option>
-        }
-      </select>
+      <p-select
+        [options]="timeZoneOptions"
+        [(ngModel)]="timeZone"
+        name="timeZone"
+        optionLabel="label"
+        optionValue="value"
+        [filter]="true"
+        [showClear]="true"
+        [placeholder]="t('settings.timeZoneUnset')"
+        class="w-full"
+      />
     </label>
     <label>
       {{ t('settings.calendar') }}
-      <select
-        name="calendar"
+      <p-select
+        [options]="calendarSelectOptions()"
         [ngModel]="calendar"
         (ngModelChange)="onCalendarChange($event)"
-      >
-        @for (opt of calendarOptions; track opt.value) {
-          <option [value]="opt.value">{{ t(opt.labelKey) }}</option>
-        }
-      </select>
+        name="calendar"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
     </label>
     <p class="lede">{{ t('settings.calendarLede') }}</p>
     <div class="theme-field">
@@ -80,7 +87,9 @@
   </form>
 
   <section class="panel">
-    <h2>{{ t('settings.moneyDisplayTitle') }}</h2>
+    <div class="panel-header">
+      <h2>{{ t('settings.moneyDisplayTitle') }}</h2>
+    </div>
     <p class="lede">{{ t('settings.moneyDisplayLede') }}</p>
     <label class="checkbox-row">
       <input

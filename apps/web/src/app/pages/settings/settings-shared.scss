@@ -1,17 +1,41 @@
 :host {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .lede {
+  margin: 0;
   color: var(--app-text-muted);
 }
 
 .panel {
   display: grid;
+  gap: 0.85rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--app-panel-radius);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  box-shadow: var(--app-panel-shadow);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
   gap: 1rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 label {
@@ -33,14 +57,9 @@ label {
   accent-color: var(--app-accent);
 }
 
-select {
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-select {
   width: 100%;
-  font: inherit;
-  padding: 0.55rem 0.65rem;
-  border: 1px solid color-mix(in srgb, var(--app-text) 16%, transparent);
-  border-radius: 0.4rem;
-  background: var(--app-surface);
-  color: inherit;
 }
 
 a {

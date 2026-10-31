@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Settings polish: surface panels (home language), PrimeNG selects, category skeletons, shell nav ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Move API status link from Settings profile to Support ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Settings nested routes: shell + Profile / Categories / Security sections ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Theme preference (Light / Dark / System): profile field, Settings icon control, PrimeNG + CSS tokens ([DEC-015](../docs/decisions/DEC-015-theme-preference.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md))

@@ -6,13 +6,12 @@
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
-  <section class="panel">
-    <h2>{{ t('settings.categories.title') }}</h2>
-    <p class="lede">{{ t('settings.categories.lede') }}</p>
+  <p class="lede">{{ t('settings.categories.lede') }}</p>
 
-    <div class="category-block">
-      <div class="category-header">
-        <h3>{{ t('settings.categories.income') }}</h3>
+  <section class="panel">
+    <div class="panel-header">
+      <h2>{{ t('settings.categories.income') }}</h2>
+      <div class="panel-actions">
         <button
           pButton
           type="button"
@@ -23,9 +22,21 @@
           {{ t('settings.categories.add') }}
         </button>
       </div>
+    </div>
+
+    @if (loading()) {
+      <ul class="category-list" aria-busy="true">
+        @for (_ of skeletonRows; track $index) {
+          <li class="category-row category-row-skeleton">
+            <p-skeleton width="45%" height="1rem" />
+            <p-skeleton width="8rem" height="1.75rem" />
+          </li>
+        }
+      </ul>
+    } @else {
       <ul class="category-list">
         @for (category of incomeCategories(); track category.id) {
-          <li>
+          <li class="category-row">
             <span>
               {{ categoryLabel(category) }}
               @if (category.isSystem) {
@@ -57,11 +68,13 @@
           </li>
         }
       </ul>
-    </div>
+    }
+  </section>
 
-    <div class="category-block">
-      <div class="category-header">
-        <h3>{{ t('settings.categories.expense') }}</h3>
+  <section class="panel">
+    <div class="panel-header">
+      <h2>{{ t('settings.categories.expense') }}</h2>
+      <div class="panel-actions">
         <button
           pButton
           type="button"
@@ -72,9 +85,21 @@
           {{ t('settings.categories.add') }}
         </button>
       </div>
+    </div>
+
+    @if (loading()) {
+      <ul class="category-list" aria-busy="true">
+        @for (_ of skeletonRows; track $index) {
+          <li class="category-row category-row-skeleton">
+            <p-skeleton width="45%" height="1rem" />
+            <p-skeleton width="8rem" height="1.75rem" />
+          </li>
+        }
+      </ul>
+    } @else {
       <ul class="category-list">
         @for (category of expenseCategories(); track category.id) {
-          <li>
+          <li class="category-row">
             <span>
               {{ categoryLabel(category) }}
               @if (category.isSystem) {
@@ -106,7 +131,7 @@
           </li>
         }
       </ul>
-    </div>
+    }
   </section>
 
   <p-dialog

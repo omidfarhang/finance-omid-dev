@@ -15,10 +15,10 @@
   display: grid;
   gap: 0.85rem;
   padding: 1.15rem 1.25rem;
-  border-radius: 0.75rem;
-  background: color-mix(in srgb, var(--app-surface) 86%, transparent);
-  border: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
-  box-shadow: 0 1px 2px color-mix(in srgb, var(--app-text) 4%, transparent);
+  border-radius: var(--app-panel-radius);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  box-shadow: var(--app-panel-shadow);
 }
 
 .panel-balances {
@@ -70,9 +70,9 @@
   flex: 1 1 9.5rem;
   max-width: 14rem;
   padding: 0.85rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  border: 1px solid var(--app-row-border);
   border-radius: 0.5rem;
-  background: color-mix(in srgb, var(--app-page-ground) 55%, var(--app-surface));
+  background: var(--app-row-bg);
   text-decoration: none;
   color: inherit;
   transition:

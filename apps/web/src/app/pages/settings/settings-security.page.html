@@ -7,7 +7,9 @@
   }
 
   <section class="panel">
-    <h2>{{ t('settings.totp.title') }}</h2>
+    <div class="panel-header">
+      <h2>{{ t('settings.totp.title') }}</h2>
+    </div>
     <p class="lede">
       {{ t('settings.totp.status') }}
       <strong>
@@ -25,7 +27,7 @@
           {{ t('settings.totp.setup') }}
         </button>
       } @else {
-        <p>{{ t('settings.totp.scan') }}</p>
+        <p class="lede">{{ t('settings.totp.scan') }}</p>
         <img [src]="qrDataUrl()!" alt="TOTP QR code" class="qr" />
         <p class="secret">{{ t('settings.totp.secret') }} {{ totpSecret() }}</p>
         <label>

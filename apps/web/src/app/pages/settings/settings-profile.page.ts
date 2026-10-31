@@ -1,6 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import {
   DEFAULT_THEME,
   type CalendarSystem,
@@ -10,6 +9,7 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
+import { Select } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
@@ -28,15 +28,20 @@ type ThemeOption = {
   icon: string;
 };
 
+type SelectOption<T extends string> = {
+  label: string;
+  value: T;
+};
+
 @Component({
   selector: 'app-settings-profile-page',
   standalone: true,
   imports: [
     FormsModule,
-    RouterLink,
     ButtonDirective,
     InputText,
     Message,
+    Select,
     SelectButton,
     TranslocoDirective,
   ],
@@ -45,14 +50,10 @@ type ThemeOption = {
 })
 export class SettingsProfilePage implements OnInit {
   displayName = '';
-  timeZone = '';
+  timeZone: string | null = null;
   calendar: CalendarSystem = 'JALALI';
   theme: ThemePreference = DEFAULT_THEME;
-  timeZones: string[] = listTimeZones();
-  readonly calendarOptions: { labelKey: string; value: CalendarSystem }[] = [
-    { labelKey: 'settings.calendarJalali', value: 'JALALI' },
-    { labelKey: 'settings.calendarGregorian', value: 'GREGORIAN' },
-  ];
+  timeZoneOptions: SelectOption<string>[] = [];
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   loading = signal(false);
@@ -63,6 +64,26 @@ export class SettingsProfilePage implements OnInit {
   readonly themePreference = inject(ThemePreferenceService);
   readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly i18n = inject(TranslocoService);
+
+  readonly localeOptions = computed((): SelectOption<UiLang>[] =>
+    this.localeService.langs.map((lang) => ({
+      label: this.i18n.translate(lang.labelKey),
+      value: lang.id,
+    })),
+  );
+
+  readonly calendarSelectOptions = computed(
+    (): SelectOption<CalendarSystem>[] => [
+      {
+        label: this.i18n.translate('settings.calendarJalali'),
+        value: 'JALALI',
+      },
+      {
+        label: this.i18n.translate('settings.calendarGregorian'),
+        value: 'GREGORIAN',
+      },
+    ],
+  );
 
   readonly themeOptions = computed((): ThemeOption[] => [
     {
@@ -86,16 +107,17 @@ export class SettingsProfilePage implements OnInit {
     const user = this.auth.user();
     if (user) {
       this.displayName = user.displayName;
-      this.timeZone = user.timeZone ?? '';
+      this.timeZone = user.timeZone ?? null;
       this.calendar = user.calendar;
       this.theme = user.theme;
       this.calendarPreference.hydrateFromUser(user);
       this.themePreference.hydrateFromUser(user);
       this.localeService.hydrateFromUser(user);
-      this.timeZones = ensureTimeZoneOption(this.timeZones, user.timeZone);
+      this.timeZoneOptions = this.buildTimeZoneOptions(user.timeZone);
     } else {
       this.calendar = this.calendarPreference.calendar();
       this.theme = this.themePreference.theme();
+      this.timeZoneOptions = this.buildTimeZoneOptions(null);
     }
   }
 
@@ -145,5 +167,14 @@ export class SettingsProfilePage implements OnInit {
           );
         },
       });
+  }
+
+  private buildTimeZoneOptions(
+    current: string | null | undefined,
+  ): SelectOption<string>[] {
+    return ensureTimeZoneOption(listTimeZones(), current).map((zone) => ({
+      label: zone,
+      value: zone,
+    }));
   }
 }

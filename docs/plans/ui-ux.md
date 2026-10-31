@@ -181,9 +181,11 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Settings (`/settings`)
 
 - Shell at `/settings` with header (title, email, sign-out) and horizontal section nav (`routerLink` + active state). Bare `/settings` redirects to `/settings/profile`. Legacy `/profile` redirects to `/settings`.
-- **Profile** (`/settings/profile`): display name, locale, timezone, **calendar** (Gregorian / Jalali) ([DEC-009](../decisions/DEC-009-i18n.md), [DEC-013](../decisions/DEC-013-calendar-preference.md)); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`).
-- **Categories** (`/settings/categories`): income/expense lists (add / rename / delete non-system; system Uncategorized locked) — not a primary-nav peer ([transactions.md](transactions.md)).
-- **Security** (`/settings/security`): TOTP enroll/disable.
+- Visual language matches home: **surface panels** (padding, radius, soft background, subtle border) separated by gap — not leading hairline rules. Section content lives in panels; shell chrome (title + nav) sits above without a bottom rule.
+- Prefer PrimeNG Select / SelectButton over native controls for locale, timezone, calendar, and theme.
+- **Profile** (`/settings/profile`): display name, locale, timezone, **calendar** (Gregorian / Jalali) ([DEC-009](../decisions/DEC-009-i18n.md), [DEC-013](../decisions/DEC-013-calendar-preference.md)); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`) as its own panel.
+- **Categories** (`/settings/categories`): income and expense as separate surface panels (list + add; rename/delete non-system; system Uncategorized locked); loading uses skeletons — not a primary-nav peer ([transactions.md](transactions.md)).
+- **Security** (`/settings/security`): TOTP enroll/disable in a surface panel.
 - Authenticated language changes happen on Profile (not in App/Admin toolbar). Admin entry remains in the user menu for admins.
 
 ### Support (`/support`)
@@ -232,7 +234,8 @@ Document in implementation, do not rebrand:
 - Accent / links: blue around `#1d4ed8` (dark `#60a5fa`); page ground neutral gray `#eef0f2`; surfaces white / dark gray for navbars; text `#1c2a27` (light); dark counterparts under `html.app-dark`; PrimeNG Aura primary palette is blue
 - Theme: PrimeNG Aura with class-based dark (`html.app-dark`); profile preference Light / Dark / System (default System) ([DEC-015](../decisions/DEC-015-theme-preference.md))
 - Appearance control in Settings: icon segmented `SelectButton` (sun / moon / desktop)—not a dropdown
-- Prefer CSS variables in `styles.scss` for shared shell/page surfaces so page SCSS stops forking hex values
+- Prefer CSS variables in `styles.scss` for shared shell/page surfaces (including panel background/border/radius/shadow) so page SCSS stops forking hex values
+- Surface-panel pages (home, settings, and later peers): gap between panels, no leading separators
 
 ### i18n
 
@@ -267,6 +270,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 - Forecast copy is labeled as projection wherever shown.
 - `fa` / `en` and RTL continue to work for new chrome ([DEC-009](../decisions/DEC-009-i18n.md)).
 - Theme preference Light / Dark / System (default System) applies via Settings icon control and persists on the profile ([DEC-015](../decisions/DEC-015-theme-preference.md)).
+- Settings uses the same surface-panel language as home (profile / categories / security sections).
 
 ## Out of scope for this plan’s UI work
 
