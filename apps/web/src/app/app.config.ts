@@ -49,6 +49,7 @@ export const appConfig: ApplicationConfig = {
       ...(environment.primeNgLicense
         ? { license: environment.primeNgLicense }
         : {}),
+      overlayAppendTo: 'body',
       theme: {
         preset: AppAura,
         options: {

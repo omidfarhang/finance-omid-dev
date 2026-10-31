@@ -221,6 +221,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Forms and chrome
 
 - Prefer PrimeNG Select over native `<select>` for visual consistency.
+- PrimeNG overlays (Select, etc.) append to `body` (`overlayAppendTo`) so panels are not clipped by Dialog/Drawer overflow and do not force modal scroll — same dialog-safe idea as the date field’s body overlay.
 - Create/edit: Dialog or Drawer; ConfirmDialog for delete/disable; Toast for success feedback.
 - Loading: ProgressSpinner / skeleton — not bare “Loading…” as the only pattern.
 - Empty states: one sentence + one primary CTA.
