@@ -206,14 +206,16 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     if (!shortDate) {
       return '';
     }
+    const time = formatTimeInput(this.hour(), this.minute());
+    const dateTime = `${shortDate} ${time}`;
     if (kind === 'other') {
-      return shortDate;
+      return dateTime;
     }
     const relative =
       kind === 'daysAgo' || kind === 'inDays'
         ? this.i18n.translate(`common.${kind}`, { count: count ?? 0 })
         : this.i18n.translate(`common.${kind}`);
-    return `(${relative}, ${shortDate})`;
+    return `(${relative}, ${dateTime})`;
   });
 
   readonly canStepPrev = computed(() => this.canStep(-1));
