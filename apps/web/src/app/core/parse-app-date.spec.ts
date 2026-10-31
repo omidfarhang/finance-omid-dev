@@ -142,7 +142,50 @@ describe('formatRelativeDayLabel', () => {
     ).toEqual({ kind: 'tomorrow', shortDate: '2026/11/01' });
   });
 
-  it('always includes full yyyy/MM/dd', () => {
+  it('labels ±2…±7 as daysAgo / inDays', () => {
+    expect(
+      formatRelativeDayLabel(
+        '2026-10-28T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'daysAgo', shortDate: '2026/10/28', count: 3 });
+    expect(
+      formatRelativeDayLabel(
+        '2026-10-24T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'daysAgo', shortDate: '2026/10/24', count: 7 });
+    expect(
+      formatRelativeDayLabel(
+        '2026-11-03T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'inDays', shortDate: '2026/11/03', count: 3 });
+    expect(
+      formatRelativeDayLabel(
+        '2026-11-07T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'inDays', shortDate: '2026/11/07', count: 7 });
+  });
+
+  it('falls back to date-only beyond one week', () => {
+    expect(
+      formatRelativeDayLabel(
+        '2026-10-23T08:00:00.000Z',
+        'GREGORIAN',
+        'UTC',
+        now,
+      ),
+    ).toEqual({ kind: 'other', shortDate: '2026/10/23' });
     expect(
       formatRelativeDayLabel(
         '2025-10-31T08:00:00.000Z',

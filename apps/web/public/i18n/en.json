@@ -14,6 +14,8 @@
     "today": "today",
     "yesterday": "yesterday",
     "tomorrow": "tomorrow",
+    "daysAgo": "{{count}} days ago",
+    "inDays": "in {{count}} days",
     "hour": "Hour",
     "minute": "Minute",
     "done": "Done"

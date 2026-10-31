@@ -1,5 +1,4 @@
 import {
-  addCivilDays,
   civilDateTimeToUtc,
   daysInMonth,
   getZonedParts,
@@ -45,12 +44,23 @@ export type ParsedCivilDateTime = CivilDate & {
   minute: number;
 };
 
-export type RelativeDayKind = 'today' | 'yesterday' | 'tomorrow' | 'other';
+export type RelativeDayKind =
+  | 'today'
+  | 'yesterday'
+  | 'tomorrow'
+  | 'daysAgo'
+  | 'inDays'
+  | 'other';
+
+/** Inclusive window for relative day captions beyond yesterday/tomorrow. */
+export const RELATIVE_DAY_WINDOW = 7;
 
 export type RelativeDayLabel = {
   kind: RelativeDayKind;
   /** Full civil date: `yyyy/MM/dd`. */
   shortDate: string;
+  /** Absolute day count for `daysAgo` / `inDays` (2–7). */
+  count?: number;
 };
 
 /**
@@ -189,8 +199,20 @@ function formatDisplayCivilDate(civil: CivilDate): string {
   return `${civil.year}/${pad2(civil.month)}/${pad2(civil.day)}`;
 }
 
+/** Signed civil-day offset of `civil` relative to `today` (0 = today). */
+function civilDayOffset(
+  civil: CivilDate,
+  today: CivilDate,
+  calendar: CalendarSystem,
+): number {
+  const a = civilDateTimeToUtc(civil, 12, 0, 0, calendar, 'UTC').getTime();
+  const b = civilDateTimeToUtc(today, 12, 0, 0, calendar, 'UTC').getTime();
+  return Math.round((a - b) / 86_400_000);
+}
+
 /**
  * Relative day kind + full civil date for the compact stepper label.
+ * Covers today / yesterday / tomorrow and ±2…±7 as daysAgo / inDays.
  */
 export function formatRelativeDayLabel(
   iso: string | Date,
@@ -205,21 +227,22 @@ export function formatRelativeDayLabel(
   const civil = instantToCivilDate(date, calendar, timeZone);
   const todayCivil = instantToCivilDate(now, calendar, timeZone);
   const shortDate = formatDisplayCivilDate(civil);
+  const offset = civilDayOffset(civil, todayCivil, calendar);
 
-  const yesterday = addCivilDays(todayCivil, -1, calendar);
-  const tomorrow = addCivilDays(todayCivil, 1, calendar);
-
-  const sameDay = (a: CivilDate, b: CivilDate) =>
-    a.year === b.year && a.month === b.month && a.day === b.day;
-
-  if (sameDay(civil, todayCivil)) {
+  if (offset === 0) {
     return { kind: 'today', shortDate };
   }
-  if (sameDay(civil, yesterday)) {
+  if (offset === -1) {
     return { kind: 'yesterday', shortDate };
   }
-  if (sameDay(civil, tomorrow)) {
+  if (offset === 1) {
     return { kind: 'tomorrow', shortDate };
+  }
+  if (offset >= -RELATIVE_DAY_WINDOW && offset <= -2) {
+    return { kind: 'daysAgo', shortDate, count: -offset };
+  }
+  if (offset >= 2 && offset <= RELATIVE_DAY_WINDOW) {
+    return { kind: 'inDays', shortDate, count: offset };
   }
   return { kind: 'other', shortDate };
 }

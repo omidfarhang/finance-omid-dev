@@ -194,14 +194,17 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
   });
 
   readonly stripCaption = computed(() => {
-    const { kind, shortDate } = this.relativeLabel();
+    const { kind, shortDate, count } = this.relativeLabel();
     if (!shortDate) {
       return '';
     }
     if (kind === 'other') {
       return shortDate;
     }
-    const relative = this.i18n.translate(`common.${kind}`);
+    const relative =
+      kind === 'daysAgo' || kind === 'inDays'
+        ? this.i18n.translate(`common.${kind}`, { count: count ?? 0 })
+        : this.i18n.translate(`common.${kind}`);
     return `(${relative}, ${shortDate})`;
   });
 
