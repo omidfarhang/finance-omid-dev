@@ -178,6 +178,7 @@ export class OutlookPage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 

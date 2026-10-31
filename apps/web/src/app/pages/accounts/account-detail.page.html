@@ -41,11 +41,10 @@
   @if (account(); as account) {
     <section class="panel">
       <h2>{{ t('accounts.balanceStory') }}</h2>
-      <p class="balance-lg">{{ formatBalance(account) }}</p>
+      <p class="balance-lg money-ltr">{{ formatBalance(account) }}</p>
       <p class="meta">
         {{ t('accounts.opening') }}:
-        {{ account.openingBalanceMinor }}
-        {{ unitLabel(account.currency) }}
+        <span class="money-ltr">{{ formatOpening(account) }}</span>
         · {{ t('accounts.balanceFromMovements') }}
       </p>
     </section>
@@ -61,7 +60,7 @@
             <li>
               <div class="tx-main">
                 <span class="tx-type">{{ typeLabel(tx.type) }}</span>
-                <span class="balance">{{ formatAmount(tx, account.currency) }}</span>
+                <span class="balance money-ltr">{{ formatAmount(tx, account.currency) }}</span>
               </div>
               <p class="meta">
                 {{ tx.occurredAt | appDateTime }}

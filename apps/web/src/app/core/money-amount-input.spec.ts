@@ -36,13 +36,13 @@ describe('formatAmountInputDigits', () => {
     expect(formatAmountInputDigits('1234567', 'fa')).toBe('1\u066C234\u066C567');
   });
 
-  it('preserves leading minus', () => {
-    expect(formatAmountInputDigits('-12000', 'en')).toBe('-12,000');
+  it('preserves leading minus with LTR mark', () => {
+    expect(formatAmountInputDigits('-12000', 'en')).toBe('\u200E-12,000');
   });
 
   it('handles empty and lone minus', () => {
     expect(formatAmountInputDigits('', 'en')).toBe('');
-    expect(formatAmountInputDigits('-', 'en')).toBe('-');
+    expect(formatAmountInputDigits('-', 'en')).toBe('\u200E-');
   });
 });
 
@@ -83,7 +83,8 @@ describe('caretIndexAfterDigits', () => {
   it('places caret after digit count including separators', () => {
     expect(caretIndexAfterDigits('1,234,567', 1)).toBe(1);
     expect(caretIndexAfterDigits('1,234,567', 4)).toBe(5);
-    expect(caretIndexAfterDigits('-12,000', 2)).toBe(3);
+    expect(caretIndexAfterDigits('\u200E-12,000', 0)).toBe(2);
+    expect(caretIndexAfterDigits('\u200E-12,000', 2)).toBe(4);
   });
 });
 

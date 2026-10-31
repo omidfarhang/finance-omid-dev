@@ -79,6 +79,13 @@ a {
   width: 100%;
 }
 
+/* Keep minus before digits and preserve Latin numeral order in RTL. */
+.money-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+
 .cat-chip {
   display: inline-flex;
   align-items: center;

@@ -31,7 +31,7 @@
           <a [routerLink]="['/accounts', row.account.id]" class="balance-box">
             <span class="account-name">{{ row.account.name }}</span>
             <span class="meta">{{ row.walletName }} · {{ row.account.currency }}</span>
-            <span class="balance">{{ formatBalance(row.account) }}</span>
+            <span class="balance money-ltr">{{ formatBalance(row.account) }}</span>
           </a>
         }
       </div>
@@ -76,7 +76,7 @@
           <li>
             <div class="tx-main">
               <span class="tx-type" [attr.data-type]="tx.type">{{ typeLabel(tx.type) }}</span>
-              <span class="balance">{{ formatAmount(tx) }}</span>
+              <span class="balance money-ltr">{{ formatAmount(tx) }}</span>
             </div>
             <p class="meta">
               {{ accountName(tx.accountId) }}
@@ -133,13 +133,13 @@
             <li>
               <div class="tx-main">
                 <span class="account-name">{{ row.currency }}</span>
-                <span class="balance">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
+                <span class="balance money-ltr">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
               </div>
               <p class="meta">
                 {{ t('outlook.income') }}:
-                {{ formatMoney(row.expectedIncomeMinor, row.currency) }}
+                <span class="money-ltr">{{ formatMoney(row.expectedIncomeMinor, row.currency) }}</span>
                 · {{ t('outlook.expense') }}:
-                {{ formatMoney(row.expectedExpenseMinor, row.currency) }}
+                <span class="money-ltr">{{ formatMoney(row.expectedExpenseMinor, row.currency) }}</span>
               </p>
             </li>
           }

@@ -24,6 +24,7 @@ import {
   categoryOptionFrom,
   defaultCategoryId,
 } from '../../core/category-display';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
@@ -91,6 +92,7 @@ export class AccountDetailPage implements OnInit {
   private readonly walletsApi = inject(WalletsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
   private readonly confirm = inject(ConfirmationService);
 
@@ -326,6 +328,7 @@ export class AccountDetailPage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 
@@ -339,6 +342,21 @@ export class AccountDetailPage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
+    );
+  }
+
+  formatOpening(account: PublicAccount): string {
+    return formatBalanceMinor(
+      account.openingBalanceMinor,
+      account.currency,
+      this.moneyDisplay.showToman(),
+      {
+        toman: this.i18n.translate('accounts.toman'),
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
     );
   }
 

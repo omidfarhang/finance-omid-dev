@@ -25,11 +25,12 @@ export function formatAmountInputDigits(digits: string, locale: string): string 
   const negative = digits.startsWith('-');
   const body = negative ? digits.slice(1) : digits;
   if (!body) {
-    return negative ? '-' : '';
+    return negative ? '\u200E-' : '';
   }
   const sep = amountGroupSeparator(locale);
   const grouped = body.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
-  return negative ? `-${grouped}` : grouped;
+  // LTR mark keeps `-` before digits inside RTL paragraphs / inputs.
+  return negative ? `\u200E-${grouped}` : grouped;
 }
 
 /**
@@ -40,7 +41,7 @@ export function parseAmountInputValue(
   raw: string,
   allowNegative = false,
 ): string {
-  const normalized = normalizeDigits(raw).trim();
+  const normalized = normalizeDigits(raw).replace(/\u200E/g, '').trim();
   let negative = false;
   let rest = normalized;
   if (allowNegative && rest.startsWith('-')) {
@@ -60,6 +61,10 @@ export function caretIndexAfterDigits(
   digitCount: number,
 ): number {
   if (digitCount <= 0) {
+    // After optional LTR mark + minus.
+    if (formatted.startsWith('\u200E-')) {
+      return 2;
+    }
     return formatted.startsWith('-') ? 1 : 0;
   }
   let seen = 0;

@@ -10,6 +10,7 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin, of, switchMap } from 'rxjs';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { AdminService } from '../../core/admin.service';
@@ -71,6 +72,7 @@ export class AdminUserPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly adminApi = inject(AdminService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
@@ -210,6 +212,7 @@ export class AdminUserPage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 }

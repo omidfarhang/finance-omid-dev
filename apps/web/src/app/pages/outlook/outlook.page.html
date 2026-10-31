@@ -36,13 +36,13 @@
             <li>
               <div class="tx-main">
                 <strong>{{ row.currency }}</strong>
-                <span class="balance">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
+                <span class="balance money-ltr">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
               </div>
               <p class="meta">
                 {{ t('outlook.income') }}:
-                {{ formatMoney(row.expectedIncomeMinor, row.currency) }}
+                <span class="money-ltr">{{ formatMoney(row.expectedIncomeMinor, row.currency) }}</span>
                 · {{ t('outlook.expense') }}:
-                {{ formatMoney(row.expectedExpenseMinor, row.currency) }}
+                <span class="money-ltr">{{ formatMoney(row.expectedExpenseMinor, row.currency) }}</span>
               </p>
             </li>
           }
@@ -66,7 +66,7 @@
                   <span class="badge">{{ t('outlook.inactive') }}</span>
                 }
               </span>
-              <span class="balance">{{ formatMoney(rule.amountMinor, rule.currency) }}</span>
+              <span class="balance money-ltr">{{ formatMoney(rule.amountMinor, rule.currency) }}</span>
             </div>
             <p class="meta">
               {{ t('outlook.dayOfMonth', { day: rule.anchorDay }) }}

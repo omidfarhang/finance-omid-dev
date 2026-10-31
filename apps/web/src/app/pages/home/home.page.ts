@@ -17,6 +17,7 @@ import {
   categoryColorCssVar,
   categoryLabel,
 } from '../../core/category-display';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
@@ -78,6 +79,7 @@ export class HomePage implements OnInit {
   private readonly txApi = inject(TransactionsService);
   private readonly recurringsApi = inject(RecurringsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
@@ -138,6 +140,7 @@ export class HomePage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 
@@ -157,6 +160,7 @@ export class HomePage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 
@@ -188,6 +192,7 @@ export class HomePage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 }

@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Money display: locale thousand separators + RTL-safe minus (LTR isolate) on amounts/opening balances ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display)
 - Amount inputs: locale thousand separators via shared `app-amount-input` ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display)
 - Fix Select overlays clipped inside Dialogs (Add dialog categories/accounts): global `overlayAppendTo: 'body'` ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Forms)
 - Extend datepicker: unified Jalali/Gregorian field, weekday headers, ±1 day strip + relative labels, optional minUnix/maxUnix ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Dates, [DEC-013](../docs/decisions/DEC-013-calendar-preference.md))

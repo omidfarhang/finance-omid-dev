@@ -51,13 +51,12 @@
                     <span class="badge">{{ t('accounts.shared') }}</span>
                   }
                 </span>
-                <span class="balance">{{ formatBalance(account) }}</span>
+                <span class="balance money-ltr">{{ formatBalance(account) }}</span>
               </a>
               <p class="meta">
                 {{ account.currency }} ·
                 {{ t('accounts.opening') }}:
-                {{ account.openingBalanceMinor }}
-                {{ unitLabel(account.currency) }}
+                <span class="money-ltr">{{ formatOpening(account) }}</span>
               </p>
               @if (account.members.length > 1) {
                 <p class="meta">
@@ -86,13 +85,12 @@
                   {{ account.name }}
                   <span class="badge">{{ t('accounts.shared') }}</span>
                 </span>
-                <span class="balance">{{ formatBalance(account) }}</span>
+                <span class="balance money-ltr">{{ formatBalance(account) }}</span>
               </a>
               <p class="meta">
                 {{ account.currency }} ·
                 {{ t('accounts.opening') }}:
-                {{ account.openingBalanceMinor }}
-                {{ unitLabel(account.currency) }}
+                <span class="money-ltr">{{ formatOpening(account) }}</span>
               </p>
             </li>
           }

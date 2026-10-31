@@ -5,4 +5,7 @@
 
 .amount-input {
   width: 100%;
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
 }

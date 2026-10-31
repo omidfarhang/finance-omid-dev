@@ -27,6 +27,7 @@ import {
   categoryOptionFrom,
   defaultCategoryId,
 } from '../../core/category-display';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
@@ -118,6 +119,7 @@ export class ActivityPage implements OnInit {
   private readonly walletsApi = inject(WalletsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
   private readonly calendarPref = inject(CalendarPreferenceService);
   private readonly auth = inject(AuthService);
   private readonly i18n = inject(TranslocoService);
@@ -324,6 +326,7 @@ export class ActivityPage implements OnInit {
         rials: this.i18n.translate('accounts.rials'),
         cents: this.i18n.translate('accounts.cents'),
       },
+      this.locale.activeLang(),
     );
   }
 
