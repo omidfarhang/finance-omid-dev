@@ -24,8 +24,8 @@ describe('ImportsService', () => {
   function categoryTxMocks() {
     return {
       findMany: vi.fn().mockResolvedValue([
-        { kind: 'INCOME', name: 'Uncategorized' },
-        { kind: 'EXPENSE', name: 'Uncategorized' },
+        { kind: 'INCOME', code: 'uncategorized' },
+        { kind: 'EXPENSE', code: 'uncategorized' },
       ]),
       createMany: vi.fn().mockResolvedValue({ count: 0 }),
       findFirst: vi

@@ -31,7 +31,7 @@ export class CategoriesService {
         userId,
         ...(query.kind ? { kind: query.kind } : {}),
       },
-      orderBy: [{ kind: 'asc' }, { name: 'asc' }],
+      orderBy: [{ kind: 'asc' }, { isSystem: 'desc' }, { name: 'asc' }],
     });
     return categories.map(toPublicCategory);
   }
@@ -44,6 +44,9 @@ export class CategoriesService {
           userId,
           kind: dto.kind,
           name: dto.name,
+          code: null,
+          icon: dto.icon,
+          color: dto.color,
           isSystem: false,
         },
       });
@@ -62,12 +65,16 @@ export class CategoriesService {
   async update(userId: string, categoryId: string, dto: UpdateCategoryDto) {
     const existing = await this.requireOwned(userId, categoryId);
     if (existing.isSystem) {
-      throw new BadRequestException('System categories cannot be renamed');
+      throw new BadRequestException('System categories cannot be edited');
     }
     try {
       const category = await this.prisma.category.update({
         where: { id: categoryId },
-        data: { name: dto.name },
+        data: {
+          ...(dto.name !== undefined ? { name: dto.name } : {}),
+          ...(dto.icon !== undefined ? { icon: dto.icon } : {}),
+          ...(dto.color !== undefined ? { color: dto.color } : {}),
+        },
       });
       return toPublicCategory(category);
     } catch (err) {

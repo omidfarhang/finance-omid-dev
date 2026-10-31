@@ -24,6 +24,25 @@
   pointer-events: none;
 }
 
+.category-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.cat-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.45rem;
+  flex-shrink: 0;
+  color: #fff;
+  background: var(--cat-swatch, var(--cat-slate));
+}
+
 .row-actions {
   display: flex;
   flex-wrap: wrap;
@@ -46,4 +65,66 @@
   display: grid;
   gap: 0.4rem;
   font-weight: 600;
+}
+
+.picker-field {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.picker-field legend {
+  font-weight: 600;
+  padding: 0;
+  margin-bottom: 0.15rem;
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
+  gap: 0.35rem;
+  max-height: 10rem;
+  overflow: auto;
+}
+
+.icon-choice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--app-row-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  cursor: pointer;
+}
+
+.icon-choice.selected {
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 1px var(--app-accent);
+}
+
+.color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.color-choice {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background: var(--swatch, var(--cat-slate));
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-choice.selected {
+  border-color: var(--app-text);
+  outline: 2px solid var(--app-surface);
+  outline-offset: -4px;
 }

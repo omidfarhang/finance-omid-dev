@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import type { PublicAccount, PublicCategory } from '@finance/shared';
+import type { CategoryKind, PublicAccount, PublicCategory } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
@@ -18,6 +18,11 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { SelectButton } from 'primeng/selectbutton';
+import {
+  categoryColorCssVar,
+  categoryOptionFrom,
+  defaultCategoryId,
+} from '../../core/category-display';
 import { minorUnitLabel } from '../../core/money-display';
 import { TransactionsService } from '../../core/transactions.service';
 import { AppDateTimeFieldComponent } from '../app-date-time-field/app-date-time-field.component';
@@ -73,6 +78,7 @@ export class AddMovementDialogComponent {
   transferAmount = '';
   transferOccurredAt = '';
   transferDescription = '';
+  transferCategoryId = '';
   formError = signal<string | null>(null);
   saving = signal(false);
 
@@ -115,21 +121,21 @@ export class AddMovementDialogComponent {
   onTypeChange(type: AddMovementType) {
     this.selectedType = type;
     if (type === 'INCOME' || type === 'EXPENSE') {
-      this.movementCategoryId = this.defaultCategoryId(type);
+      this.movementCategoryId = defaultCategoryId(this.categories(), type);
       this.movementShared = false;
+    } else {
+      this.transferCategoryId = defaultCategoryId(this.categories(), 'TRANSFER');
     }
   }
 
-  categoryOptionsFor(kind: 'INCOME' | 'EXPENSE') {
+  categoryOptionsFor(kind: CategoryKind) {
     return this.categories()
       .filter((c) => c.kind === kind)
-      .map((c) => ({
-        label:
-          c.name === 'Uncategorized'
-            ? this.i18n.translate('activity.uncategorized')
-            : c.name,
-        value: c.id,
-      }));
+      .map((c) => categoryOptionFrom(c, this.i18n));
+  }
+
+  colorVar(color: string): string | null {
+    return categoryColorCssVar(color);
   }
 
   selectedMovementAccount(): PublicAccount | undefined {
@@ -206,9 +212,14 @@ export class AddMovementDialogComponent {
     if (
       !this.transferFromId ||
       !this.transferToId ||
+      !this.transferCategoryId ||
       !/^\d+$/.test(this.transferAmount.trim())
     ) {
-      this.formError.set(this.i18n.translate('activity.invalidAmount'));
+      this.formError.set(
+        !this.transferCategoryId
+          ? this.i18n.translate('activity.categoryRequired')
+          : this.i18n.translate('activity.invalidAmount'),
+      );
       return;
     }
     this.saving.set(true);
@@ -220,6 +231,7 @@ export class AddMovementDialogComponent {
         amountMinor: this.transferAmount.trim(),
         occurredAt: new Date(this.transferOccurredAt).toISOString(),
         description: this.transferDescription.trim() || null,
+        categoryId: this.transferCategoryId,
       })
       .subscribe({
         next: () => {
@@ -254,23 +266,15 @@ export class AddMovementDialogComponent {
     this.movementCategoryId =
       this.selectedType === 'TRANSFER'
         ? ''
-        : this.defaultCategoryId(this.selectedType);
+        : defaultCategoryId(this.categories(), this.selectedType);
     this.movementShared = false;
     this.transferFromId = preferredId;
     this.transferToId = other;
     this.transferAmount = '';
     this.transferOccurredAt = new Date().toISOString();
     this.transferDescription = '';
+    this.transferCategoryId = defaultCategoryId(this.categories(), 'TRANSFER');
     this.formError.set(null);
     this.saving.set(false);
-  }
-
-  private defaultCategoryId(kind: 'INCOME' | 'EXPENSE'): string {
-    const list = this.categories().filter((c) => c.kind === kind);
-    const preferred =
-      list.find((c) => !c.isSystem) ??
-      list.find((c) => c.name === 'Uncategorized') ??
-      list[0];
-    return preferred?.id ?? '';
   }
 }

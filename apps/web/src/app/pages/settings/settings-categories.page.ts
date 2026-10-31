@@ -1,6 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
+  CATEGORY_COLOR_IDS,
+  CATEGORY_ICON_IDS,
+  type CategoryColorId,
+  type CategoryIconId,
   type CategoryKind,
   type PublicCategory,
 } from '@finance/shared';
@@ -12,6 +16,10 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { Skeleton } from 'primeng/skeleton';
+import {
+  categoryColorCssVar,
+  categoryLabel,
+} from '../../core/category-display';
 import { TransactionsService } from '../../core/transactions.service';
 
 @Component({
@@ -39,7 +47,11 @@ export class SettingsCategoriesPage implements OnInit {
   editingCategoryId: string | null = null;
   categoryName = '';
   categoryKind: CategoryKind = 'EXPENSE';
+  categoryIcon: CategoryIconId = 'pi-tag';
+  categoryColor: CategoryColorId = 'slate';
   readonly skeletonRows = [0, 1, 2];
+  readonly iconIds = CATEGORY_ICON_IDS;
+  readonly colorIds = CATEGORY_COLOR_IDS;
 
   private readonly i18n = inject(TranslocoService);
   private readonly txApi = inject(TransactionsService);
@@ -54,6 +66,10 @@ export class SettingsCategoriesPage implements OnInit {
       label: this.i18n.translate('settings.categories.expense'),
       value: 'EXPENSE' as const,
     },
+    {
+      label: this.i18n.translate('settings.categories.transfer'),
+      value: 'TRANSFER' as const,
+    },
   ]);
 
   readonly incomeCategories = computed(() =>
@@ -63,6 +79,28 @@ export class SettingsCategoriesPage implements OnInit {
   readonly expenseCategories = computed(() =>
     this.categories().filter((c) => c.kind === 'EXPENSE'),
   );
+
+  readonly transferCategories = computed(() =>
+    this.categories().filter((c) => c.kind === 'TRANSFER'),
+  );
+
+  readonly panels = computed(() => [
+    {
+      kind: 'INCOME' as const,
+      titleKey: 'settings.categories.income',
+      list: this.incomeCategories(),
+    },
+    {
+      kind: 'EXPENSE' as const,
+      titleKey: 'settings.categories.expense',
+      list: this.expenseCategories(),
+    },
+    {
+      kind: 'TRANSFER' as const,
+      titleKey: 'settings.categories.transfer',
+      list: this.transferCategories(),
+    },
+  ]);
 
   ngOnInit() {
     this.reloadCategories();
@@ -86,16 +124,19 @@ export class SettingsCategoriesPage implements OnInit {
   }
 
   categoryLabel(category: PublicCategory): string {
-    if (category.name === 'Uncategorized') {
-      return this.i18n.translate('activity.uncategorized');
-    }
-    return category.name;
+    return categoryLabel(category, this.i18n);
+  }
+
+  colorVar(color: string): string | null {
+    return categoryColorCssVar(color);
   }
 
   openCreateCategory(kind: CategoryKind) {
     this.editingCategoryId = null;
     this.categoryKind = kind;
     this.categoryName = '';
+    this.categoryIcon = 'pi-tag';
+    this.categoryColor = 'slate';
     this.categoryDialogVisible.set(true);
   }
 
@@ -106,6 +147,8 @@ export class SettingsCategoriesPage implements OnInit {
     this.editingCategoryId = category.id;
     this.categoryKind = category.kind;
     this.categoryName = category.name;
+    this.categoryIcon = category.icon;
+    this.categoryColor = category.color;
     this.categoryDialogVisible.set(true);
   }
 
@@ -119,7 +162,36 @@ export class SettingsCategoriesPage implements OnInit {
     this.message.set(null);
 
     if (this.editingCategoryId) {
-      this.txApi.updateCategory(this.editingCategoryId, { name }).subscribe({
+      this.txApi
+        .updateCategory(this.editingCategoryId, {
+          name,
+          icon: this.categoryIcon,
+          color: this.categoryColor,
+        })
+        .subscribe({
+          next: () => {
+            this.message.set(this.i18n.translate('settings.categories.saved'));
+            this.categoryDialogVisible.set(false);
+            this.reloadCategories();
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.error.set(
+              err.error?.message ??
+                this.i18n.translate('settings.categories.saveFailed'),
+            );
+          },
+        });
+      return;
+    }
+
+    this.txApi
+      .createCategory({
+        name,
+        kind: this.categoryKind,
+        icon: this.categoryIcon,
+        color: this.categoryColor,
+      })
+      .subscribe({
         next: () => {
           this.message.set(this.i18n.translate('settings.categories.saved'));
           this.categoryDialogVisible.set(false);
@@ -132,22 +204,6 @@ export class SettingsCategoriesPage implements OnInit {
           );
         },
       });
-      return;
-    }
-
-    this.txApi.createCategory({ name, kind: this.categoryKind }).subscribe({
-      next: () => {
-        this.message.set(this.i18n.translate('settings.categories.saved'));
-        this.categoryDialogVisible.set(false);
-        this.reloadCategories();
-      },
-      error: (err: { error?: { message?: string } }) => {
-        this.error.set(
-          err.error?.message ??
-            this.i18n.translate('settings.categories.saveFailed'),
-        );
-      },
-    });
   }
 
   confirmDeleteCategory(category: PublicCategory) {

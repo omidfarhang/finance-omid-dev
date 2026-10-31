@@ -16,6 +16,18 @@
   --app-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
   --app-font-brand: "Source Serif 4", "Iowan Old Style", Georgia, serif;
 
+  /* Category palette (DEC-016) */
+  --cat-slate: #64748b;
+  --cat-red: #dc2626;
+  --cat-orange: #ea580c;
+  --cat-amber: #d97706;
+  --cat-lime: #65a30d;
+  --cat-emerald: #059669;
+  --cat-cyan: #0891b2;
+  --cat-blue: #2563eb;
+  --cat-violet: #7c3aed;
+  --cat-pink: #db2777;
+
   font-family: var(--app-font-body);
   line-height: 1.5;
   font-weight: 400;
@@ -63,4 +75,43 @@ a {
 
 .w-full {
   width: 100%;
+}
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  vertical-align: middle;
+}
+
+.cat-chip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.35rem;
+  flex-shrink: 0;
+  color: #fff;
+  background: var(--cat-swatch, var(--cat-slate));
+  font-size: 0.75rem;
+}
+
+.cat-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cat-option-swatch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 0.3rem;
+  color: #fff;
+  background: var(--cat-swatch, var(--cat-slate));
+  font-size: 0.7rem;
+  flex-shrink: 0;
 }

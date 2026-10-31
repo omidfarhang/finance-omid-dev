@@ -29,6 +29,7 @@ describe('TransactionsService', () => {
   const accountUsd = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
   const expenseCategoryId = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee';
   const incomeCategoryId = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
+  const transferCategoryId = 'abababab-abab-abab-abab-abababababab';
 
   const baseTx = {
     id: 'dddddddd-dddd-dddd-dddd-dddddddddddd',
@@ -46,9 +47,12 @@ describe('TransactionsService', () => {
     updatedAt: new Date('2026-03-01T12:00:00.000Z'),
     category: {
       id: expenseCategoryId,
-      name: 'Food',
+      name: 'Groceries',
+      code: 'groceries',
       kind: CategoryKind.EXPENSE,
-      isSystem: false,
+      icon: 'pi-shopping-cart',
+      color: 'lime',
+      isSystem: true,
     },
   };
 
@@ -210,7 +214,7 @@ describe('TransactionsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
-  it('creates a same-currency transfer', async () => {
+  it('creates a same-currency transfer with required category', async () => {
     accountsService.requireMemberAccount
       .mockResolvedValueOnce({
         id: accountA,
@@ -222,12 +226,25 @@ describe('TransactionsService', () => {
         isShared: false,
         currency: 'IRR',
       });
+    prisma.category.findFirst.mockResolvedValue({
+      id: transferCategoryId,
+      kind: CategoryKind.TRANSFER,
+      userId,
+    });
     prisma.transaction.create.mockResolvedValue({
       ...baseTx,
       type: TransactionType.TRANSFER,
       counterAccountId: accountB,
-      categoryId: null,
-      category: null,
+      categoryId: transferCategoryId,
+      category: {
+        id: transferCategoryId,
+        name: 'Uncategorized',
+        code: 'uncategorized',
+        kind: CategoryKind.TRANSFER,
+        icon: 'pi-tag',
+        color: 'slate',
+        isSystem: true,
+      },
       shared: false,
       transferGroupId: 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
       description: null,
@@ -239,10 +256,19 @@ describe('TransactionsService', () => {
       counterAccountId: accountB,
       amountMinor: '100',
       occurredAt: '2026-03-01T12:00:00.000Z',
+      categoryId: transferCategoryId,
     });
 
     expect(result.type).toBe('TRANSFER');
     expect(result.counterAccountId).toBe(accountB);
+    expect(result.categoryId).toBe(transferCategoryId);
+    expect(prisma.transaction.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          categoryId: transferCategoryId,
+        }),
+      }),
+    );
   });
 
   it('rejects cross-currency transfers', async () => {
@@ -257,6 +283,11 @@ describe('TransactionsService', () => {
         isShared: false,
         currency: 'USD',
       });
+    prisma.category.findFirst.mockResolvedValue({
+      id: transferCategoryId,
+      kind: CategoryKind.TRANSFER,
+      userId,
+    });
 
     await expect(
       service.create(userId, {
@@ -265,6 +296,7 @@ describe('TransactionsService', () => {
         counterAccountId: accountUsd,
         amountMinor: '100',
         occurredAt: '2026-03-01T12:00:00.000Z',
+        categoryId: transferCategoryId,
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
   });

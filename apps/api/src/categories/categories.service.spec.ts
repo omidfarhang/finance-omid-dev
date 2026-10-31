@@ -27,7 +27,10 @@ describe('CategoriesService', () => {
     id: categoryId,
     userId,
     kind: CategoryKind.EXPENSE,
-    name: 'Food',
+    name: 'Snacks',
+    code: null,
+    icon: 'pi-coffee',
+    color: 'orange',
     isSystem: false,
     createdAt: new Date('2026-03-01T00:00:00.000Z'),
     updatedAt: new Date('2026-03-01T00:00:00.000Z'),
@@ -37,13 +40,19 @@ describe('CategoriesService', () => {
     ...userCategory,
     id: uncategorizedId,
     name: 'Uncategorized',
+    code: 'uncategorized',
+    icon: 'pi-tag',
+    color: 'slate',
     isSystem: true,
   };
 
   beforeEach(async () => {
     prisma = {
       category: {
-        findMany: vi.fn().mockResolvedValue([]),
+        findMany: vi.fn().mockResolvedValue(
+          // Pretend full catalog already seeded so ensureDefaults is a no-op
+          [{ kind: 'EXPENSE', code: 'uncategorized' }],
+        ),
         findFirst: vi.fn(),
         create: vi.fn(),
         createMany: vi.fn().mockResolvedValue({ count: 0 }),
@@ -66,27 +75,34 @@ describe('CategoriesService', () => {
     service = module.get(CategoriesService);
   });
 
-  it('creates a user category with kind', async () => {
+  it('creates a user category with icon and color', async () => {
     prisma.category.create.mockResolvedValue(userCategory);
 
     const result = await service.create(userId, {
-      name: 'Food',
+      name: 'Snacks',
       kind: 'EXPENSE',
+      icon: 'pi-coffee',
+      color: 'orange',
     });
 
     expect(prisma.category.create).toHaveBeenCalledWith({
       data: {
         userId,
         kind: 'EXPENSE',
-        name: 'Food',
+        name: 'Snacks',
+        code: null,
+        icon: 'pi-coffee',
+        color: 'orange',
         isSystem: false,
       },
     });
     expect(result.kind).toBe('EXPENSE');
     expect(result.isSystem).toBe(false);
+    expect(result.icon).toBe('pi-coffee');
+    expect(result.color).toBe('orange');
   });
 
-  it('rejects renaming a system category', async () => {
+  it('rejects editing a system category', async () => {
     prisma.category.findFirst.mockResolvedValue(systemCategory);
 
     await expect(

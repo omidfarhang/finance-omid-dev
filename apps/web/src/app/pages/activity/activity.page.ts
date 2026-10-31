@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import {
   DEFAULT_BOUNDS_TIME_ZONE,
   currentMonthBounds,
+  type CategoryKind,
   type PublicAccount,
   type PublicCategory,
   type PublicTransaction,
@@ -20,6 +21,12 @@ import { forkJoin } from 'rxjs';
 import { AppDateTimePipe } from '../../core/app-date-time.pipe';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
+import {
+  categoryColorCssVar,
+  categoryLabel,
+  categoryOptionFrom,
+  defaultCategoryId,
+} from '../../core/category-display';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
@@ -79,6 +86,7 @@ export class ActivityPage implements OnInit {
   transferAmount = '';
   transferOccurredAt = '';
   transferDescription = '';
+  transferCategoryId = '';
   editingTransferId: string | null = null;
 
   readonly accountOptions = computed(() =>
@@ -162,20 +170,14 @@ export class ActivityPage implements OnInit {
     this.reload();
   }
 
-  categoryOptionsFor(kind: 'INCOME' | 'EXPENSE') {
+  categoryOptionsFor(kind: CategoryKind) {
     return this.categories()
       .filter((c) => c.kind === kind)
-      .map((c) => ({
-        label: this.categoryLabel(c),
-        value: c.id,
-      }));
+      .map((c) => categoryOptionFrom(c, this.i18n));
   }
 
-  categoryLabel(category: PublicCategory): string {
-    if (category.name === 'Uncategorized') {
-      return this.i18n.translate('activity.uncategorized');
-    }
-    return category.name;
+  colorVar(color: string | null | undefined): string | null {
+    return categoryColorCssVar(color);
   }
 
   openEditDialog(tx: PublicTransaction) {
@@ -186,6 +188,8 @@ export class ActivityPage implements OnInit {
       this.transferAmount = tx.amountMinor;
       this.transferOccurredAt = tx.occurredAt;
       this.transferDescription = tx.description ?? '';
+      this.transferCategoryId =
+        tx.categoryId ?? defaultCategoryId(this.categories(), 'TRANSFER');
       this.transferDialogVisible.set(true);
       return;
     }
@@ -195,7 +199,8 @@ export class ActivityPage implements OnInit {
     this.movementAmount = tx.amountMinor;
     this.movementOccurredAt = tx.occurredAt;
     this.movementDescription = tx.description ?? '';
-    this.movementCategoryId = tx.categoryId ?? this.defaultCategoryId(tx.type);
+    this.movementCategoryId =
+      tx.categoryId ?? defaultCategoryId(this.categories(), tx.type);
     this.movementShared = tx.shared;
     this.movementDialogVisible.set(true);
   }
@@ -263,9 +268,14 @@ export class ActivityPage implements OnInit {
     this.message.set(null);
     if (
       !this.editingTransferId ||
+      !this.transferCategoryId ||
       !/^\d+$/.test(this.transferAmount.trim())
     ) {
-      this.error.set(this.i18n.translate('activity.invalidAmount'));
+      this.error.set(
+        !this.transferCategoryId
+          ? this.i18n.translate('activity.categoryRequired')
+          : this.i18n.translate('activity.invalidAmount'),
+      );
       return;
     }
 
@@ -274,6 +284,7 @@ export class ActivityPage implements OnInit {
         amountMinor: this.transferAmount.trim(),
         occurredAt: new Date(this.transferOccurredAt).toISOString(),
         description: this.transferDescription.trim() || null,
+        categoryId: this.transferCategoryId,
       })
       .subscribe({
         next: () => {
@@ -325,14 +336,14 @@ export class ActivityPage implements OnInit {
     });
   }
 
-  displayCategoryName(name: string | null): string {
-    if (!name) {
+  displayCategory(tx: PublicTransaction): string {
+    if (!tx.categoryName && !tx.categoryCode) {
       return '';
     }
-    if (name === 'Uncategorized') {
-      return this.i18n.translate('activity.uncategorized');
-    }
-    return name;
+    return categoryLabel(
+      { name: tx.categoryName ?? '', code: tx.categoryCode },
+      this.i18n,
+    );
   }
 
   private deleteTransaction(id: string) {
@@ -349,15 +360,6 @@ export class ActivityPage implements OnInit {
         );
       },
     });
-  }
-
-  private defaultCategoryId(kind: 'INCOME' | 'EXPENSE'): string {
-    const list = this.categories().filter((c) => c.kind === kind);
-    const preferred =
-      list.find((c) => !c.isSystem) ??
-      list.find((c) => c.name === 'Uncategorized') ??
-      list[0];
-    return preferred?.id ?? '';
   }
 
   private rangeBounds(range: RangeKey): { from?: string; to?: string } {

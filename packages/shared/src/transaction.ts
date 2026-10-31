@@ -28,6 +28,7 @@ export const createTransferSchema = z.object({
   type: z.literal('TRANSFER'),
   accountId: z.uuid(),
   counterAccountId: z.uuid(),
+  categoryId: z.uuid(),
   ...baseCreateFields,
 });
 
@@ -77,6 +78,9 @@ export const publicTransactionSchema = z.object({
   description: z.string().nullable(),
   categoryId: z.uuid().nullable(),
   categoryName: z.string().nullable(),
+  categoryCode: z.string().nullable(),
+  categoryIcon: z.string().nullable(),
+  categoryColor: z.string().nullable(),
   shared: z.boolean(),
   transferGroupId: z.uuid().nullable(),
   createdByUserId: z.uuid(),

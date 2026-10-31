@@ -81,8 +81,19 @@
             <p class="meta">
               {{ accountName(tx.accountId) }}
               · {{ tx.occurredAt | appDateTime }}
-              @if (tx.categoryName) {
-                · {{ displayCategoryName(tx.categoryName) }}
+              @if (tx.categoryId) {
+                ·
+                <span class="cat-chip">
+                  @if (tx.categoryIcon) {
+                    <span
+                      class="cat-chip-icon"
+                      [style.--cat-swatch]="colorVar(tx.categoryColor)"
+                    >
+                      <i [class]="'pi ' + tx.categoryIcon" aria-hidden="true"></i>
+                    </span>
+                  }
+                  {{ displayCategory(tx) }}
+                </span>
               }
             </p>
             @if (tx.description) {

@@ -13,6 +13,10 @@ import { Message } from 'primeng/message';
 import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
 import { AppDateTimePipe } from '../../core/app-date-time.pipe';
+import {
+  categoryColorCssVar,
+  categoryLabel,
+} from '../../core/category-display';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
@@ -160,14 +164,18 @@ export class HomePage implements OnInit {
     return this.i18n.translate(`activity.type.${type}`);
   }
 
-  displayCategoryName(name: string | null): string {
-    if (!name) {
+  displayCategory(tx: PublicTransaction): string {
+    if (!tx.categoryName && !tx.categoryCode) {
       return '';
     }
-    if (name === 'Uncategorized') {
-      return this.i18n.translate('activity.uncategorized');
-    }
-    return name;
+    return categoryLabel(
+      { name: tx.categoryName ?? '', code: tx.categoryCode },
+      this.i18n,
+    );
+  }
+
+  colorVar(color: string | null | undefined): string | null {
+    return categoryColorCssVar(color);
   }
 
   formatMoney(amountMinor: string, currency: string): string {

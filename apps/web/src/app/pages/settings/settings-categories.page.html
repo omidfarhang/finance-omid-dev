@@ -8,140 +8,87 @@
 
   <p class="lede">{{ t('settings.categories.lede') }}</p>
 
-  <section class="panel">
-    <div class="panel-header">
-      <h2>{{ t('settings.categories.income') }}</h2>
-      <div class="panel-actions">
-        <button
-          pButton
-          type="button"
-          size="small"
-          severity="secondary"
-          (click)="openCreateCategory('INCOME')"
-        >
-          {{ t('settings.categories.add') }}
-        </button>
+  @for (panel of panels(); track panel.kind) {
+    <section class="panel">
+      <div class="panel-header">
+        <h2>{{ t(panel.titleKey) }}</h2>
+        <div class="panel-actions">
+          <button
+            pButton
+            type="button"
+            size="small"
+            severity="secondary"
+            (click)="openCreateCategory(panel.kind)"
+          >
+            {{ t('settings.categories.add') }}
+          </button>
+        </div>
       </div>
-    </div>
 
-    @if (loading()) {
-      <ul class="category-list" aria-busy="true">
-        @for (_ of skeletonRows; track $index) {
-          <li class="category-row category-row-skeleton">
-            <p-skeleton width="45%" height="1rem" />
-            <p-skeleton width="8rem" height="1.75rem" />
-          </li>
-        }
-      </ul>
-    } @else {
-      <ul class="category-list">
-        @for (category of incomeCategories(); track category.id) {
-          <li class="category-row">
-            <span>
-              {{ categoryLabel(category) }}
-              @if (category.isSystem) {
-                <span class="meta">{{ t('settings.categories.system') }}</span>
-              }
-            </span>
-            <span class="row-actions">
-              <button
-                pButton
-                type="button"
-                size="small"
-                severity="secondary"
-                [disabled]="category.isSystem"
-                (click)="openEditCategory(category)"
-              >
-                {{ t('settings.categories.rename') }}
-              </button>
-              <button
-                pButton
-                type="button"
-                size="small"
-                severity="danger"
-                [disabled]="category.isSystem"
-                (click)="confirmDeleteCategory(category)"
-              >
-                {{ t('settings.categories.delete') }}
-              </button>
-            </span>
-          </li>
-        }
-      </ul>
-    }
-  </section>
-
-  <section class="panel">
-    <div class="panel-header">
-      <h2>{{ t('settings.categories.expense') }}</h2>
-      <div class="panel-actions">
-        <button
-          pButton
-          type="button"
-          size="small"
-          severity="secondary"
-          (click)="openCreateCategory('EXPENSE')"
-        >
-          {{ t('settings.categories.add') }}
-        </button>
-      </div>
-    </div>
-
-    @if (loading()) {
-      <ul class="category-list" aria-busy="true">
-        @for (_ of skeletonRows; track $index) {
-          <li class="category-row category-row-skeleton">
-            <p-skeleton width="45%" height="1rem" />
-            <p-skeleton width="8rem" height="1.75rem" />
-          </li>
-        }
-      </ul>
-    } @else {
-      <ul class="category-list">
-        @for (category of expenseCategories(); track category.id) {
-          <li class="category-row">
-            <span>
-              {{ categoryLabel(category) }}
-              @if (category.isSystem) {
-                <span class="meta">{{ t('settings.categories.system') }}</span>
-              }
-            </span>
-            <span class="row-actions">
-              <button
-                pButton
-                type="button"
-                size="small"
-                severity="secondary"
-                [disabled]="category.isSystem"
-                (click)="openEditCategory(category)"
-              >
-                {{ t('settings.categories.rename') }}
-              </button>
-              <button
-                pButton
-                type="button"
-                size="small"
-                severity="danger"
-                [disabled]="category.isSystem"
-                (click)="confirmDeleteCategory(category)"
-              >
-                {{ t('settings.categories.delete') }}
-              </button>
-            </span>
-          </li>
-        }
-      </ul>
-    }
-  </section>
+      @if (loading()) {
+        <ul class="category-list" aria-busy="true">
+          @for (_ of skeletonRows; track $index) {
+            <li class="category-row category-row-skeleton">
+              <p-skeleton width="45%" height="1rem" />
+              <p-skeleton width="8rem" height="1.75rem" />
+            </li>
+          }
+        </ul>
+      } @else {
+        <ul class="category-list">
+          @for (category of panel.list; track category.id) {
+            <li class="category-row">
+              <span class="category-identity">
+                <span
+                  class="cat-swatch"
+                  [style.--cat-swatch]="colorVar(category.color)"
+                >
+                  <i [class]="'pi ' + category.icon" aria-hidden="true"></i>
+                </span>
+                <span>
+                  {{ categoryLabel(category) }}
+                  @if (category.isSystem) {
+                    <span class="meta">{{ t('settings.categories.system') }}</span>
+                  }
+                </span>
+              </span>
+              <span class="row-actions">
+                <button
+                  pButton
+                  type="button"
+                  size="small"
+                  severity="secondary"
+                  [disabled]="category.isSystem"
+                  (click)="openEditCategory(category)"
+                >
+                  {{ t('settings.categories.edit') }}
+                </button>
+                <button
+                  pButton
+                  type="button"
+                  size="small"
+                  severity="danger"
+                  [disabled]="category.isSystem"
+                  (click)="confirmDeleteCategory(category)"
+                >
+                  {{ t('settings.categories.delete') }}
+                </button>
+              </span>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  }
 
   <p-dialog
     [header]="
       editingCategoryId
-        ? t('settings.categories.rename')
+        ? t('settings.categories.edit')
         : t('settings.categories.add')
     "
     [modal]="true"
-    [style]="{ width: 'min(24rem, 92vw)' }"
+    [style]="{ width: 'min(28rem, 92vw)' }"
     [visible]="categoryDialogVisible()"
     (visibleChange)="categoryDialogVisible.set($event)"
   >
@@ -169,6 +116,38 @@
           class="w-full"
         />
       </label>
+      <fieldset class="picker-field">
+        <legend>{{ t('settings.categories.icon') }}</legend>
+        <div class="icon-grid" role="listbox">
+          @for (icon of iconIds; track icon) {
+            <button
+              type="button"
+              class="icon-choice"
+              [class.selected]="categoryIcon === icon"
+              [attr.aria-pressed]="categoryIcon === icon"
+              (click)="categoryIcon = icon"
+            >
+              <i [class]="'pi ' + icon" aria-hidden="true"></i>
+            </button>
+          }
+        </div>
+      </fieldset>
+      <fieldset class="picker-field">
+        <legend>{{ t('settings.categories.color') }}</legend>
+        <div class="color-grid" role="listbox">
+          @for (color of colorIds; track color) {
+            <button
+              type="button"
+              class="color-choice"
+              [class.selected]="categoryColor === color"
+              [attr.aria-pressed]="categoryColor === color"
+              [attr.aria-label]="color"
+              [style.--swatch]="colorVar(color)"
+              (click)="categoryColor = color"
+            ></button>
+          }
+        </div>
+      </fieldset>
       <button pButton type="submit">{{ t('settings.categories.save') }}</button>
     </form>
   </p-dialog>

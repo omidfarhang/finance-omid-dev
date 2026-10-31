@@ -93,6 +93,7 @@ export class TransactionsService {
         amountMinor,
         occurredAt,
         description: dto.description ?? null,
+        categoryId: dto.categoryId,
       });
     }
 
@@ -154,11 +155,9 @@ export class TransactionsService {
 
     if (
       existing.type === TransactionType.TRANSFER &&
-      (dto.categoryId !== undefined || dto.shared !== undefined)
+      dto.shared !== undefined
     ) {
-      throw new BadRequestException(
-        'Transfers cannot have a category or shared mark',
-      );
+      throw new BadRequestException('Transfers cannot have a shared mark');
     }
 
     let shared = existing.shared;
@@ -222,6 +221,7 @@ export class TransactionsService {
       amountMinor: bigint;
       occurredAt: Date;
       description: string | null;
+      categoryId: string;
     },
   ) {
     if (input.accountId === input.counterAccountId) {
@@ -241,6 +241,13 @@ export class TransactionsService {
       throw new BadRequestException('Transfer accounts must share a currency');
     }
 
+    const categoryId = await this.resolveCategoryId(
+      userId,
+      input.categoryId,
+      'TRANSFER',
+      true,
+    );
+
     const row = await this.prisma.transaction.create({
       data: {
         type: TransactionType.TRANSFER,
@@ -249,6 +256,7 @@ export class TransactionsService {
         amountMinor: input.amountMinor,
         occurredAt: input.occurredAt,
         description: input.description,
+        categoryId,
         shared: false,
         transferGroupId: randomUUID(),
         createdByUserId: userId,
@@ -264,12 +272,6 @@ export class TransactionsService {
     type: string,
     required: boolean,
   ): Promise<string | null> {
-    if (type === 'TRANSFER') {
-      if (categoryId) {
-        throw new BadRequestException('Transfers cannot have a category');
-      }
-      return null;
-    }
     if (!categoryId) {
       if (required) {
         throw new BadRequestException('categoryId is required');
@@ -278,7 +280,11 @@ export class TransactionsService {
     }
 
     const expectedKind =
-      type === 'INCOME' ? CategoryKind.INCOME : CategoryKind.EXPENSE;
+      type === 'INCOME'
+        ? CategoryKind.INCOME
+        : type === 'EXPENSE'
+          ? CategoryKind.EXPENSE
+          : CategoryKind.TRANSFER;
     const category = await this.prisma.category.findFirst({
       where: { id: categoryId, userId },
     });

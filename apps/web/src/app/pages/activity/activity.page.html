@@ -65,8 +65,19 @@
               → {{ accountName(tx.counterAccountId) }}
             }
             · {{ tx.occurredAt | appDateTime }}
-            @if (tx.categoryName) {
-              · {{ displayCategoryName(tx.categoryName) }}
+            @if (tx.categoryId) {
+              ·
+              <span class="cat-chip">
+                @if (tx.categoryIcon) {
+                  <span
+                    class="cat-chip-icon"
+                    [style.--cat-swatch]="colorVar(tx.categoryColor)"
+                  >
+                    <i [class]="'pi ' + tx.categoryIcon" aria-hidden="true"></i>
+                  </span>
+                }
+                {{ displayCategory(tx) }}
+              </span>
             }
             @if (tx.shared) {
               · {{ t('activity.sharedMark') }}
@@ -149,7 +160,19 @@
           optionLabel="label"
           optionValue="value"
           class="w-full"
-        />
+        >
+          <ng-template #item let-option>
+            <span class="cat-option">
+              <span
+                class="cat-option-swatch"
+                [style.--cat-swatch]="colorVar(option.color)"
+              >
+                <i [class]="'pi ' + option.icon" aria-hidden="true"></i>
+              </span>
+              <span>{{ option.label }}</span>
+            </span>
+          </ng-template>
+        </p-select>
       </label>
       <label>
         {{ t('activity.description') }}
@@ -206,6 +229,29 @@
           [(ngModel)]="transferOccurredAt"
           required
         />
+      </label>
+      <label>
+        {{ t('activity.category') }}
+        <p-select
+          [options]="categoryOptionsFor('TRANSFER')"
+          [(ngModel)]="transferCategoryId"
+          name="transferCategoryId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        >
+          <ng-template #item let-option>
+            <span class="cat-option">
+              <span
+                class="cat-option-swatch"
+                [style.--cat-swatch]="colorVar(option.color)"
+              >
+                <i [class]="'pi ' + option.icon" aria-hidden="true"></i>
+              </span>
+              <span>{{ option.label }}</span>
+            </span>
+          </ng-template>
+        </p-select>
       </label>
       <label>
         {{ t('activity.description') }}
