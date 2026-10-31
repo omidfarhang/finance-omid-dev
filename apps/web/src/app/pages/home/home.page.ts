@@ -10,6 +10,7 @@ import type {
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { Message } from 'primeng/message';
+import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
 import { AppDateTimePipe } from '../../core/app-date-time.pipe';
 import { formatBalanceMinor } from '../../core/money-display';
@@ -38,12 +39,17 @@ type AccountRow = {
     RouterLink,
     ButtonDirective,
     Message,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
 })
 export class HomePage implements OnInit {
+  readonly skeletonBoxes = [0, 1, 2];
+  readonly skeletonRows = [0, 1, 2, 3];
+  readonly skeletonOutlook = [0, 1];
+
   wallets = signal<PublicWallet[]>([]);
   accounts = signal<PublicAccount[]>([]);
   categories = signal<PublicCategory[]>([]);

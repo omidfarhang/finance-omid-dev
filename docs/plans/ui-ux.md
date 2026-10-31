@@ -122,11 +122,11 @@ Primary labels and order stay the same across breakpoints. Do not invent extra p
 
 ## Hybrid home (`/`)
 
-One composition with three sections. No page title/lede — content starts with the panels. Missing data uses empty states, not blank panels.
+One composition with three sections as a **dashboard surface**. No page title/lede — content starts with the panels. Sections use **surface panels** (padding, radius, soft background) separated by gap — not leading hairline rules. On wide viewports, Balances spans full width and **Recent** | **Outlook** sit side-by-side; on narrow viewports they stack. Missing data uses empty states, not blank panels. Loading uses skeletons for balance boxes and recent rows.
 
 1. **Balances** — wrapping **row of account boxes** (name, wallet, currency, balance). Each box links to account detail. **No** single cross-currency total and no per-currency subtotal headers on home (currency is shown on each box). IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
-2. **Recent + Add** — short recent **income/expense** list (actuals only; exclude transfers; no forecast). Panel header includes an **Add** button that opens the shared Add dialog (PrimeNG SelectButton for Income / Expense / Transfer, each with icon + label; required category on income/expense; shared-cost mark on personal-account expense; amount, date/time, optional description). Transfers created here appear on Activity (not in the home recent list). Link to `/activity` for the full ledger.
-3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
+2. **Recent + Add** — short recent **income/expense** list (actuals only; exclude transfers; no forecast). Panel header includes an **Add** button that opens the shared Add dialog (PrimeNG SelectButton for Income / Expense / Transfer, each with icon + label; required category on income/expense; shared-cost mark on personal-account expense; amount, date/time, optional description). Transfers created here appear on Activity (not in the home recent list). Empty state offers Add when accounts exist. Link to `/activity` for the full ledger.
+3. **Outlook strip** — short next-month summary **per currency** (expected income, expected expenses, and surplus/shortfall), clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
 
 When the user has no accounts: balances empty state with primary CTA “Create account”; Add and outlook disabled or explanatory.
 
@@ -251,7 +251,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 ## Acceptance criteria (“feels like an app”)
 
 - Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
-- Hybrid home shows balance boxes (from available APIs), a recent income/expense log with a shared Add dialog (SelectButton for income/expense/transfer; not an inline form), and an outlook strip.
+- Hybrid home shows surface-panel balance boxes (from available APIs), a recent income/expense log with a shared Add dialog (SelectButton for income/expense/transfer; not an inline form), and an outlook strip with per-currency income/expense/surplus; wide layout places Recent and Outlook side-by-side; loading uses skeletons.
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.
 - Admin user-money views show an acting-as context banner and use the same money presentation rules as App.
