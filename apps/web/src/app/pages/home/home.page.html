@@ -1,11 +1,4 @@
 <section class="home-page" *transloco="let t">
-  <header class="page-header">
-    <div>
-      <h1>{{ t('home.title') }}</h1>
-      <p class="lede">{{ t('home.lede') }}</p>
-    </div>
-  </header>
-
   @if (message()) {
     <p-message severity="success" class="block">{{ message() }}</p-message>
   }
@@ -25,89 +18,58 @@
       <p class="lede">{{ t('home.noAccounts') }}</p>
       <a routerLink="/accounts" pButton>{{ t('home.createAccountCta') }}</a>
     } @else {
-      @for (group of currencyGroups(); track group.currency) {
-        <article class="currency-group">
-          <div class="currency-header">
-            <h3>{{ group.currency }}</h3>
-            <span class="balance">{{ currencySubtotal(group) }}</span>
-          </div>
-          <ul class="account-list">
-            @for (row of group.accounts; track row.account.id) {
-              <li>
-                <a [routerLink]="['/accounts', row.account.id]" class="account-link">
-                  <span class="account-name">
-                    {{ row.account.name }}
-                    <span class="meta">{{ row.walletName }}</span>
-                  </span>
-                  <span class="balance">{{ formatBalance(row.account) }}</span>
-                </a>
-              </li>
-            }
-          </ul>
-        </article>
-      }
+      <div class="balance-boxes">
+        @for (row of accountRows(); track row.account.id) {
+          <a [routerLink]="['/accounts', row.account.id]" class="balance-box">
+            <span class="account-name">{{ row.account.name }}</span>
+            <span class="meta">{{ row.walletName }} · {{ row.account.currency }}</span>
+            <span class="balance">{{ formatBalance(row.account) }}</span>
+          </a>
+        }
+      </div>
     }
   </section>
 
   <section class="panel">
-    <h2>{{ t('home.quickAdd') }}</h2>
+    <div class="panel-header">
+      <h2>{{ t('home.recent') }}</h2>
+      <div class="panel-actions">
+        @if (accounts().length > 0) {
+          <button pButton type="button" (click)="openAddDialog()">
+            {{ t('home.add') }}
+          </button>
+        }
+        <a routerLink="/activity">{{ t('home.recentLink') }}</a>
+      </div>
+    </div>
+
     @if (accounts().length === 0) {
-      <p class="lede">{{ t('home.quickAddDisabled') }}</p>
+      <p class="lede">{{ t('home.addDisabled') }}</p>
+    } @else if (loading()) {
+      <p class="lede">{{ t('home.loadingRecent') }}</p>
+    } @else if (recent().length === 0) {
+      <p class="lede">{{ t('home.recentEmpty') }}</p>
     } @else {
-      <form (ngSubmit)="submitQuickAdd()" class="quick-add-form">
-        <label>
-          {{ t('activity.typeLabel') }}
-          <p-select
-            [options]="typeOptions()"
-            [ngModel]="quickType"
-            (ngModelChange)="onQuickTypeChange($event)"
-            name="quickType"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-        <label>
-          {{ t('activity.account') }}
-          <p-select
-            [options]="accountOptions()"
-            [(ngModel)]="quickAccountId"
-            name="quickAccountId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-        <label>
-          {{ t('activity.category') }}
-          <p-select
-            [options]="categoryOptionsFor(quickType)"
-            [(ngModel)]="quickCategoryId"
-            name="quickCategoryId"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </label>
-        <label>
-          {{ t('activity.amount') }}
-          <span class="hint">
-            @if (selectedAccount(); as acc) {
-              {{ t('activity.amountHint', { unit: unitLabel(acc.currency) }) }}
+      <ul class="tx-list">
+        @for (tx of recent(); track tx.id) {
+          <li>
+            <div class="tx-main">
+              <span class="tx-type">{{ typeLabel(tx.type) }}</span>
+              <span class="balance">{{ formatAmount(tx) }}</span>
+            </div>
+            <p class="meta">
+              {{ accountName(tx.accountId) }}
+              · {{ tx.occurredAt | appDateTime }}
+              @if (tx.categoryName) {
+                · {{ displayCategoryName(tx.categoryName) }}
+              }
+            </p>
+            @if (tx.description) {
+              <p class="meta">{{ tx.description }}</p>
             }
-          </span>
-          <input
-            pInputText
-            name="quickAmount"
-            [(ngModel)]="quickAmount"
-            inputmode="numeric"
-            required
-            class="w-full"
-          />
-        </label>
-        <button pButton type="submit">{{ t('activity.save') }}</button>
-      </form>
-      <a routerLink="/activity" class="text-link">{{ t('home.quickAddLink') }}</a>
+          </li>
+        }
+      </ul>
     }
   </section>
 
@@ -132,4 +94,85 @@
       }
     }
   </section>
+
+  <p-dialog
+    [header]="
+      movementType === 'INCOME' ? t('activity.addIncome') : t('activity.addExpense')
+    "
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="addDialogVisible()"
+    (visibleChange)="addDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="saveMovement()" class="dialog-form">
+      <label>
+        {{ t('activity.typeLabel') }}
+        <p-select
+          [options]="typeOptions()"
+          [ngModel]="movementType"
+          (ngModelChange)="onMovementTypeChange($event)"
+          name="movementType"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.account') }}
+        <p-select
+          [options]="accountOptions()"
+          [(ngModel)]="movementAccountId"
+          name="movementAccountId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.amount') }}
+        <span class="hint">
+          @if (selectedMovementAccount(); as acc) {
+            {{ t('activity.amountHint', { unit: unitLabel(acc.currency) }) }}
+          }
+        </span>
+        <input
+          pInputText
+          name="movementAmount"
+          [(ngModel)]="movementAmount"
+          inputmode="numeric"
+          required
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.when') }}
+        <app-date-time-field
+          name="movementOccurredAt"
+          [(ngModel)]="movementOccurredAt"
+          required
+        />
+      </label>
+      <label>
+        {{ t('activity.category') }}
+        <p-select
+          [options]="categoryOptionsFor(movementType)"
+          [(ngModel)]="movementCategoryId"
+          name="movementCategoryId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('activity.description') }}
+        <input
+          pInputText
+          name="movementDescription"
+          [(ngModel)]="movementDescription"
+          class="w-full"
+        />
+      </label>
+      <button pButton type="submit">{{ t('activity.save') }}</button>
+    </form>
+  </p-dialog>
 </section>

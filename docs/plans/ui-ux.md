@@ -8,7 +8,7 @@ Product UI information architecture and interaction patterns for the Angular PWA
 
 1. Feel like a **personal finance app**, not a broken admin console of stacked forms.
 2. Give every MVP workflow a **dedicated place** in the sitemap (home, activity, accounts, import, outlook, settings, admin).
-3. Make the daily landing a **hybrid home**: balances, quick-add, and a short next-month outlook.
+3. Make the daily landing a **hybrid home**: balance boxes, recent movements with an Add dialog, and a short next-month outlook.
 4. Keep **actuals distinct from projections** in layout and labeling.
 5. Keep **instance admin** visually and structurally separate from personal money workflows.
 
@@ -57,7 +57,7 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Hybrid home (balances + quick-add + outlook strip) |
+| `/` | Hybrid home (balance boxes + recent log / Add + outlook strip) |
 | `/activity` | Ledger list + time-range filters; full add/edit entry |
 | `/accounts` | Wallets → accounts hierarchy and balances |
 | `/accounts/:accountId` | Account detail, movements, shared members |
@@ -122,13 +122,13 @@ Primary labels and order stay the same across breakpoints. Do not invent extra p
 
 ## Hybrid home (`/`)
 
-One composition with three sections. Missing data uses empty states, not blank panels.
+One composition with three sections. No page title/lede — content starts with the panels. Missing data uses empty states, not blank panels.
 
-1. **Balances** — accounts grouped by currency (and wallet as secondary grouping). Show per-account balance; optional per-currency subtotal. **No** single cross-currency total. IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
-2. **Quick add** — income or expense for a chosen account with a **required** category (filtered by type). Transfers and “shared” mark belong on Activity or account detail, not the home strip.
+1. **Balances** — wrapping **row of account boxes** (name, wallet, currency, balance). Each box links to account detail. **No** single cross-currency total and no per-currency subtotal headers on home (currency is shown on each box). IRR toman presentation uses the shared money display and the Settings preference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)). No local IRR/toman control on home. CTA: open Accounts or an account detail.
+2. **Recent + Add** — short recent **income/expense** list (actuals only; exclude transfers; no forecast). Panel header includes an **Add** button that opens a dialog for income or expense (required category by type, amount, date/time, optional description). Transfers and “shared” mark belong on Activity or account detail, not the home dialog. Link to `/activity` for the full ledger.
 3. **Outlook strip** — short next-month summary **per currency**, clearly labeled as projections; link to `/outlook`. Until rules exist, show an empty projection state without inventing numbers ([recurrings-forecast.md](recurrings-forecast.md)).
 
-When the user has no accounts: balances empty state with primary CTA “Create account”; quick-add and outlook disabled or explanatory.
+When the user has no accounts: balances empty state with primary CTA “Create account”; Add and outlook disabled or explanatory.
 
 ## Screen inventory
 
@@ -141,7 +141,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Home
 
 - See [Hybrid home](#hybrid-home-).
-- Loading: skeletons for balance rows; do not flash raw empty forms.
+- Loading: skeletons for balance boxes / recent rows; do not flash raw empty forms.
 
 ### Activity (`/activity`)
 
@@ -235,10 +235,10 @@ Document in implementation, do not rebrand:
 
 | MVP capability | UI slot |
 | --- | --- |
-| Manual income/expense | Home quick-add; Activity; Account detail |
-| Same-currency transfers | Activity; Account detail (not home quick-add) |
+| Manual income/expense | Home Add dialog; Activity; Account detail |
+| Same-currency transfers | Activity; Account detail (not home Add) |
 | Shared mark on personal expense | Activity / detail forms |
-| Categories (typed, required) | Add/edit fields on Activity / home / account detail; manage lists in Settings |
+| Categories (typed, required) | Add/edit fields on Activity / home Add / account detail; manage lists in Settings |
 | CSV import + dedup | `/import` |
 | Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |
@@ -251,7 +251,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 ## Acceptance criteria (“feels like an app”)
 
 - Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
-- Hybrid home shows balances (from available APIs), a quick-add affordance (stub OK until transactions), and an outlook strip (stub OK until forecast).
+- Hybrid home shows balance boxes (from available APIs), a recent income/expense log with an Add dialog (not an inline form), and an outlook strip.
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.
 - Admin user-money views show an acting-as context banner and use the same money presentation rules as App.

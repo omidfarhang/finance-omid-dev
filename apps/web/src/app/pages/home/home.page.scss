@@ -6,13 +6,19 @@
   gap: 1.5rem;
 }
 
-.page-header,
-.panel-header,
-.currency-header {
+.panel-header {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .lede {
@@ -30,9 +36,33 @@
   border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
 }
 
-.currency-group {
+.balance-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.balance-box {
   display: grid;
-  gap: 0.65rem;
+  gap: 0.25rem;
+  min-width: 9.5rem;
+  flex: 1 1 9.5rem;
+  max-width: 14rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--app-text) 14%, transparent);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--app-surface, #fff) 88%, transparent);
+  text-decoration: none;
+  color: inherit;
+}
+
+.balance-box .account-name {
+  font-weight: 600;
+}
+
+.balance-box .balance {
+  margin-top: 0.35rem;
+  font-weight: 600;
 }
 
 .account-list {
@@ -59,6 +89,7 @@
 }
 
 .meta {
+  margin: 0.2rem 0 0;
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--app-text-muted);
@@ -69,18 +100,31 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-.text-link {
-  font-weight: 600;
-  color: var(--app-accent);
-  text-decoration: none;
+.tx-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.85rem;
 }
 
-.quick-add-form {
+.tx-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.tx-type {
+  font-weight: 600;
+}
+
+.dialog-form {
   display: grid;
   gap: 1rem;
 }
 
-.quick-add-form label {
+.dialog-form label {
   display: grid;
   gap: 0.4rem;
   font-weight: 600;
@@ -90,4 +134,11 @@
   font-weight: 400;
   font-size: 0.85rem;
   color: var(--app-text-muted);
+}
+
+.panel-header a,
+.panel-actions a {
+  font-weight: 600;
+  color: var(--app-accent);
+  text-decoration: none;
 }

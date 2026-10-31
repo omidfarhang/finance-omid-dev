@@ -48,19 +48,19 @@
     "settingsLink": "Open Settings"
   },
   "home": {
-    "title": "Home",
-    "lede": "Balances, a quick add path, and a short next-month outlook.",
     "balances": "Balances",
     "openAccounts": "Accounts",
     "loadingBalances": "Loading balances…",
     "noAccounts": "No accounts yet. Create one to start tracking money.",
     "createAccountCta": "Create account",
-    "quickAdd": "Quick add",
-    "quickAddDisabled": "Create an account before adding income or expense.",
-    "quickAddLink": "Open Activity for transfers and filters",
+    "recent": "Recent",
+    "recentEmpty": "No income or expense yet. Add one to start the log.",
+    "loadingRecent": "Loading recent movements…",
+    "add": "Add",
+    "addDisabled": "Create an account before adding income or expense.",
+    "recentLink": "Open Activity",
     "outlook": "Outlook",
     "outlookLink": "Full outlook",
-    "outlookStub": "Projection — outlook comes after recurrings. No forecast numbers yet.",
     "outlookEmpty": "No recurring rules yet. Add them on Outlook to see next-month projections."
   },
   "activity": {
