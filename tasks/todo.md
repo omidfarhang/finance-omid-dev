@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- MIT license and standard repo meta (LICENSE, CONTRIBUTING, CoC, SECURITY, GitHub templates) ([DEC-014](../docs/decisions/DEC-014-mit-license.md))
 - Unify Add: shared SelectButton dialog (Income / Expense / Transfer) on Home, Activity, Account detail; remove older create dialogs ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Home layout refresh: balance boxes, recent log + Add dialog, drop title ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - App shell: remove top bar; place user menu in rail foot (desktop) / bottom-bar trailing end (mobile) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))

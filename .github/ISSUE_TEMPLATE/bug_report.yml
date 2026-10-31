@@ -1,0 +1,67 @@
+name: Bug report
+description: Something is broken or incorrect
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use **synthetic** data only. Never paste credentials, real bank statements, or personal financial records.
+        Read [CONTRIBUTING.md](https://github.com/omidfarhang/finance-omid-dev/blob/main/CONTRIBUTING.md) before filing.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps using synthetic fixtures where possible.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - api
+        - web
+        - shared
+        - docs
+        - deploy / docker
+        - unsure
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: e.g. local pnpm, Docker Compose, Node version, browser
+    validations:
+      required: false
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Logs (redacted), related docs/DECs, screenshots of UI only—no real money data.
+    validations:
+      required: false

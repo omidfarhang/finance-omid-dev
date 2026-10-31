@@ -61,6 +61,10 @@ App listens on **http://127.0.0.1:8080** by default (`APP_PORT`). If that host p
 | [tasks/todo.md](tasks/todo.md) | Work ready to do |
 | [tasks/backlog.md](tasks/backlog.md) | Potential future work (not a commitment) |
 | [AGENTS.md](AGENTS.md) | Rules for AI coding agents and contributors |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to propose and submit changes |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
+| [SECURITY.md](SECURITY.md) | Vulnerability reporting |
+| [LICENSE](LICENSE) | MIT license |
 
 ## Idea workflow
 
@@ -75,4 +79,12 @@ Brainstorm items are not requirements until they land in the MVP, a specificatio
 
 ## Privacy
 
-Never commit real bank statements, account numbers, credentials, or personal financial records. Use synthetic fixtures for examples and tests. See `.gitignore`.
+Never commit real bank statements, account numbers, credentials, or personal financial records. Use synthetic fixtures for examples and tests. See `.gitignore` and [SECURITY.md](SECURITY.md).
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). By participating, you agree to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+[MIT](LICENSE) © 2026 Omid Farhang ([DEC-014](docs/decisions/DEC-014-mit-license.md)).
