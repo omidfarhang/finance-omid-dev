@@ -8,12 +8,14 @@
       pButton
       type="button"
       severity="secondary"
-      icon="pi pi-chevron-left"
+      [iconOnly]="true"
       class="step-btn"
       [disabled]="disabled || !canStepPrev()"
       [attr.aria-label]="t('common.prevDay')"
       (click)="stepDay(-1)"
-    ></button>
+    >
+      <i class="pi pi-chevron-left" aria-hidden="true"></i>
+    </button>
 
     @if (editing()) {
       <input
@@ -46,24 +48,28 @@
       pButton
       type="button"
       severity="secondary"
-      icon="pi pi-chevron-right"
+      [iconOnly]="true"
       class="step-btn"
       [disabled]="disabled || !canStepNext()"
       [attr.aria-label]="t('common.nextDay')"
       (click)="stepDay(1)"
-    ></button>
+    >
+      <i class="pi pi-chevron-right" aria-hidden="true"></i>
+    </button>
 
     <button
       pButton
       type="button"
       severity="secondary"
-      icon="pi pi-calendar"
+      [iconOnly]="true"
       class="calendar-toggle"
       [disabled]="disabled"
       [attr.aria-label]="t('common.openCalendar')"
       [attr.aria-expanded]="open()"
       (click)="toggleOpen()"
-    ></button>
+    >
+      <i class="pi pi-calendar" aria-hidden="true"></i>
+    </button>
   </div>
 
   <ng-template

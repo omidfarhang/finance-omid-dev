@@ -123,7 +123,7 @@ describe('formatRelativeDayLabel', () => {
         'UTC',
         now,
       ),
-    ).toEqual({ kind: 'today', shortDate: '10/31' });
+    ).toEqual({ kind: 'today', shortDate: '2026/10/31' });
     expect(
       formatRelativeDayLabel(
         '2026-10-30T08:00:00.000Z',
@@ -131,7 +131,7 @@ describe('formatRelativeDayLabel', () => {
         'UTC',
         now,
       ),
-    ).toEqual({ kind: 'yesterday', shortDate: '10/30' });
+    ).toEqual({ kind: 'yesterday', shortDate: '2026/10/30' });
     expect(
       formatRelativeDayLabel(
         '2026-11-01T08:00:00.000Z',
@@ -139,10 +139,10 @@ describe('formatRelativeDayLabel', () => {
         'UTC',
         now,
       ),
-    ).toEqual({ kind: 'tomorrow', shortDate: '11/1' });
+    ).toEqual({ kind: 'tomorrow', shortDate: '2026/11/01' });
   });
 
-  it('uses year in shortDate when year differs', () => {
+  it('always includes full yyyy/MM/dd', () => {
     expect(
       formatRelativeDayLabel(
         '2025-10-31T08:00:00.000Z',

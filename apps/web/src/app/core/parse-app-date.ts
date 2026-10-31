@@ -49,7 +49,7 @@ export type RelativeDayKind = 'today' | 'yesterday' | 'tomorrow' | 'other';
 
 export type RelativeDayLabel = {
   kind: RelativeDayKind;
-  /** Short civil date: `M/D` or `yyyy/M/D` when year differs from "now". */
+  /** Full civil date: `yyyy/MM/dd`. */
   shortDate: string;
 };
 
@@ -185,15 +185,12 @@ export function formatTimeInput(hour: number, minute: number): string {
   return `${pad2(hour)}:${pad2(minute)}`;
 }
 
-function formatShortCivilDate(civil: CivilDate, refYear: number): string {
-  if (civil.year !== refYear) {
-    return `${civil.year}/${civil.month}/${civil.day}`;
-  }
-  return `${civil.month}/${civil.day}`;
+function formatDisplayCivilDate(civil: CivilDate): string {
+  return `${civil.year}/${pad2(civil.month)}/${pad2(civil.day)}`;
 }
 
 /**
- * Relative day kind + short civil date for the compact stepper label.
+ * Relative day kind + full civil date for the compact stepper label.
  */
 export function formatRelativeDayLabel(
   iso: string | Date,
@@ -207,7 +204,7 @@ export function formatRelativeDayLabel(
   }
   const civil = instantToCivilDate(date, calendar, timeZone);
   const todayCivil = instantToCivilDate(now, calendar, timeZone);
-  const shortDate = formatShortCivilDate(civil, todayCivil.year);
+  const shortDate = formatDisplayCivilDate(civil);
 
   const yesterday = addCivilDays(todayCivil, -1, calendar);
   const tomorrow = addCivilDays(todayCivil, 1, calendar);
