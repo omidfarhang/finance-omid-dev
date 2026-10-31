@@ -13,20 +13,6 @@
   flex-direction: column;
 }
 
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  background: color-mix(in srgb, var(--app-page-ground) 92%, transparent);
-  backdrop-filter: blur(8px);
-}
-
 .brand {
   font-family: var(--app-font-brand);
   font-size: 1.35rem;
@@ -34,13 +20,6 @@
   text-decoration: none;
   color: inherit;
   flex-shrink: 0;
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-inline-start: auto;
 }
 
 .side-rail {
@@ -87,18 +66,23 @@
   border-top: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
   padding: 0.4rem 0.35rem calc(0.4rem + env(safe-area-inset-bottom));
   justify-content: space-around;
+  align-items: stretch;
   gap: 0.15rem;
   box-shadow: 0 -8px 24px color-mix(in srgb, var(--app-text) 4%, transparent);
 }
 
-.bottom-nav a {
+.bottom-nav a,
+.bottom-nav-account {
   flex: 1;
+  min-width: 0;
+}
+
+.bottom-nav a {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
-  min-width: 0;
   padding: 0.4rem 0.2rem;
   border-radius: 0.75rem;
   font-size: 0.68rem;
@@ -120,6 +104,11 @@
 
 .bottom-nav a.active .nav-icon {
   transform: translateY(-1px);
+}
+
+.bottom-nav-account {
+  display: flex;
+  align-items: stretch;
 }
 
 @media (min-width: 52.01rem) {
@@ -155,6 +144,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
+    flex: 1;
+    min-height: 0;
   }
 
   .side-nav a {
@@ -176,8 +167,10 @@
     background: color-mix(in srgb, var(--app-accent) 12%, transparent);
   }
 
-  .top-brand {
-    display: none;
+  .side-rail-foot {
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
   }
 
   .bottom-nav {

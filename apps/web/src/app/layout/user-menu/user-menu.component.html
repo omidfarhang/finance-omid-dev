@@ -1,4 +1,4 @@
-<div class="user-menu" *transloco="let t">
+<div class="user-menu" *transloco="let t" [class.is-open]="open()">
   <button
     type="button"
     class="user-menu-toggle"
@@ -7,8 +7,25 @@
     [attr.aria-label]="t('app.userMenu.label')"
     (click)="toggle($event)"
   >
-    <span class="user-menu-name">{{ auth.user()?.displayName }}</span>
-    <span class="user-menu-caret" aria-hidden="true"></span>
+    <span class="user-menu-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="8.25" r="3.25" stroke="currentColor" stroke-width="1.75" />
+        <path
+          d="M5.5 18.25c1.6-2.6 3.7-3.9 6.5-3.9s4.9 1.3 6.5 3.9"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+        />
+      </svg>
+    </span>
+    @if (variant === 'rail') {
+      <span class="user-menu-name">{{ auth.user()?.displayName }}</span>
+    } @else if (variant === 'dock') {
+      <span class="user-menu-name">{{ t('app.userMenu.short') }}</span>
+    } @else {
+      <span class="user-menu-name">{{ auth.user()?.displayName }}</span>
+      <span class="user-menu-caret" aria-hidden="true"></span>
+    }
   </button>
 
   @if (open()) {

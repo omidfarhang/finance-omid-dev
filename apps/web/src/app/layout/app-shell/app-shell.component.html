@@ -17,18 +17,12 @@
         </a>
       }
     </nav>
+    <div class="side-rail-foot">
+      <app-user-menu variant="rail" />
+    </div>
   </aside>
 
   <div class="shell-body">
-    <header class="topbar">
-      <a routerLink="/" class="brand top-brand" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        {{ t('app.brand') }}
-      </a>
-      <div class="topbar-actions">
-        <app-user-menu />
-      </div>
-    </header>
-
     <p-confirmdialog />
 
     <main class="shell-main">
@@ -49,5 +43,8 @@
         <span class="nav-label">{{ t(item.labelKey) }}</span>
       </a>
     }
+    <div class="bottom-nav-account">
+      <app-user-menu variant="dock" />
+    </div>
   </nav>
 </div>

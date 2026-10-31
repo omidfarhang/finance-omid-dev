@@ -29,6 +29,7 @@
     },
     "userMenu": {
       "label": "منوی حساب",
+      "short": "حساب",
       "settings": "تنظیمات",
       "support": "پشتیبانی",
       "admin": "مدیریت",

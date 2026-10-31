@@ -36,7 +36,7 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 
 | Shell | Who | Chrome |
 | --- | --- | --- |
-| **App** | Authenticated user | Brand, primary nav, **user menu** (shows signed-in display name; Settings, Support, Admin if role, Sign out). No language control in the toolbar — change language in Settings. |
+| **App** | Authenticated user | Brand + primary nav + **user menu** in chrome (no separate top bar). User menu shows signed-in display name; Settings, Support, Admin if role, Sign out. No language control in App chrome — change language in Settings. |
 | **Admin** | Instance `ADMIN` | Distinct admin header/context; back to app; same user menu; not the personal Accounts mental model |
 | **Guest** | Unauthenticated | Minimal chrome (brand + **language** switcher); centered auth forms; no primary money nav |
 
@@ -109,16 +109,16 @@ flowchart TB
 
 **Home · Activity · Accounts · Import · Outlook**
 
-Settings, Support, Sign out, and **Admin** (when `ADMIN`) live in the **user menu** (toolbar control labeled with the signed-in display name) — not as equal top-level CRUD links beside Status. Language switching for authenticated users is only on Settings; the Guest shell keeps the language control for login/register.
+Settings, Support, Sign out, and **Admin** (when `ADMIN`) live in the **user menu** — not as equal top-level primary destinations beside Status. Language switching for authenticated users is only on Settings; the Guest shell keeps the language control for login/register.
 
 **Chrome layout (responsive):**
 
-| Viewport | Primary nav | Top bar |
-| --- | --- | --- |
-| Wide (desktop) | Vertical rail at the **inline-start** of the screen (LTR: left; RTL: right). Each item shows an icon + label. Brand may sit at the top of the rail. | Brand optional if already on the rail; **user menu** remains in the top bar |
-| Narrow (mobile) | Fixed **bottom bar** with the same five destinations; each item shows a compact SVG icon above a short label | Brand + user menu only (no duplicate primary links) |
+| Viewport | Layout |
+| --- | --- |
+| Wide (desktop) | Vertical rail at the **inline-start** (LTR: left; RTL: right): brand at top, primary links (icon + label), **user menu pinned at the rail foot**. No App top bar. |
+| Narrow (mobile) | Fixed **bottom bar**: the five primary destinations (icon + short label) plus a compact **user menu** control at the trailing end. No App top bar. |
 
-Labels and order stay the same across breakpoints. Do not invent extra primary destinations without updating this plan.
+Primary labels and order stay the same across breakpoints. Do not invent extra primary destinations without updating this plan.
 
 ## Hybrid home (`/`)
 
@@ -250,7 +250,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 
 ## Acceptance criteria (“feels like an app”)
 
-- Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, a user menu showing who is signed in, and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
+- Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
 - Hybrid home shows balances (from available APIs), a quick-add affordance (stub OK until transactions), and an outlook strip (stub OK until forecast).
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.

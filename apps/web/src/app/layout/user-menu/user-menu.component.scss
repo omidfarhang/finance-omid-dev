@@ -1,3 +1,13 @@
+:host.user-menu-host {
+  display: block;
+  position: relative;
+}
+
+:host.variant-rail,
+:host.variant-dock {
+  width: 100%;
+}
+
 .user-menu {
   position: relative;
 }
@@ -15,6 +25,18 @@
   border-radius: 0.4rem;
   padding: 0.35rem 0.6rem;
   cursor: pointer;
+}
+
+.user-menu-icon {
+  display: inline-flex;
+  line-height: 0;
+  flex-shrink: 0;
+
+  svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    display: block;
+  }
 }
 
 .user-menu-name {
@@ -46,7 +68,7 @@
   border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
   border-radius: 0.5rem;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--app-text) 12%, transparent);
-  z-index: 30;
+  z-index: 40;
 }
 
 .user-menu-identity {
@@ -94,4 +116,64 @@
 .user-menu-signout:hover {
   color: #9f1239;
   background: color-mix(in srgb, #9f1239 8%, transparent);
+}
+
+:host.variant-rail .user-menu-toggle {
+  width: 100%;
+  max-width: none;
+  gap: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-radius: 0.75rem;
+  color: var(--app-text-muted);
+  justify-content: flex-start;
+}
+
+:host.variant-rail .user-menu-toggle:hover,
+:host.variant-rail .user-menu.is-open .user-menu-toggle {
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-accent) 7%, transparent);
+}
+
+:host.variant-rail .user-menu-panel {
+  inset-inline: 0;
+  inset-inline-end: auto;
+  top: auto;
+  bottom: calc(100% + 0.45rem);
+  width: 100%;
+  min-width: 0;
+}
+
+:host.variant-dock .user-menu-toggle {
+  width: 100%;
+  max-width: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem 0.2rem;
+  border: 0;
+  border-radius: 0.75rem;
+  color: var(--app-text-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  background: transparent;
+}
+
+:host.variant-dock .user-menu-toggle:hover,
+:host.variant-dock .user-menu.is-open .user-menu-toggle {
+  color: var(--app-accent);
+  background: color-mix(in srgb, var(--app-accent) 10%, transparent);
+}
+
+:host.variant-dock .user-menu-name {
+  max-width: 100%;
+}
+
+:host.variant-dock .user-menu-panel {
+  inset-inline: auto 0;
+  top: auto;
+  bottom: calc(100% + 0.55rem);
+  min-width: min(16rem, calc(100vw - 1rem));
 }

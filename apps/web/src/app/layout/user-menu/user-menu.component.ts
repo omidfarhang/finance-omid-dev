@@ -1,7 +1,9 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, Input, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AuthService } from '../../core/auth.service';
+
+export type UserMenuVariant = 'default' | 'rail' | 'dock';
 
 @Component({
   selector: 'app-user-menu',
@@ -9,8 +11,16 @@ import { AuthService } from '../../core/auth.service';
   imports: [RouterLink, TranslocoDirective],
   templateUrl: './user-menu.component.html',
   styleUrl: './user-menu.component.scss',
+  host: {
+    '[class.user-menu-host]': 'true',
+    '[class.variant-rail]': 'variant === "rail"',
+    '[class.variant-dock]': 'variant === "dock"',
+    '[class.variant-default]': 'variant === "default"',
+  },
 })
 export class UserMenuComponent {
+  @Input() variant: UserMenuVariant = 'default';
+
   readonly auth = inject(AuthService);
   readonly open = signal(false);
   private readonly router = inject(Router);

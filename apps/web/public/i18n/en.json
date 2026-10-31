@@ -29,6 +29,7 @@
     },
     "userMenu": {
       "label": "Account menu",
+      "short": "Account",
       "settings": "Settings",
       "support": "Support",
       "admin": "Admin",
