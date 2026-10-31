@@ -18,6 +18,7 @@
     "inDays": "{{count}} روز دیگر",
     "hour": "ساعت",
     "minute": "دقیقه",
+    "goToNow": "اکنون",
     "done": "تأیید"
   },
   "app": {

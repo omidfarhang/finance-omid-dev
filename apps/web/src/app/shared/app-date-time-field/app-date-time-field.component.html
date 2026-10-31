@@ -146,6 +146,7 @@
               type="button"
               class="day-cell"
               [class.day-off]="cell.dayOff"
+              [class.is-today]="cell.isToday"
               [class.selected]="cell.day === selectedDay()"
               [disabled]="cell.disabled"
               (click)="selectDay(cell.day)"
@@ -173,15 +174,27 @@
         </label>
       </div>
 
-      <button
-        pButton
-        type="button"
-        size="small"
-        class="w-full"
-        (click)="closePanel()"
-      >
-        {{ t('common.done') }}
-      </button>
+      <div class="panel-actions">
+        @if (canGoToNow()) {
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            size="small"
+            (click)="goToNow()"
+          >
+            {{ t('common.goToNow') }}
+          </button>
+        }
+        <button
+          pButton
+          type="button"
+          size="small"
+          (click)="closePanel()"
+        >
+          {{ t('common.done') }}
+        </button>
+      </div>
     </div>
   </ng-template>
 </div>

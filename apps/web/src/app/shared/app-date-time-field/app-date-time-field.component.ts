@@ -71,6 +71,7 @@ export type DayCell = {
   day: number | null;
   disabled: boolean;
   dayOff: boolean;
+  isToday: boolean;
 };
 
 @Component({
@@ -144,15 +145,24 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     return labels;
   });
 
+  readonly todayCivil = computed(() =>
+    instantToCivilDate(new Date(), this.calendar(), this.timeZone()),
+  );
+
+  readonly canGoToNow = computed(() =>
+    this.isInstantAllowed(Date.now()),
+  );
+
   readonly dayCells = computed((): DayCell[] => {
     const cal = this.calendar();
     const y = this.viewYear();
     const m = this.viewMonth();
+    const today = this.todayCivil();
     const len = daysInMonth(y, m, cal);
     const offset = monthGridStartOffset(y, m, cal);
     const cells: DayCell[] = [];
     for (let i = 0; i < offset; i++) {
-      cells.push({ day: null, disabled: true, dayOff: false });
+      cells.push({ day: null, disabled: true, dayOff: false, isToday: false });
     }
     for (let day = 1; day <= len; day++) {
       const civil = { year: y, month: m, day };
@@ -160,6 +170,8 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
         day,
         disabled: !this.isCivilDayAllowed(y, m, day),
         dayOff: isDayOff(civil, cal),
+        isToday:
+          today.year === y && today.month === m && today.day === day,
       });
     }
     return cells;
@@ -263,6 +275,18 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
 
   closePanel(): void {
     this.open.set(false);
+  }
+
+  goToNow(): void {
+    if (this.disabled || !this.canGoToNow()) {
+      return;
+    }
+    const now = new Date();
+    const iso = now.toISOString();
+    this.isoValue.set(iso);
+    this.syncFromIso(iso);
+    this.onChange(iso);
+    this.onTouched();
   }
 
   onOverlayKeydown(event: KeyboardEvent): void {

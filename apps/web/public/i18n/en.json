@@ -18,6 +18,7 @@
     "inDays": "in {{count}} days",
     "hour": "Hour",
     "minute": "Minute",
+    "goToNow": "Now",
     "done": "Done"
   },
   "app": {

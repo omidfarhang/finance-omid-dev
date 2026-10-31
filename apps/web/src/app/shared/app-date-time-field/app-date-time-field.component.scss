@@ -120,6 +120,11 @@
     color: var(--app-day-off, #dc2626);
   }
 
+  &.is-today:not(.selected) {
+    border-color: var(--p-primary-color, #1d4ed8);
+    font-weight: 700;
+  }
+
   &.selected {
     background: var(--p-primary-color, #1d4ed8);
     color: var(--p-primary-contrast-color, #fff);
@@ -145,4 +150,13 @@
 
 .time-input {
   width: 100%;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 0.5rem;
+
+  > * {
+    flex: 1;
+  }
 }
