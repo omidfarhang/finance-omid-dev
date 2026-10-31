@@ -1,5 +1,6 @@
 export * from './auth';
 export * from './calendar';
+export * from './iran-holidays';
 export * from './theme';
 export * from './user';
 export * from './admin';

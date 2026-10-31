@@ -130,8 +130,10 @@
       </div>
 
       <div class="day-grid weekday-row" aria-hidden="true">
-        @for (label of weekdayLabels(); track $index) {
-          <span class="weekday-cell">{{ label }}</span>
+        @for (item of weekdayLabels(); track $index) {
+          <span class="weekday-cell" [class.day-off]="item.dayOff">{{
+            item.label
+          }}</span>
         }
       </div>
 
@@ -143,6 +145,7 @@
             <button
               type="button"
               class="day-cell"
+              [class.day-off]="cell.dayOff"
               [class.selected]="cell.day === selectedDay()"
               [disabled]="cell.disabled"
               (click)="selectDay(cell.day)"

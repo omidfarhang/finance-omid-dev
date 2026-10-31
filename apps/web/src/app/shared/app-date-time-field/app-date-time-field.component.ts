@@ -22,7 +22,9 @@ import {
   firstDayOfWeek,
   getZonedParts,
   instantToCivilDate,
+  isDayOff,
   monthGridStartOffset,
+  weekendWeekdayIndexes,
   type CalendarSystem,
   type CivilDate,
 } from '@finance/shared';
@@ -68,6 +70,7 @@ const OVERLAY_POSITIONS = [
 export type DayCell = {
   day: number | null;
   disabled: boolean;
+  dayOff: boolean;
 };
 
 @Component({
@@ -123,17 +126,20 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
   readonly weekdayLabels = computed(() => {
     const cal = this.calendar();
     const first = firstDayOfWeek(cal);
+    const weekend = new Set(weekendWeekdayIndexes(cal));
     const lang = this.locale.activeLang();
-    const labels: string[] = [];
+    const labels: { label: string; dayOff: boolean }[] = [];
     // Anchor: 2023-01-01 was Sunday → index 0
     for (let i = 0; i < 7; i++) {
       const dayIndex = (first + i) % 7;
       const anchor = new Date(Date.UTC(2023, 0, 1 + dayIndex, 12));
-      labels.push(
-        new Intl.DateTimeFormat(lang, { weekday: 'short', timeZone: 'UTC' }).format(
-          anchor,
-        ),
-      );
+      labels.push({
+        label: new Intl.DateTimeFormat(lang, {
+          weekday: 'short',
+          timeZone: 'UTC',
+        }).format(anchor),
+        dayOff: weekend.has(dayIndex),
+      });
     }
     return labels;
   });
@@ -146,12 +152,14 @@ export class AppDateTimeFieldComponent implements ControlValueAccessor {
     const offset = monthGridStartOffset(y, m, cal);
     const cells: DayCell[] = [];
     for (let i = 0; i < offset; i++) {
-      cells.push({ day: null, disabled: true });
+      cells.push({ day: null, disabled: true, dayOff: false });
     }
     for (let day = 1; day <= len; day++) {
+      const civil = { year: y, month: m, day };
       cells.push({
         day,
         disabled: !this.isCivilDayAllowed(y, m, day),
+        dayOff: isDayOff(civil, cal),
       });
     }
     return cells;

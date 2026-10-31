@@ -91,6 +91,10 @@
   font-weight: 600;
   color: var(--p-text-muted-color, #71717a);
   padding: 0.15rem 0;
+
+  &.day-off {
+    color: var(--app-day-off, #dc2626);
+  }
 }
 
 .day-cell {
@@ -110,6 +114,10 @@
 
   &:hover:not(:disabled):not(.empty) {
     background: var(--p-content-hover-background, #f4f4f5);
+  }
+
+  &.day-off:not(.selected) {
+    color: var(--app-day-off, #dc2626);
   }
 
   &.selected {

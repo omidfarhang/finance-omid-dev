@@ -15,6 +15,7 @@
   --app-row-border: color-mix(in srgb, var(--app-text) 12%, transparent);
   --app-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
   --app-font-brand: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+  --app-day-off: #dc2626;
 
   /* Category palette (DEC-016) */
   --cat-slate: #64748b;
@@ -45,6 +46,7 @@ html.app-dark {
   --app-page-ground: #121416;
   --app-surface: #1c1e21;
   --app-shell-bg: linear-gradient(180deg, #16181a 0%, #121416 100%);
+  --app-day-off: #f87171;
   color: var(--app-text);
   background: var(--app-page-ground);
 }
