@@ -48,6 +48,8 @@ describe('AuthService', () => {
     disabledAt: null as Date | null,
     locale: null,
     timeZone: null,
+    calendar: 'JALALI' as const,
+    theme: 'SYSTEM' as const,
     totpSecret: null as string | null,
     totpEnabled: false,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),

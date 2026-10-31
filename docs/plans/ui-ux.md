@@ -17,8 +17,9 @@ Product UI information architecture and interaction patterns for the Angular PWA
 - Marketing / promotional landing page
 - Full design-system component library beyond shared app patterns on PrimeNG
 - Recipe / costing UI, settlement / IOU UX, rich household invite (see MVP out of scope and backlog)
-- Rebrand or dark theme; keep the current visual direction and document tokens
+- Rebrand beyond documented light/dark tokens; keep the current visual direction
 - (calendars: see [DEC-013](../decisions/DEC-013-calendar-preference.md); Settings + shared date field/pipe)
+- (theme: see [DEC-015](../decisions/DEC-015-theme-preference.md); Settings icon control + CSS tokens)
 
 ## Principles
 
@@ -63,7 +64,7 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | `/accounts/:accountId` | Account detail, movements, shared members |
 | `/import` | Statement upload, adapter choice, dedup feedback |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
-| `/settings` | Profile, locale/timezone/calendar, money display, TOTP, sign-out; link to Status/health if kept |
+| `/settings` | Profile, locale/timezone/calendar, theme (Light/Dark/System), money display, TOTP, sign-out; link to Status/health if kept |
 | `/support` | Lightweight help / contact stub (user-menu entry only; not primary nav) |
 
 Legacy `/wallets` and `/profile` should redirect into Accounts and Settings when the shell lands.
@@ -176,7 +177,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Settings (`/settings`)
 
-- Purpose: display name, locale, timezone, **calendar** (Gregorian / Jalali) alignment with [DEC-009](../decisions/DEC-009-i18n.md) and [DEC-013](../decisions/DEC-013-calendar-preference.md); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
+- Purpose: display name, locale, timezone, **calendar** (Gregorian / Jalali) alignment with [DEC-009](../decisions/DEC-009-i18n.md) and [DEC-013](../decisions/DEC-013-calendar-preference.md); **theme** (Light / Dark / System, default System) via icon segmented control ([DEC-015](../decisions/DEC-015-theme-preference.md)); **IRR presentation** (rials vs labeled toman, `÷ 10`); **income/expense categories** (list by kind; add / rename / delete non-system; system Uncategorized locked); TOTP enroll/disable; sign-out; optional Status/health link; Admin entry for admins.
 - Authenticated language changes happen here (not in App/Admin toolbar).
 - Category management lives here — not a primary-nav peer ([transactions.md](transactions.md)).
 
@@ -222,9 +223,10 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 Document in implementation, do not rebrand:
 
 - Fonts: IBM Plex Sans (body), Source Serif 4 (headings/brand), Vazirmatn when `lang=fa`
-- Accent / links: teal around `#0f6b61`; page ground sage/gray `#eef3f1`; text `#1c2a27`
-- Theme: PrimeNG Aura; no dark mode in MVP
-- Prefer CSS variables in `styles.scss` for shared shell/page spacing so page SCSS stops forking hex values
+- Accent / links: teal around `#0f6b61`; page ground sage/gray `#eef3f1`; text `#1c2a27` (light); dark counterparts under `html.app-dark`
+- Theme: PrimeNG Aura with class-based dark (`html.app-dark`); profile preference Light / Dark / System (default System) ([DEC-015](../decisions/DEC-015-theme-preference.md))
+- Appearance control in Settings: icon segmented `SelectButton` (sun / moon / desktop)—not a dropdown
+- Prefer CSS variables in `styles.scss` for shared shell/page surfaces so page SCSS stops forking hex values
 
 ### i18n
 
@@ -258,11 +260,12 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 - No cross-currency net-worth total anywhere in UI.
 - Forecast copy is labeled as projection wherever shown.
 - `fa` / `en` and RTL continue to work for new chrome ([DEC-009](../decisions/DEC-009-i18n.md)).
+- Theme preference Light / Dark / System (default System) applies via Settings icon control and persists on the profile ([DEC-015](../decisions/DEC-015-theme-preference.md)).
 
 ## Out of scope for this plan’s UI work
 
 - Implementing transaction/import/forecast APIs (separate slices; UI slots reserved above)
-- Full PrimeNG theme customization beyond Aura + tokens
+- Full PrimeNG theme customization beyond Aura + light/dark tokens
 - Recipe costing, loan advice, settlement ledger, public multi-tenant polish
 
 ## Related docs

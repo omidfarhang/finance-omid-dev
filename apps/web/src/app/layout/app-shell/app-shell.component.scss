@@ -61,7 +61,7 @@
   inset-inline: 0;
   bottom: 0;
   z-index: 20;
-  background: color-mix(in srgb, #fff 94%, transparent);
+  background: color-mix(in srgb, var(--app-surface) 94%, transparent);
   backdrop-filter: blur(12px);
   border-top: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
   padding: 0.4rem 0.35rem calc(0.4rem + env(safe-area-inset-bottom));
@@ -131,7 +131,7 @@
     height: 100dvh;
     padding: 1.15rem 0.85rem 1.25rem;
     border-inline-end: 1px solid color-mix(in srgb, var(--app-text) 8%, transparent);
-    background: color-mix(in srgb, #fff 72%, transparent);
+    background: color-mix(in srgb, var(--app-surface) 72%, transparent);
     backdrop-filter: blur(10px);
   }
 

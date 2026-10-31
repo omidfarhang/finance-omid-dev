@@ -64,7 +64,7 @@
   display: grid;
   gap: 0.15rem;
   padding: 0.45rem;
-  background: #fff;
+  background: var(--app-surface);
   border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
   border-radius: 0.5rem;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--app-text) 12%, transparent);

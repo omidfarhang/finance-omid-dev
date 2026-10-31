@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Theme preference (Light / Dark / System): profile field, Settings icon control, PrimeNG + CSS tokens ([DEC-015](../docs/decisions/DEC-015-theme-preference.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Home dashboard polish: surface panels (no leading separators), wide Recent|Outlook grid, richer outlook strip, skeleton loading ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - MIT license and standard repo meta (LICENSE, CONTRIBUTING, CoC, SECURITY, GitHub templates) ([DEC-014](../docs/decisions/DEC-014-mit-license.md))
 - Unify Add: shared SelectButton dialog (Income / Expense / Transfer) on Home, Activity, Account detail; remove older create dialogs ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))

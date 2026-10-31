@@ -1,10 +1,12 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import type {
-  CalendarSystem,
-  CategoryKind,
-  PublicCategory,
+import {
+  DEFAULT_THEME,
+  type CalendarSystem,
+  type CategoryKind,
+  type PublicCategory,
+  type ThemePreference,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
@@ -13,6 +15,7 @@ import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { SelectButton } from 'primeng/selectbutton';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import { LocaleService } from '../../core/i18n/locale.service';
@@ -22,7 +25,14 @@ import {
   listTimeZones,
 } from '../../core/i18n/time-zones';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
+import { ThemePreferenceService } from '../../core/theme-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
+
+type ThemeOption = {
+  label: string;
+  value: ThemePreference;
+  icon: string;
+};
 
 @Component({
   selector: 'app-settings-page',
@@ -35,6 +45,7 @@ import { TransactionsService } from '../../core/transactions.service';
     InputText,
     Message,
     Select,
+    SelectButton,
     TranslocoDirective,
   ],
   templateUrl: './settings.page.html',
@@ -44,6 +55,7 @@ export class SettingsPage implements OnInit {
   displayName = '';
   timeZone = '';
   calendar: CalendarSystem = 'JALALI';
+  theme: ThemePreference = DEFAULT_THEME;
   totpCode = '';
   disableCode = '';
   timeZones: string[] = listTimeZones();
@@ -65,11 +77,30 @@ export class SettingsPage implements OnInit {
   readonly auth = inject(AuthService);
   readonly localeService = inject(LocaleService);
   readonly calendarPreference = inject(CalendarPreferenceService);
+  readonly themePreference = inject(ThemePreferenceService);
   readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly router = inject(Router);
   private readonly i18n = inject(TranslocoService);
   private readonly txApi = inject(TransactionsService);
   private readonly confirm = inject(ConfirmationService);
+
+  readonly themeOptions = computed((): ThemeOption[] => [
+    {
+      label: this.i18n.translate('settings.themeLight'),
+      value: 'LIGHT',
+      icon: 'pi pi-sun',
+    },
+    {
+      label: this.i18n.translate('settings.themeDark'),
+      value: 'DARK',
+      icon: 'pi pi-moon',
+    },
+    {
+      label: this.i18n.translate('settings.themeSystem'),
+      value: 'SYSTEM',
+      icon: 'pi pi-desktop',
+    },
+  ]);
 
   readonly kindOptions = computed(() => [
     {
@@ -96,11 +127,14 @@ export class SettingsPage implements OnInit {
       this.displayName = user.displayName;
       this.timeZone = user.timeZone ?? '';
       this.calendar = user.calendar;
+      this.theme = user.theme;
       this.calendarPreference.hydrateFromUser(user);
+      this.themePreference.hydrateFromUser(user);
       this.localeService.hydrateFromUser(user);
       this.timeZones = ensureTimeZoneOption(this.timeZones, user.timeZone);
     } else {
       this.calendar = this.calendarPreference.calendar();
+      this.theme = this.themePreference.theme();
     }
     this.reloadCategories();
   }
@@ -231,6 +265,11 @@ export class SettingsPage implements OnInit {
     this.calendarPreference.setCalendar(value);
   }
 
+  onThemeChange(value: ThemePreference) {
+    this.theme = value;
+    this.themePreference.setTheme(value);
+  }
+
   saveProfile() {
     this.error.set(null);
     this.message.set(null);
@@ -242,11 +281,13 @@ export class SettingsPage implements OnInit {
         locale,
         timeZone: this.timeZone || null,
         calendar: this.calendar,
+        theme: this.theme,
       })
       .subscribe({
         next: () => {
           this.loading.set(false);
           this.calendarPreference.setCalendar(this.calendar);
+          this.themePreference.setTheme(this.theme);
           void this.localeService.setLang(locale, { persistProfile: false });
           this.message.set(this.i18n.translate('settings.updated'));
         },

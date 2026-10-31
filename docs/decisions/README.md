@@ -24,6 +24,7 @@ Keep the living overview in [`../design.md`](../design.md) aligned when acceptin
 | [DEC-012](DEC-012-import-adapters.md) | Pluggable import adapters; generic CSV first; dedupe keys | Accepted |
 | [DEC-013](DEC-013-calendar-preference.md) | Profile calendar Gregorian/Jalali; ISO storage; month semantics | Accepted |
 | [DEC-014](DEC-014-mit-license.md) | MIT license for the monorepo; standard community docs | Accepted |
+| [DEC-015](DEC-015-theme-preference.md) | Profile theme Light/Dark/System; default System; Settings icon control | Accepted |
 
 Likely early candidates (create when deciding, not before):
 

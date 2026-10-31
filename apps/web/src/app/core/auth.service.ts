@@ -4,11 +4,13 @@ import type {
   CalendarSystem,
   PublicUser,
   RegistrationStatus,
+  ThemePreference,
 } from '@finance/shared';
 import { Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { CalendarPreferenceService } from './calendar-preference.service';
 import { LocaleService } from './i18n/locale.service';
+import { ThemePreferenceService } from './theme-preference.service';
 
 type AuthResponse = { user: PublicUser };
 type TotpChallenge = { requiresTotp: true; pendingToken: string };
@@ -22,12 +24,14 @@ export class AuthService {
 
   private readonly http = inject(HttpClient);
   private readonly calendarPreference = inject(CalendarPreferenceService);
+  private readonly themePreference = inject(ThemePreferenceService);
   /** Lazy resolve avoids AuthService ↔ LocaleService circular DI. */
   private readonly injector = inject(Injector);
 
   private applyUser(user: PublicUser | null): void {
     this.user.set(user);
     this.calendarPreference.hydrateFromUser(user);
+    this.themePreference.hydrateFromUser(user);
     this.injector.get(LocaleService).hydrateFromUser(user);
   }
 
@@ -120,6 +124,7 @@ export class AuthService {
     locale?: string | null;
     timeZone?: string | null;
     calendar?: CalendarSystem;
+    theme?: ThemePreference;
   }): Observable<PublicUser> {
     return this.http
       .post<AuthResponse>(`${environment.apiBaseUrl}/profile`, payload, {

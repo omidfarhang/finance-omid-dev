@@ -15,6 +15,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 import { routes } from './app.routes';
 import { LocaleService } from './core/i18n/locale.service';
+import { ThemePreferenceService } from './core/theme-preference.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
 import { environment } from '../environments/environment';
 
@@ -32,7 +33,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: Aura,
         options: {
-          darkModeSelector: false,
+          darkModeSelector: '.app-dark',
         },
       },
     }),
@@ -46,7 +47,10 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
-    provideAppInitializer(() => inject(LocaleService).init()),
+    provideAppInitializer(() => {
+      inject(ThemePreferenceService).init();
+      return inject(LocaleService).init();
+    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
