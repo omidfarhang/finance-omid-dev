@@ -3,12 +3,10 @@
 :root {
   --app-text: #1c2a27;
   --app-text-muted: #5b6472;
-  --app-accent: #0f6b61;
-  --app-page-ground: #eef3f1;
+  --app-accent: #1d4ed8;
+  --app-page-ground: #eef0f2;
   --app-surface: #ffffff;
-  --app-shell-bg:
-    radial-gradient(circle at top left, rgba(20, 120, 110, 0.12), transparent 40%),
-    linear-gradient(180deg, #f7faf9 0%, #eef3f1 100%);
+  --app-shell-bg: linear-gradient(180deg, #f7f8f9 0%, #eef0f2 100%);
   --app-font-body: "IBM Plex Sans", "Segoe UI", sans-serif;
   --app-font-brand: "Source Serif 4", "Iowan Old Style", Georgia, serif;
 
@@ -25,12 +23,10 @@
 html.app-dark {
   --app-text: #e6eeeb;
   --app-text-muted: #9aa8a3;
-  --app-accent: #4db6a9;
-  --app-page-ground: #121a18;
-  --app-surface: #1c2623;
-  --app-shell-bg:
-    radial-gradient(circle at top left, rgba(77, 182, 169, 0.14), transparent 42%),
-    linear-gradient(180deg, #16201d 0%, #121a18 100%);
+  --app-accent: #60a5fa;
+  --app-page-ground: #121416;
+  --app-surface: #1c1e21;
+  --app-shell-bg: linear-gradient(180deg, #16181a 0%, #121416 100%);
   color: var(--app-text);
   background: var(--app-page-ground);
 }

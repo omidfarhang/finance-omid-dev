@@ -228,7 +228,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 Document in implementation, do not rebrand:
 
 - Fonts: IBM Plex Sans (body), Source Serif 4 (headings/brand), Vazirmatn when `lang=fa`
-- Accent / links: teal around `#0f6b61`; page ground sage/gray `#eef3f1`; text `#1c2a27` (light); dark counterparts under `html.app-dark`
+- Accent / links: blue around `#1d4ed8` (dark `#60a5fa`); page ground neutral gray `#eef0f2`; surfaces white / dark gray for navbars; text `#1c2a27` (light); dark counterparts under `html.app-dark`; PrimeNG Aura primary palette is blue
 - Theme: PrimeNG Aura with class-based dark (`html.app-dark`); profile preference Light / Dark / System (default System) ([DEC-015](../decisions/DEC-015-theme-preference.md))
 - Appearance control in Settings: icon segmented `SelectButton` (sun / moon / desktop)—not a dropdown
 - Prefer CSS variables in `styles.scss` for shared shell/page surfaces so page SCSS stops forking hex values

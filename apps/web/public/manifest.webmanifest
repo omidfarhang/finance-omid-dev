@@ -1,7 +1,7 @@
 {
   "name": "Finance Omid",
   "short_name": "Finance",
-  "theme_color": "#0f6b61",
+  "theme_color": "#1d4ed8",
   "background_color": "#eef3f1",
   "display": "standalone",
   "scope": "./",
