@@ -74,8 +74,8 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses ([plans/transactions.md](plans/transactions.md)) |
 | `categories` | Per-user income/expense/transfer category lists (system catalog via codes + i18n, icons, palette colors; user CRUD; required on all movements) ([plans/transactions.md](plans/transactions.md), [DEC-016](decisions/DEC-016-category-catalog.md)) |
 | `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
-| `recurrings` | Recurring rules used for forecast only ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)); managed under `/outlook` |
-| `forecast` | Next-month outlook from expected income and recurrings; labeled projections; per currency ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)) |
+| `recurrings` | Recurring income/expense/transfer rules (daily–yearly schedules) for forecast only ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)); managed under `/outlook`; optional create-from Add dialog |
+| `forecast` | Next-month outlook from expected income and expense recurrings (transfers excluded from surplus); labeled projections; per currency ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)) |
 
 ## Frontend rules
 

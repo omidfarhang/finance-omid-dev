@@ -9,7 +9,14 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import type { CategoryKind, PublicAccount, PublicCategory } from '@finance/shared';
+import type {
+  CategoryKind,
+  CreateRecurringDto,
+  MonthAnchor,
+  PublicAccount,
+  PublicCategory,
+  RecurringInterval,
+} from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
@@ -25,14 +32,18 @@ import {
 } from '../../core/category-display';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { minorUnitLabel } from '../../core/money-display';
+import { RecurringsService } from '../../core/recurrings.service';
 import { TransactionsService } from '../../core/transactions.service';
 import { AppAmountInputComponent } from '../app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../app-date-time-field/app-date-time-field.component';
+import { RecurringScheduleFieldsComponent } from '../recurring-schedule-fields/recurring-schedule-fields.component';
 
 export type AddMovementType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
 
 export type AddMovementSavedEvent = {
   type: AddMovementType;
+  /** Set when the ledger entry succeeded but creating the recurring rule failed. */
+  recurringWarning?: string;
 };
 
 type TypeOption = {
@@ -47,6 +58,7 @@ type TypeOption = {
   imports: [
     AppAmountInputComponent,
     AppDateTimeFieldComponent,
+    RecurringScheduleFieldsComponent,
     FormsModule,
     ButtonDirective,
     Checkbox,
@@ -82,6 +94,12 @@ export class AddMovementDialogComponent {
   transferOccurredAt = '';
   transferDescription = '';
   transferCategoryId = '';
+  alsoRecurring = false;
+  recurringInterval: RecurringInterval = 'MONTHLY';
+  recurringMonthAnchor: MonthAnchor = 'DAY';
+  recurringAnchorDay = 1;
+  recurringAnchorMonth = 1;
+  recurringWeekday = 0;
   formError = signal<string | null>(null);
   saving = signal(false);
 
@@ -111,6 +129,7 @@ export class AddMovementDialogComponent {
   );
 
   private readonly txApi = inject(TransactionsService);
+  private readonly recurringsApi = inject(RecurringsService);
   private readonly i18n = inject(TranslocoService);
   private readonly locale = inject(LocaleService);
 
@@ -202,9 +221,15 @@ export class AddMovementDialogComponent {
       })
       .subscribe({
         next: () => {
-          this.saving.set(false);
-          this.visible.set(false);
-          this.saved.emit({ type });
+          this.afterMovementSaved(type, {
+            type,
+            amountMinor: this.movementAmount.trim(),
+            currency: account?.currency ?? 'IRR',
+            categoryId: this.movementCategoryId,
+            description: this.movementDescription.trim() || null,
+            fromAccountId: null,
+            toAccountId: null,
+          });
         },
         error: (err: { error?: { message?: string } }) => {
           this.saving.set(false);
@@ -230,6 +255,7 @@ export class AddMovementDialogComponent {
       );
       return;
     }
+    const from = this.accounts().find((a) => a.id === this.transferFromId);
     this.saving.set(true);
     this.txApi
       .createTransaction({
@@ -243,9 +269,15 @@ export class AddMovementDialogComponent {
       })
       .subscribe({
         next: () => {
-          this.saving.set(false);
-          this.visible.set(false);
-          this.saved.emit({ type: 'TRANSFER' });
+          this.afterMovementSaved('TRANSFER', {
+            type: 'TRANSFER',
+            amountMinor: this.transferAmount.trim(),
+            currency: from?.currency ?? 'IRR',
+            categoryId: this.transferCategoryId,
+            description: this.transferDescription.trim() || null,
+            fromAccountId: this.transferFromId,
+            toAccountId: this.transferToId,
+          });
         },
         error: (err: { error?: { message?: string } }) => {
           this.saving.set(false);
@@ -254,6 +286,67 @@ export class AddMovementDialogComponent {
           );
         },
       });
+  }
+
+  private afterMovementSaved(
+    type: AddMovementType,
+    draft: {
+      type: AddMovementType;
+      amountMinor: string;
+      currency: string;
+      categoryId: string;
+      description: string | null;
+      fromAccountId: string | null;
+      toAccountId: string | null;
+    },
+  ) {
+    if (!this.alsoRecurring) {
+      this.saving.set(false);
+      this.visible.set(false);
+      this.saved.emit({ type });
+      return;
+    }
+
+    const payload: CreateRecurringDto = {
+      type: draft.type,
+      amountMinor: draft.amountMinor,
+      currency: draft.currency,
+      categoryId: draft.categoryId || null,
+      description: draft.description,
+      interval: this.recurringInterval,
+      monthAnchor: this.recurringMonthAnchor,
+      anchorDay:
+        (this.recurringInterval === 'MONTHLY' ||
+          this.recurringInterval === 'YEARLY') &&
+        this.recurringMonthAnchor === 'DAY'
+          ? this.recurringAnchorDay
+          : null,
+      anchorMonth:
+        this.recurringInterval === 'YEARLY' ? this.recurringAnchorMonth : null,
+      weekday:
+        this.recurringInterval === 'WEEKLY' ? this.recurringWeekday : null,
+      fromAccountId: draft.fromAccountId,
+      toAccountId: draft.toAccountId,
+      active: true,
+    };
+
+    this.recurringsApi.create(payload).subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.visible.set(false);
+        this.saved.emit({ type });
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.saving.set(false);
+        this.visible.set(false);
+        this.saved.emit({
+          type,
+          recurringWarning:
+            err.error?.message ??
+            this.i18n.translate('outlook.recurringAfterSaveFailed'),
+        });
+      },
+    });
   }
 
   private resetForm() {
@@ -282,6 +375,12 @@ export class AddMovementDialogComponent {
     this.transferOccurredAt = new Date().toISOString();
     this.transferDescription = '';
     this.transferCategoryId = defaultCategoryId(this.categories(), 'TRANSFER');
+    this.alsoRecurring = false;
+    this.recurringInterval = 'MONTHLY';
+    this.recurringMonthAnchor = 'DAY';
+    this.recurringAnchorDay = 1;
+    this.recurringAnchorMonth = 1;
+    this.recurringWeekday = 0;
     this.formError.set(null);
     this.saving.set(false);
   }

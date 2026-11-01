@@ -1,0 +1,73 @@
+<div class="schedule-fields" *transloco="let t">
+  <label>
+    {{ t('outlook.repeat') }}
+    <p-select
+      [options]="intervalOptions()"
+      [ngModel]="interval()"
+      (ngModelChange)="onIntervalChange($event)"
+      [name]="namePrefix() + 'Interval'"
+      optionLabel="label"
+      optionValue="value"
+      class="w-full"
+    />
+  </label>
+
+  @if (interval() === 'WEEKLY') {
+    <label>
+      {{ t('outlook.weekdayLabel') }}
+      <p-select
+        [options]="weekdayOptions()"
+        [ngModel]="weekday()"
+        (ngModelChange)="weekday.set($event)"
+        [name]="namePrefix() + 'Weekday'"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
+    </label>
+  }
+
+  @if (interval() === 'YEARLY') {
+    <label>
+      {{ t('outlook.monthOfYear') }}
+      <p-select
+        [options]="monthOptions()"
+        [ngModel]="anchorMonth()"
+        (ngModelChange)="anchorMonth.set($event)"
+        [name]="namePrefix() + 'Month'"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
+    </label>
+  }
+
+  @if (interval() === 'MONTHLY' || interval() === 'YEARLY') {
+    <label>
+      {{ t('outlook.monthAnchorLabel') }}
+      <p-select
+        [options]="monthAnchorOptions()"
+        [ngModel]="monthAnchor()"
+        (ngModelChange)="monthAnchor.set($event)"
+        [name]="namePrefix() + 'MonthAnchor'"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
+    </label>
+    @if (monthAnchor() === 'DAY') {
+      <label>
+        {{ t('outlook.dayOfMonthLabel') }}
+        <p-select
+          [options]="dayOptions()"
+          [ngModel]="anchorDay()"
+          (ngModelChange)="anchorDay.set($event)"
+          [name]="namePrefix() + 'Day'"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+    }
+  }
+</div>

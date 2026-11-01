@@ -11,6 +11,11 @@ Potential future work. Nothing here is a commitment.
 
 ## Later
 
+- Goals / shopping lists / budget envelopes (plans surface)
+  - **Problem:** One-off targets and shopping plans are not recurring cash-flow rules; stuffing them into Outlook confuses projections.
+  - **Expected outcome:** A dedicated plans surface for goals and lists that stays separate from ledger actuals and next-month recurring forecast.
+  - **Dependencies:** Trustworthy balances + Outlook recurrings ([recurrings-forecast.md](../docs/plans/recurrings-forecast.md)); product shape still open ([inbox](../docs/brainstorm/inbox.md)).
+
 - UI polish beyond IA (PrimeNG theme customization, richer empty-state illustration, bottom-nav motion) — only after shell acceptance in [ui-ux.md](../docs/plans/ui-ux.md)
 - Recipe / ingredient unit costing (partial usage, e.g. sandwich from shared groceries)
   - **Problem:** Package prices do not equal the cost of what was actually used.

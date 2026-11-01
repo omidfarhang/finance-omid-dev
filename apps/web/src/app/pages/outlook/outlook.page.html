@@ -4,11 +4,13 @@
       <h1>{{ t('outlook.title') }}</h1>
       <p class="lede">{{ t('outlook.lede') }}</p>
     </div>
-    <div class="header-actions">
-      <button pButton type="button" (click)="openCreate()">
-        {{ t('outlook.addRule') }}
-      </button>
-    </div>
+    @if (!loading() && rules().length > 0) {
+      <div class="header-actions">
+        <button pButton type="button" (click)="openCreate()">
+          {{ t('outlook.addRule') }}
+        </button>
+      </div>
+    }
   </header>
 
   @if (message()) {
@@ -58,14 +60,7 @@
         </h2>
         <p class="projection">{{ t('outlook.projectionBanner') }}</p>
         @if (forecast.currencies.length === 0) {
-          <section class="panel-empty">
-            <p class="lede">{{ t('outlook.empty') }}</p>
-            <div class="empty-actions">
-              <button pButton type="button" (click)="openCreate()">
-                {{ t('outlook.addRule') }}
-              </button>
-            </div>
-          </section>
+          <p class="lede">{{ t('outlook.empty') }}</p>
         } @else {
           <div class="summary-grid">
             @for (row of forecast.currencies; track row.currency) {
@@ -102,17 +97,6 @@
     <section class="panel panel-rules">
       <div class="panel-header">
         <h2>{{ t('outlook.rules') }}</h2>
-        <div class="panel-actions">
-          <button
-            pButton
-            type="button"
-            size="small"
-            severity="secondary"
-            (click)="openCreate()"
-          >
-            {{ t('outlook.addRule') }}
-          </button>
-        </div>
       </div>
 
       @if (rules().length === 0) {
@@ -130,6 +114,10 @@
             <li
               class="rule-row"
               [class.rule-row-inactive]="!rule.active"
+              role="button"
+              tabindex="0"
+              (click)="onRowClick(rule, $event)"
+              (keydown.enter)="openEdit(rule)"
             >
               <div class="tx-main">
                 <span>
@@ -146,27 +134,27 @@
                 }}</span>
               </div>
               <p class="meta">
-                {{ t('outlook.dayOfMonth', { day: rule.anchorDay }) }}
+                {{ scheduleSummary(rule) }}
                 @if (rule.description) {
                   · {{ rule.description }}
                 }
               </p>
+              @if (categoryChip(rule); as cat) {
+                <span class="cat-chip" [style.--cat-swatch]="colorVar(cat.color)">
+                  <i [class]="'pi ' + cat.icon" aria-hidden="true"></i>
+                  {{ categoryName(cat) }}
+                </span>
+              }
+              @if (rule.type === 'TRANSFER') {
+                <p class="meta">{{ transferMeta(rule) }}</p>
+              }
               <div class="row-actions">
-                <button
-                  pButton
-                  type="button"
-                  severity="secondary"
-                  size="small"
-                  (click)="openEdit(rule)"
-                >
-                  {{ t('outlook.edit') }}
-                </button>
                 <button
                   pButton
                   type="button"
                   severity="danger"
                   size="small"
-                  (click)="confirmRemove(rule)"
+                  (click)="confirmRemove(rule, $event)"
                 >
                   {{ t('outlook.delete') }}
                 </button>
@@ -188,7 +176,8 @@
     <form (ngSubmit)="save()" class="dialog-form">
       <p-selectbutton
         [options]="typeOptions()"
-        [(ngModel)]="type"
+        [ngModel]="type"
+        (ngModelChange)="onTypeChange($event)"
         name="type"
         optionLabel="label"
         optionValue="value"
@@ -203,41 +192,111 @@
           </span>
         </ng-template>
       </p-selectbutton>
+
+      @if (type === 'TRANSFER') {
+        <label>
+          {{ t('activity.fromAccount') }}
+          <p-select
+            [options]="accountOptions()"
+            [(ngModel)]="fromAccountId"
+            name="fromAccountId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+        <label>
+          {{ t('activity.toAccount') }}
+          <p-select
+            [options]="accountOptions()"
+            [(ngModel)]="toAccountId"
+            name="toAccountId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+      } @else {
+        <label>
+          {{ t('accounts.currency') }}
+          <p-select
+            [options]="currencies()"
+            [(ngModel)]="currency"
+            name="currency"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label,value"
+            class="w-full"
+          />
+        </label>
+      }
+
       <label>
-        {{ t('accounts.currency') }}
-        <p-select
-          [options]="currencies()"
-          [(ngModel)]="currency"
-          name="currency"
-          optionLabel="label"
-          optionValue="value"
-          [filter]="true"
-          filterBy="label,value"
-          class="w-full"
-        />
-      </label>
-      <label>
-        {{ t('activity.amount') }}
-        <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(currency) }) }}</span>
+        {{ t('outlook.amountEachTime') }}
+        <span class="hint">{{
+          t('activity.amountHint', { unit: unitLabel(dialogCurrency()) })
+        }}</span>
         <app-amount-input
           name="amount"
           [(ngModel)]="amount"
           [required]="true"
         />
       </label>
+
+      <app-recurring-schedule-fields
+        [(interval)]="interval"
+        [(monthAnchor)]="monthAnchor"
+        [(anchorDay)]="anchorDay"
+        [(anchorMonth)]="anchorMonth"
+        [(weekday)]="weekday"
+        namePrefix="outlook"
+      />
+
       <label>
-        {{ t('outlook.anchorDay') }}
-        <input
-          pInputText
-          name="anchorDay"
-          type="number"
-          min="1"
-          max="28"
-          [(ngModel)]="anchorDay"
-          required
+        {{ t('activity.filterCategory') }}
+        <p-select
+          [options]="categoryOptions()"
+          [(ngModel)]="categoryId"
+          name="categoryId"
+          optionLabel="label"
+          optionValue="value"
+          [showClear]="true"
           class="w-full"
-        />
+        >
+          <ng-template #selectedItem let-option>
+            @if (option?.value) {
+              <span class="cat-option">
+                <span
+                  class="cat-option-swatch"
+                  [style.--cat-swatch]="colorVar(option.color)"
+                >
+                  <i [class]="'pi ' + option.icon" aria-hidden="true"></i>
+                </span>
+                <span>{{ option.label }}</span>
+              </span>
+            } @else {
+              {{ option?.label ?? t('outlook.noCategory') }}
+            }
+          </ng-template>
+          <ng-template #item let-option>
+            @if (option.value) {
+              <span class="cat-option">
+                <span
+                  class="cat-option-swatch"
+                  [style.--cat-swatch]="colorVar(option.color)"
+                >
+                  <i [class]="'pi ' + option.icon" aria-hidden="true"></i>
+                </span>
+                <span>{{ option.label }}</span>
+              </span>
+            } @else {
+              {{ option.label }}
+            }
+          </ng-template>
+        </p-select>
       </label>
+
       <label>
         {{ t('activity.description') }}
         <input pInputText name="description" [(ngModel)]="description" class="w-full" />

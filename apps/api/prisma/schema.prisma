@@ -33,10 +33,20 @@ enum CategoryKind {
 enum RecurringType {
   INCOME
   EXPENSE
+  TRANSFER
 }
 
 enum RecurringInterval {
+  DAILY
+  WEEKLY
   MONTHLY
+  YEARLY
+}
+
+enum MonthAnchor {
+  DAY
+  FIRST
+  LAST
 }
 
 enum CalendarSystem {
@@ -110,6 +120,8 @@ model Account {
   transactions         Transaction[]   @relation("TransactionAccount")
   counterTransactions  Transaction[]   @relation("TransactionCounterAccount")
   importBatches        ImportBatch[]
+  recurringFrom        RecurringRule[] @relation("RecurringFromAccount")
+  recurringTo          RecurringRule[] @relation("RecurringToAccount")
 
   @@index([walletId])
 }
@@ -180,6 +192,7 @@ model Category {
   updatedAt DateTime     @updatedAt
 
   transactions Transaction[]
+  recurringRules RecurringRule[]
 
   @@unique([userId, kind, name])
   @@unique([userId, kind, code])
@@ -236,18 +249,30 @@ model ImportBatch {
 }
 
 model RecurringRule {
-  id          String            @id @default(uuid()) @db.Uuid
-  userId      String            @db.Uuid
-  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type        RecurringType
-  amountMinor BigInt
-  currency    String            @db.Char(3)
-  description String?
-  interval    RecurringInterval @default(MONTHLY)
-  anchorDay   Int
-  active      Boolean           @default(true)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id            String            @id @default(uuid()) @db.Uuid
+  userId        String            @db.Uuid
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          RecurringType
+  amountMinor   BigInt
+  currency      String            @db.Char(3)
+  categoryId    String?           @db.Uuid
+  category      Category?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  description   String?
+  interval      RecurringInterval @default(MONTHLY)
+  monthAnchor   MonthAnchor       @default(DAY)
+  anchorDay     Int?
+  anchorMonth   Int?
+  weekday       Int?
+  fromAccountId String?           @db.Uuid
+  toAccountId   String?           @db.Uuid
+  fromAccount   Account?          @relation("RecurringFromAccount", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  toAccount     Account?          @relation("RecurringToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
+  active        Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([userId, active])
+  @@index([categoryId])
+  @@index([fromAccountId])
+  @@index([toAccountId])
 }

@@ -207,6 +207,27 @@
       }
     }
 
+    <label class="checkbox-row">
+      <p-checkbox
+        [(ngModel)]="alsoRecurring"
+        [binary]="true"
+        inputId="alsoRecurring"
+        name="alsoRecurring"
+      />
+      <span>{{ t('outlook.alsoRecurring') }}</span>
+    </label>
+
+    @if (alsoRecurring) {
+      <app-recurring-schedule-fields
+        [(interval)]="recurringInterval"
+        [(monthAnchor)]="recurringMonthAnchor"
+        [(anchorDay)]="recurringAnchorDay"
+        [(anchorMonth)]="recurringAnchorMonth"
+        [(weekday)]="recurringWeekday"
+        namePrefix="addRecurring"
+      />
+    }
+
     <button pButton type="submit" [disabled]="saving()">{{ t('activity.save') }}</button>
   </form>
 </p-dialog>

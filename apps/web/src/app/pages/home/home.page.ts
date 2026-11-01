@@ -128,6 +128,7 @@ export class HomePage implements OnInit {
         ? this.i18n.translate('activity.transferCreated')
         : this.i18n.translate('activity.created'),
     );
+    this.error.set(event.recurringWarning ?? null);
     this.reload();
   }
 

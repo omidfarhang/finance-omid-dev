@@ -198,7 +198,7 @@
   "outlook": {
     "title": "Outlook",
     "lede": "Next-month expected income, recurrings, and surplus or shortfall per currency.",
-    "empty": "No active recurrings for next month yet. Add a rule to see projections.",
+    "empty": "No active income or expense recurrings for next month yet. Add a rule below.",
     "projectionBanner": "Projection — these figures do not change account balances.",
     "loading": "Loading outlook…",
     "loadFailed": "Could not load outlook",
@@ -208,7 +208,7 @@
     "surplus": "Surplus",
     "shortfall": "Shortfall",
     "rules": "Recurring rules",
-    "noRules": "No rules yet. Add rent, salary, or other monthly items.",
+    "noRules": "No rules yet. Add rent, salary, or other recurring items.",
     "addRule": "Add recurring",
     "editRule": "Edit recurring",
     "edit": "Edit",
@@ -218,11 +218,53 @@
     "saveFailed": "Could not save recurring",
     "deleted": "Recurring deleted",
     "deleteFailed": "Could not delete recurring",
-    "invalidForm": "Enter a positive amount and a day of month from 1 to 28",
-    "anchorDay": "Day of month (1–28)",
+    "invalidForm": "Enter a positive amount and a complete schedule",
+    "amountEachTime": "Amount each time",
+    "repeat": "Repeat",
+    "monthAnchorLabel": "When in the month",
+    "dayOfMonthLabel": "Day of month",
+    "weekdayLabel": "Weekday",
+    "monthOfYear": "Month",
+    "noCategory": "No category",
+    "alsoRecurring": "Also add as recurring",
+    "recurringAfterSaveFailed": "Movement saved, but the recurring rule could not be created.",
     "dayOfMonth": "Day {{day}}",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "interval": {
+      "DAILY": "Daily",
+      "WEEKLY": "Weekly",
+      "MONTHLY": "Monthly",
+      "YEARLY": "Yearly"
+    },
+    "monthAnchor": {
+      "FIRST": "First day of month",
+      "LAST": "Last day of month",
+      "DAY": "Day of month"
+    },
+    "weekday": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "month": {
+      "1": "Month 1",
+      "2": "Month 2",
+      "3": "Month 3",
+      "4": "Month 4",
+      "5": "Month 5",
+      "6": "Month 6",
+      "7": "Month 7",
+      "8": "Month 8",
+      "9": "Month 9",
+      "10": "Month 10",
+      "11": "Month 11",
+      "12": "Month 12"
+    }
   },
   "login": {
     "title": "Sign in",

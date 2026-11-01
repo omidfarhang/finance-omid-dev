@@ -22,7 +22,7 @@ The product needs Persian (Jalali) and Gregorian calendars for display, form inp
 - **Full month semantics:** Activity “this month” and Outlook “next month” use the user’s calendar in their profile timezone. Unset timezone → **`UTC`** for month bounds (deterministic server forecast).
 - Shared pure helpers (`jalaali-js`) compute civil dates and month ISO bounds for API and web.
 - Form pickers and list formatting follow the preference via one in-house `app-date-time-field` for both calendars (no third-party PrimeNG Jalali forks / no Gregorian PrimeNG DatePicker).
-- Recurring `anchorDay` (1–28) means day-of-month **in the user’s calendar** for the forecast month window.
+- Recurring month anchors use the user’s calendar for the forecast month window: `monthAnchor` `DAY` with `anchorDay` 1–28, or `FIRST` / `LAST` civil day of that month; YEARLY also uses `anchorMonth` 1–12 in that calendar; WEEKLY uses `weekday` 0–6 (Sun–Sat). Full schedule model in [recurrings-forecast.md](../plans/recurrings-forecast.md).
 
 ## Consequences
 
@@ -30,6 +30,7 @@ The product needs Persian (Jalali) and Gregorian calendars for display, form inp
 - Contributors must not treat `locale === 'fa'` as Jalali.
 - Profile API and Prisma schema gain a `calendar` field; migrations default existing users to Jalali.
 - The custom picker stays in-house and serves both calendars: compact ±1 day strip with relative labels, typeable date/time, body overlay (dialog-safe), weekday-aligned month grid (Jalali Sat→Fri; Gregorian Sun→Sat), year jump, typeable time, optional `minUnix`/`maxUnix` — see [ui-ux.md](../plans/ui-ux.md) Dates.
+- Occurrence counting for DAILY/WEEKLY/MONTHLY/YEARLY and FIRST/LAST must use the same calendar + timezone helpers as month bounds.
 
 ## Revisit when
 

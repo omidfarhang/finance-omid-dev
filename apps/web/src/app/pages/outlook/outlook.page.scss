@@ -118,6 +118,17 @@
   border-radius: 0.5rem;
   border: 1px solid var(--app-row-border);
   background: var(--app-row-bg);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.rule-row:hover,
+.rule-row:focus-visible {
+  border-color: color-mix(in srgb, var(--app-accent) 45%, transparent);
+  background: var(--app-surface);
+  outline: none;
 }
 
 .rule-row-inactive {
@@ -126,6 +137,11 @@
 
 .rule-row-skeleton {
   pointer-events: none;
+  cursor: default;
+}
+
+.tx-type[data-type='TRANSFER'] {
+  color: var(--app-accent);
 }
 
 .tx-main {

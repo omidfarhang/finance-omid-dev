@@ -6,7 +6,12 @@ Capture first. Classify later. Brainstorm items are not approved requirements.
 
 ## Ideas
 
-### (none open)
+### Goals, shopping lists, and budgets
+
+- **Date:** 2026-11-01
+- **Context:** Outlook is for recurring cash-flow projections. Users also think about one-off goals, shopping lists, and planned spend that need a budget or plan — not a monthly recurring rule.
+- **Thought:** A future **plans** surface (separate from Outlook/Activity) could hold goals, shopping lists, and envelopes without mixing them into forecast recurrings.
+- **Open questions:** How do planned amounts interact with next-month surplus? Linked to accounts/categories? Household sharing?
 
 Triaged 2026-10-30: recipe costing → [backlog](../../tasks/backlog.md); smart advice → parked in backlog.
 
