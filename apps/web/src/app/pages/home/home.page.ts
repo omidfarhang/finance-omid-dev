@@ -1,9 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import type {
+  ForecastCurrency,
   NextMonthForecast,
   PublicAccount,
   PublicCategory,
+  PublicRecurring,
   PublicTransaction,
   PublicWallet,
 } from '@finance/shared';
@@ -17,6 +19,7 @@ import {
   categoryColorCssVar,
   categoryLabel,
 } from '../../core/category-display';
+import { formatCalendarMonthLabel } from '../../core/format-app-date';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { currencyLabel } from '../../core/currencies';
 import { formatBalanceMinor } from '../../core/money-display';
@@ -35,6 +38,30 @@ type AccountRow = {
   account: PublicAccount;
   walletName: string;
 };
+
+type OutlookRow = ForecastCurrency & {
+  shortfall: boolean;
+  incomePct: number;
+  expensePct: number;
+  /** Expenses as a whole percent of income; null when income is zero. */
+  expenseSharePct: number | null;
+};
+
+function toBigInt(minor: string): bigint {
+  try {
+    return BigInt(minor);
+  } catch {
+    return 0n;
+  }
+}
+
+/** Whole percent of `part / whole` (0 when whole is 0), using integer math. */
+function wholePercent(part: bigint, whole: bigint): number {
+  if (whole <= 0n) {
+    return 0;
+  }
+  return Number((part * 100n) / whole);
+}
 
 @Component({
   selector: 'app-home-page',
@@ -61,6 +88,7 @@ export class HomePage implements OnInit {
   categories = signal<PublicCategory[]>([]);
   recent = signal<PublicTransaction[]>([]);
   forecast = signal<NextMonthForecast | null>(null);
+  recurrings = signal<PublicRecurring[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
   message = signal<string | null>(null);
@@ -74,6 +102,41 @@ export class HomePage implements OnInit {
         account,
         walletName: walletsById.get(account.walletId)?.name ?? '—',
       }));
+  });
+
+  /** Active income/expense rules — the only ones that feed the surplus. */
+  readonly activeRuleCount = computed(
+    () =>
+      this.recurrings().filter((r) => r.active && r.type !== 'TRANSFER')
+        .length,
+  );
+
+  readonly outlookRows = computed((): OutlookRow[] =>
+    (this.forecast()?.currencies ?? []).map((row) => {
+      const income = toBigInt(row.expectedIncomeMinor);
+      const expense = toBigInt(row.expectedExpenseMinor);
+      const scale = income > expense ? income : expense;
+      return {
+        ...row,
+        shortfall: toBigInt(row.surplusMinor) < 0n,
+        incomePct: wholePercent(income, scale),
+        expensePct: wholePercent(expense, scale),
+        expenseSharePct: income > 0n ? wholePercent(expense, income) : null,
+      };
+    }),
+  );
+
+  readonly outlookMonthLabel = computed(() => {
+    const forecast = this.forecast();
+    if (!forecast) {
+      return '';
+    }
+    return formatCalendarMonthLabel(
+      forecast.year,
+      forecast.month,
+      forecast.calendar,
+      this.locale.activeLang(),
+    );
   });
 
   private readonly walletsApi = inject(WalletsService);
@@ -96,8 +159,16 @@ export class HomePage implements OnInit {
       categories: this.txApi.listCategories(),
       transactions: this.txApi.listTransactions(),
       forecast: this.recurringsApi.nextMonthForecast(),
+      recurrings: this.recurringsApi.list(),
     }).subscribe({
-      next: ({ wallets, accounts, categories, transactions, forecast }) => {
+      next: ({
+        wallets,
+        accounts,
+        categories,
+        transactions,
+        forecast,
+        recurrings,
+      }) => {
         this.wallets.set(wallets);
         this.accounts.set(accounts);
         this.categories.set(categories);
@@ -107,6 +178,7 @@ export class HomePage implements OnInit {
             .slice(0, RECENT_LIMIT),
         );
         this.forecast.set(forecast);
+        this.recurrings.set(recurrings);
         this.loading.set(false);
       },
       error: (err: { error?: { message?: string } }) => {
@@ -188,18 +260,8 @@ export class HomePage implements OnInit {
     return categoryColorCssVar(color);
   }
 
-  isShortfall(surplusMinor: string): boolean {
-    try {
-      return BigInt(surplusMinor) < 0n;
-    } catch {
-      return surplusMinor.trim().startsWith('-');
-    }
-  }
-
-  surplusLabel(surplusMinor: string): string {
-    return this.i18n.translate(
-      this.isShortfall(surplusMinor) ? 'outlook.shortfall' : 'outlook.surplus',
-    );
+  formatCount(value: number): string {
+    return new Intl.NumberFormat(this.locale.activeLang()).format(value);
   }
 
   formatMoney(amountMinor: string, currency: string): string {

@@ -4,7 +4,8 @@
   padding: 0 1.25rem 1.5rem;
   display: grid;
   gap: 1rem;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
 }
 
 .home-alert {
@@ -13,7 +14,9 @@
 
 .panel {
   display: grid;
+  align-content: start;
   gap: 0.85rem;
+  min-width: 0;
   padding: 1.15rem 1.25rem;
   border-radius: var(--app-panel-radius);
   background: var(--app-panel-bg);
@@ -38,6 +41,15 @@
   font-size: 1.15rem;
 }
 
+.panel-title {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.panel-title .meta {
+  margin: 0;
+}
+
 .panel-actions {
   display: flex;
   flex-wrap: wrap;
@@ -52,23 +64,21 @@
 
 .projection {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-style: italic;
   color: var(--app-text-muted);
 }
 
 .balance-boxes {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
   gap: 0.75rem;
 }
 
 .balance-box {
   display: grid;
   gap: 0.25rem;
-  min-width: 9.5rem;
-  flex: 1 1 9.5rem;
-  max-width: 14rem;
+  min-width: 0;
   padding: 0.85rem 1rem;
   border: 1px solid var(--app-row-border);
   border-radius: 0.5rem;
@@ -89,8 +99,11 @@
   pointer-events: none;
 }
 
-.balance-box .account-name {
-  font-weight: 600;
+.balance-box .account-name,
+.balance-box .meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .balance-box .balance {
@@ -115,29 +128,38 @@
   font-weight: 600;
 }
 
-.outlook-surplus {
-  display: grid;
-  gap: 0.1rem;
-  justify-items: end;
-  text-align: end;
-}
-
-.outlook-surplus .meta {
-  margin: 0;
-  font-size: 0.75rem;
-}
-
-.summary-shortfall {
-  color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
-}
-
 .tx-list,
 .outlook-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.75rem;
+}
+
+.tx-list > li {
+  padding-block: 0.7rem;
+  min-width: 0;
+}
+
+.tx-list > li:first-child {
+  padding-block-start: 0;
+}
+
+.tx-list > li:last-child {
+  padding-block-end: 0;
+}
+
+.tx-list > li + li {
+  border-block-start: 1px solid var(--app-row-border);
+}
+
+.tx-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .tx-main {
@@ -145,6 +167,87 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: baseline;
+  min-width: 0;
+}
+
+.tx-main .balance {
+  white-space: nowrap;
+}
+
+.outlook-list {
+  gap: 0.75rem;
+}
+
+.outlook-block {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--app-row-border);
+  border-radius: 0.5rem;
+  background: var(--app-row-bg);
+}
+
+.outlook-block .tx-main {
+  flex-wrap: wrap;
+  row-gap: 0.25rem;
+}
+
+.outlook-net {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.outlook-net-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.outlook-net .balance {
+  font-size: 1.05rem;
+}
+
+.outlook-bar {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.outlook-bar-text {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
+}
+
+.outlook-bar-text .money-ltr {
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.outlook-bar-track {
+  display: block;
+  block-size: 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
+  overflow: hidden;
+}
+
+.outlook-bar-fill {
+  display: block;
+  block-size: 100%;
+  border-radius: inherit;
+  --bar-color: var(--app-accent);
+  background: var(--bar-color);
+}
+
+.outlook-bar[data-type='EXPENSE'] .outlook-bar-fill {
+  --bar-color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
+}
+
+.summary-shortfall {
+  color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
 }
 
 .tx-type {
@@ -159,8 +262,7 @@
   color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
 }
 
-.tx-skel,
-.outlook-skel {
+.tx-skel {
   display: grid;
   gap: 0.4rem;
 }
@@ -174,12 +276,7 @@
 
 @media (min-width: 48rem) {
   .home-page {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1.1rem;
-  }
-
-  .panel-recent,
-  .panel-outlook {
-    min-width: 0;
   }
 }

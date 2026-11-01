@@ -51,9 +51,7 @@
       </div>
     </div>
 
-    @if (accounts().length === 0) {
-      <p class="lede">{{ t('home.addDisabled') }}</p>
-    } @else if (loading()) {
+    @if (loading()) {
       <ul class="tx-list" aria-busy="true">
         @for (_ of skeletonRows; track $index) {
           <li class="tx-skel">
@@ -65,6 +63,8 @@
           </li>
         }
       </ul>
+    } @else if (accounts().length === 0) {
+      <p class="lede">{{ t('home.addDisabled') }}</p>
     } @else if (recent().length === 0) {
       <p class="lede">{{ t('home.recentEmpty') }}</p>
       <button pButton type="button" (click)="openAddDialog()">
@@ -97,7 +97,7 @@
               }
             </p>
             @if (tx.description) {
-              <p class="meta">{{ tx.description }}</p>
+              <p class="meta tx-description" [title]="tx.description">{{ tx.description }}</p>
             }
           </li>
         }
@@ -107,50 +107,97 @@
 
   <section class="panel panel-outlook">
     <div class="panel-header">
-      <h2>{{ t('home.outlook') }}</h2>
+      <div class="panel-title">
+        <h2>{{ t('home.outlook') }}</h2>
+        @if (!loading() && forecast()) {
+          <p class="meta">{{ t('outlook.nextMonth', { label: outlookMonthLabel() }) }}</p>
+        }
+      </div>
       <a routerLink="/outlook">{{ t('home.outlookLink') }}</a>
     </div>
-    <p class="projection">{{ t('outlook.projectionBanner') }}</p>
+
     @if (loading()) {
       <ul class="outlook-list" aria-busy="true">
         @for (_ of skeletonOutlook; track $index) {
-          <li class="outlook-skel">
+          <li class="outlook-block outlook-skel">
             <div class="tx-main">
-              <p-skeleton width="25%" height="1rem" />
-              <p-skeleton width="40%" height="1rem" />
+              <p-skeleton width="30%" height="1rem" />
+              <p-skeleton width="35%" height="1.15rem" />
             </div>
-            <p-skeleton width="85%" height="0.75rem" />
+            <p-skeleton width="100%" height="0.5rem" />
+            <p-skeleton width="100%" height="0.5rem" />
           </li>
         }
       </ul>
-    } @else if (forecast(); as forecast) {
-      @if (forecast.currencies.length === 0) {
-        <p class="lede">{{ t('home.outlookEmpty') }}</p>
-        <a routerLink="/outlook" pButton>{{ t('home.outlookLink') }}</a>
+    } @else if (forecast()) {
+      @if (outlookRows().length === 0) {
+        @if (activeRuleCount() === 0) {
+          <p class="lede">{{ t('home.outlookNoRules') }}</p>
+          <div>
+            <a routerLink="/outlook" pButton>{{ t('home.outlookSetUp') }}</a>
+          </div>
+        } @else {
+          <p class="lede">
+            {{ t('home.outlookNoneNextMonth', { label: outlookMonthLabel() }) }}
+          </p>
+        }
       } @else {
         <ul class="outlook-list">
-          @for (row of forecast.currencies; track row.currency) {
-            <li>
+          @for (row of outlookRows(); track row.currency) {
+            <li class="outlook-block">
               <div class="tx-main">
                 <span class="account-name">{{ currencyName(row.currency) }}</span>
-                <span class="outlook-surplus">
-                  <span class="meta">{{ surplusLabel(row.surplusMinor) }}</span>
-                  <span
-                    class="balance money-ltr"
-                    [class.summary-shortfall]="isShortfall(row.surplusMinor)"
-                    >{{ formatMoney(row.surplusMinor, row.currency) }}</span
-                  >
+                <span class="outlook-net" [class.summary-shortfall]="row.shortfall">
+                  <span class="outlook-net-label">{{
+                    row.shortfall ? t('outlook.shortfall') : t('outlook.surplus')
+                  }}</span>
+                  <span class="balance money-ltr">{{
+                    formatMoney(row.surplusMinor, row.currency)
+                  }}</span>
                 </span>
               </div>
-              <p class="meta">
-                {{ t('outlook.income') }}:
-                <span class="money-ltr">{{ formatMoney(row.expectedIncomeMinor, row.currency) }}</span>
-                · {{ t('outlook.expense') }}:
-                <span class="money-ltr">{{ formatMoney(row.expectedExpenseMinor, row.currency) }}</span>
-              </p>
+
+              <div class="outlook-bar" data-type="INCOME">
+                <div class="outlook-bar-text">
+                  <span>{{ t('outlook.income') }}</span>
+                  <span class="money-ltr">{{
+                    formatMoney(row.expectedIncomeMinor, row.currency)
+                  }}</span>
+                </div>
+                <span class="outlook-bar-track" aria-hidden="true">
+                  <span class="outlook-bar-fill" [style.inline-size.%]="row.incomePct"></span>
+                </span>
+              </div>
+
+              <div class="outlook-bar" data-type="EXPENSE">
+                <div class="outlook-bar-text">
+                  <span>{{ t('outlook.expense') }}</span>
+                  <span class="money-ltr">{{
+                    formatMoney(row.expectedExpenseMinor, row.currency)
+                  }}</span>
+                </div>
+                <span class="outlook-bar-track" aria-hidden="true">
+                  <span class="outlook-bar-fill" [style.inline-size.%]="row.expensePct"></span>
+                </span>
+              </div>
+
+              @if (row.expenseSharePct !== null) {
+                <p class="meta">
+                  {{ t('home.outlookExpenseShare', { pct: formatCount(row.expenseSharePct) }) }}
+                </p>
+              }
             </li>
           }
         </ul>
+        <p class="projection">
+          {{ t('outlook.projectionBanner') }}
+          ·
+          {{
+            activeRuleCount() === 1
+              ? t('home.outlookRuleCountOne')
+              : t('home.outlookRuleCount', { count: formatCount(activeRuleCount()) })
+          }}
+        </p>
       }
     }
   </section>

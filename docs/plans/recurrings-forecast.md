@@ -56,7 +56,7 @@ Writing recurrings into actual future transactions automatically, mid-month “r
 ## UI
 
 - **`/outlook`:** surface panels. Forecast panel: projection banner, month label, per-currency summary blocks. Rules: one Add (header when list non-empty; empty CTA when empty); click row to edit; ConfirmDialog delete; schedule-aware dialog (interval, first/last/day, category, transfer accounts). Full detail in [ui-ux.md](ui-ux.md).
-- **Home strip:** same summary from `GET /forecast/next-month`, or stub empty copy if no rules / zero currencies
+- **Home strip:** same summary from `GET /forecast/next-month` (month label, surplus/shortfall headline, income vs expense bars, active-rule count from `GET /recurrings`); empty copy distinguishes no income/expense rules from rules with no occurrence next month ([ui-ux.md](ui-ux.md))
 - **Shared Add dialog:** optional “Also add as recurring” with schedule fields; creates rule after the movement (recurring failure does not roll back the ledger entry)
 
 ## Acceptance

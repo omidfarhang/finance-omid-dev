@@ -71,7 +71,12 @@
     "recentLink": "Open Activity",
     "outlook": "Outlook",
     "outlookLink": "Full outlook",
-    "outlookEmpty": "No recurring rules yet. Add them on Outlook to see next-month projections."
+    "outlookNoRules": "No recurring income or expenses yet. Add salary, rent, or bills to project next month.",
+    "outlookSetUp": "Set up recurrings",
+    "outlookNoneNextMonth": "None of your recurring income or expenses fall in {{label}}.",
+    "outlookExpenseShare": "Expenses take {{pct}}% of expected income",
+    "outlookRuleCount": "Based on {{count}} active recurring rules",
+    "outlookRuleCountOne": "Based on 1 active recurring rule"
   },
   "activity": {
     "title": "Activity",
