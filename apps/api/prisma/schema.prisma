@@ -72,6 +72,7 @@ model User {
   accountMembers     AccountMember[]
   categories          Category[]
   createdTransactions Transaction[] @relation("TransactionCreator")
+  createdCheckpoints  BalanceCheckpoint[]
   importBatches       ImportBatch[]
   recurringRules      RecurringRule[]
 }
@@ -100,17 +101,34 @@ model Account {
   wallet               Wallet   @relation(fields: [walletId], references: [id], onDelete: Restrict)
   name                 String
   currency             String   @db.Char(3)
-  openingBalanceMinor  BigInt
   isShared             Boolean  @default(false)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
   members              AccountMember[]
+  checkpoints          BalanceCheckpoint[]
   transactions         Transaction[]   @relation("TransactionAccount")
   counterTransactions  Transaction[]   @relation("TransactionCounterAccount")
   importBatches        ImportBatch[]
 
   @@index([walletId])
+}
+
+model BalanceCheckpoint {
+  id              String   @id @default(uuid()) @db.Uuid
+  accountId       String   @db.Uuid
+  account         Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  asOf            DateTime
+  balanceMinor    BigInt
+  note            String?
+  createdByUserId String   @db.Uuid
+  createdBy       User     @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([accountId, asOf])
+  @@index([accountId, asOf])
+  @@index([createdByUserId])
 }
 
 model AccountMember {

@@ -24,6 +24,14 @@
           pButton
           type="button"
           severity="secondary"
+          (click)="openCheckpointDialog()"
+        >
+          {{ t('accounts.recordBalance') }}
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
           (click)="openRenameDialog()"
         >
           {{ t('accounts.rename') }}
@@ -73,11 +81,46 @@
     <section class="panel">
       <h2>{{ t('accounts.balanceStory') }}</h2>
       <p class="balance-lg money-ltr">{{ formatBalance(account) }}</p>
-      <p class="meta">
-        {{ t('accounts.opening') }}:
-        <span class="money-ltr">{{ formatOpening(account) }}</span>
-        · {{ t('accounts.balanceFromMovements') }}
-      </p>
+      <p class="meta">{{ t('accounts.balanceFromMovements') }}</p>
+      <div class="checkpoint-list">
+        <h3 class="checkpoint-heading">{{ t('accounts.checkpoints') }}</h3>
+        <ul class="tx-list">
+          @for (cp of checkpoints(); track cp.id) {
+            <li>
+              <div
+                class="tx-row checkpoint-row"
+                role="button"
+                tabindex="0"
+                (click)="openCheckpointDialog(cp)"
+                (keydown)="onCheckpointRowKeydown($event, cp)"
+              >
+                <div class="tx-main">
+                  <span class="tx-type" data-type="CHECKPOINT">{{
+                    t('accounts.checkpoint')
+                  }}</span>
+                  <span class="balance money-ltr">{{
+                    formatCheckpointBalance(cp.balanceMinor, account.currency)
+                  }}</span>
+                </div>
+                <p class="meta">
+                  {{ dayLabel(cp.asOf) }} · {{ timeLabel(cp.asOf) }}
+                  @if (gapLabel(cp, account.currency); as gap) {
+                    ·
+                    <span
+                      class="gap-chip"
+                      [attr.data-matched]="cp.gapMinor === '0'"
+                      >{{ gap }}</span
+                    >
+                  }
+                  @if (cp.note) {
+                    · {{ cp.note }}
+                  }
+                </p>
+              </div>
+            </li>
+          }
+        </ul>
+      </div>
     </section>
 
     <section class="panel panel-list">
@@ -206,6 +249,65 @@
     [defaultAccountId]="account()?.id ?? null"
     (saved)="onMovementSaved($event)"
   />
+
+  <p-dialog
+    [header]="
+      editingCheckpointId
+        ? t('accounts.editCheckpoint')
+        : t('accounts.recordBalance')
+    "
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="checkpointDialogVisible()"
+    (visibleChange)="checkpointDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="saveCheckpoint()" class="dialog-form">
+      <label>
+        {{ t('accounts.checkpointBalance') }}
+        <span class="hint">{{
+          t('accounts.initialBalanceHint', {
+            unit: unitLabel(account()?.currency ?? 'IRR'),
+          })
+        }}</span>
+        <app-amount-input
+          name="checkpointBalanceMinor"
+          [(ngModel)]="checkpointBalanceMinor"
+          [allowNegative]="true"
+          [required]="true"
+        />
+      </label>
+      <label>
+        {{ t('accounts.checkpointAsOf') }}
+        <app-date-time-field
+          name="checkpointAsOf"
+          [(ngModel)]="checkpointAsOf"
+          required
+        />
+      </label>
+      <label>
+        {{ t('accounts.checkpointNote') }}
+        <input
+          pInputText
+          name="checkpointNote"
+          [(ngModel)]="checkpointNote"
+          class="w-full"
+        />
+      </label>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('accounts.saveCheckpoint') }}</button>
+        @if (editingCheckpointId) {
+          <button
+            pButton
+            type="button"
+            severity="danger"
+            (click)="deleteCheckpointFromDialog()"
+          >
+            {{ t('accounts.deleteCheckpoint') }}
+          </button>
+        }
+      </div>
+    </form>
+  </p-dialog>
 
   <p-dialog
     [header]="t('accounts.renameAccount')"

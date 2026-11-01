@@ -19,7 +19,8 @@ export const createAccountSchema = z.object({
   walletId: z.uuid(),
   name: z.string().trim().min(1).max(100),
   currency: currencyCodeSchema,
-  openingBalanceMinor: minorUnitsSchema,
+  initialBalanceMinor: minorUnitsSchema,
+  initialBalanceAsOf: z.iso.datetime(),
   isShared: z.boolean().default(false),
 });
 export type CreateAccountDto = z.infer<typeof createAccountSchema>;
@@ -47,7 +48,6 @@ export const publicAccountSchema = z.object({
   walletId: z.uuid(),
   name: z.string(),
   currency: z.string().length(3),
-  openingBalanceMinor: minorUnitsSchema,
   balanceMinor: minorUnitsSchema,
   isShared: z.boolean(),
   members: z.array(publicAccountMemberSchema),

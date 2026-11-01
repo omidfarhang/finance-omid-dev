@@ -35,7 +35,7 @@ export class AppAmountInputComponent implements ControlValueAccessor {
 
   /** HTML `name` for the inner input. */
   readonly name = input<string | undefined>(undefined);
-  /** Allow a leading minus (opening balances). */
+  /** Allow a leading minus (initial / checkpoint balances). */
   readonly allowNegative = input(false);
   readonly required = input(false);
 

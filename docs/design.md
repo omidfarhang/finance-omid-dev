@@ -70,7 +70,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | `users` / profile | Display name, locale, timezone, calendar preference ([DEC-013](decisions/DEC-013-calendar-preference.md)), theme preference ([DEC-015](decisions/DEC-015-theme-preference.md)) |
 | `admin` | Instance settings (registration open), user list/role/disable/delete; admin access to any user’s wallets/accounts ([DEC-010](decisions/DEC-010-instance-admin.md)) |
 | `wallets` | Personal wallets; ownership |
-| `accounts` | Accounts (personal or shared), opening balances, per-account currency |
+| `accounts` | Accounts (personal or shared), per-account currency; balance checkpoints ([plans/balance-checkpoints.md](plans/balance-checkpoints.md), [DEC-017](decisions/DEC-017-balance-checkpoints.md)) |
 | `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses ([plans/transactions.md](plans/transactions.md)) |
 | `categories` | Per-user income/expense/transfer category lists (system catalog via codes + i18n, icons, palette colors; user CRUD; required on all movements) ([plans/transactions.md](plans/transactions.md), [DEC-016](decisions/DEC-016-category-catalog.md)) |
 | `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
@@ -94,6 +94,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | [vision.md](vision.md) | Why and principles |
 | [plans/mvp.md](plans/mvp.md) | First release scope |
 | [plans/transactions.md](plans/transactions.md) | Manual transactions, transfers, categories ([DEC-016](decisions/DEC-016-category-catalog.md)) |
+| [plans/balance-checkpoints.md](plans/balance-checkpoints.md) | Dated known balances; gaps; replaces opening balance ([DEC-017](decisions/DEC-017-balance-checkpoints.md)) |
 | [plans/imports.md](plans/imports.md) | CSV import adapters and deduplication |
 | [plans/recurrings-forecast.md](plans/recurrings-forecast.md) | Recurring rules and next-month forecast |
 | [plans/ui-ux.md](plans/ui-ux.md) | UI sitemap, shells, screen patterns |

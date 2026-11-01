@@ -11,7 +11,7 @@ import type {
 import { AccountMemberRole, Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { WalletsService } from '../wallets/wallets.service';
-import { buildBalanceMap } from './balance';
+import { buildBalanceMap, compareCheckpointsAsc } from './balance';
 import {
   parseMinorUnits,
   toPublicAccount,
@@ -34,42 +34,50 @@ export class AccountsService {
       include: accountInclude,
       orderBy: { createdAt: 'asc' },
     });
-    const balances = await this.balancesForAccounts(accounts);
+    const balances = await this.balancesForAccounts(accounts.map((a) => a.id));
     return accounts.map((account) =>
-      toPublicAccount(account, balances.get(account.id) ?? account.openingBalanceMinor),
+      toPublicAccount(account, balances.get(account.id) ?? 0n),
     );
   }
 
   async getForUser(userId: string, accountId: string) {
     const account = await this.requireMemberAccount(userId, accountId);
-    const balances = await this.balancesForAccounts([account]);
-    return toPublicAccount(
-      account,
-      balances.get(account.id) ?? account.openingBalanceMinor,
-    );
+    const balances = await this.balancesForAccounts([account.id]);
+    return toPublicAccount(account, balances.get(account.id) ?? 0n);
   }
 
   async create(userId: string, dto: CreateAccountDto) {
     await this.walletsService.requireOwnedWallet(userId, dto.walletId);
-    const openingBalanceMinor = parseMinorUnits(dto.openingBalanceMinor);
+    const initialBalanceMinor = parseMinorUnits(dto.initialBalanceMinor);
+    const initialBalanceAsOf = new Date(dto.initialBalanceAsOf);
 
-    const account = await this.prisma.account.create({
-      data: {
-        walletId: dto.walletId,
-        name: dto.name,
-        currency: dto.currency,
-        openingBalanceMinor,
-        isShared: dto.isShared,
-        members: {
-          create: {
-            userId,
-            role: AccountMemberRole.OWNER,
+    const account = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.account.create({
+        data: {
+          walletId: dto.walletId,
+          name: dto.name,
+          currency: dto.currency,
+          isShared: dto.isShared,
+          members: {
+            create: {
+              userId,
+              role: AccountMemberRole.OWNER,
+            },
+          },
+          checkpoints: {
+            create: {
+              asOf: initialBalanceAsOf,
+              balanceMinor: initialBalanceMinor,
+              createdByUserId: userId,
+            },
           },
         },
-      },
-      include: accountInclude,
+        include: accountInclude,
+      });
+      return created;
     });
-    return toPublicAccount(account, openingBalanceMinor);
+
+    return toPublicAccount(account, initialBalanceMinor);
   }
 
   async update(userId: string, accountId: string, dto: UpdateAccountDto) {
@@ -79,11 +87,8 @@ export class AccountsService {
       data: { name: dto.name },
       include: accountInclude,
     });
-    const balances = await this.balancesForAccounts([account]);
-    return toPublicAccount(
-      account,
-      balances.get(account.id) ?? account.openingBalanceMinor,
-    );
+    const balances = await this.balancesForAccounts([account.id]);
+    return toPublicAccount(account, balances.get(account.id) ?? 0n);
   }
 
   async remove(userId: string, accountId: string) {
@@ -144,11 +149,8 @@ export class AccountsService {
       where: { id: accountId },
       include: accountInclude,
     });
-    const balances = await this.balancesForAccounts([updated]);
-    return toPublicAccount(
-      updated,
-      balances.get(updated.id) ?? updated.openingBalanceMinor,
-    );
+    const balances = await this.balancesForAccounts([updated.id]);
+    return toPublicAccount(updated, balances.get(updated.id) ?? 0n);
   }
 
   async removeMember(
@@ -184,11 +186,8 @@ export class AccountsService {
       where: { id: accountId },
       include: accountInclude,
     });
-    const balances = await this.balancesForAccounts([updated]);
-    return toPublicAccount(
-      updated,
-      balances.get(updated.id) ?? updated.openingBalanceMinor,
-    );
+    const balances = await this.balancesForAccounts([updated.id]);
+    return toPublicAccount(updated, balances.get(updated.id) ?? 0n);
   }
 
   /** Public for transactions module membership checks. */
@@ -217,24 +216,68 @@ export class AccountsService {
     return account;
   }
 
-  private async balancesForAccounts(
-    accounts: Array<{ id: string; openingBalanceMinor: bigint }>,
-  ) {
-    if (accounts.length === 0) {
+  private async balancesForAccounts(accountIds: string[]) {
+    if (accountIds.length === 0) {
       return new Map<string, bigint>();
     }
-    const ids = accounts.map((a) => a.id);
+
+    const checkpoints = await this.prisma.balanceCheckpoint.findMany({
+      where: { accountId: { in: accountIds } },
+      select: {
+        id: true,
+        accountId: true,
+        asOf: true,
+        balanceMinor: true,
+        createdAt: true,
+      },
+    });
+
+    const byAccount = new Map<
+      string,
+      Array<{
+        id: string;
+        asOf: Date;
+        balanceMinor: bigint;
+        createdAt: Date;
+      }>
+    >();
+    for (const cp of checkpoints) {
+      const list = byAccount.get(cp.accountId) ?? [];
+      list.push(cp);
+      byAccount.set(cp.accountId, list);
+    }
+
+    const anchors = accountIds.map((id) => {
+      const list = byAccount.get(id) ?? [];
+      if (list.length === 0) {
+        throw new BadRequestException(
+          `Account ${id} has no balance checkpoint`,
+        );
+      }
+      const sorted = [...list].sort(compareCheckpointsAsc);
+      const earliest = sorted[0]!;
+      return {
+        id,
+        balanceMinor: earliest.balanceMinor,
+        asOf: earliest.asOf,
+      };
+    });
+
     const movements = await this.prisma.transaction.findMany({
       where: {
-        OR: [{ accountId: { in: ids } }, { counterAccountId: { in: ids } }],
+        OR: [
+          { accountId: { in: accountIds } },
+          { counterAccountId: { in: accountIds } },
+        ],
       },
       select: {
         type: true,
         accountId: true,
         counterAccountId: true,
         amountMinor: true,
+        occurredAt: true,
       },
     });
-    return buildBalanceMap(accounts, movements);
+    return buildBalanceMap(anchors, movements);
   }
 }

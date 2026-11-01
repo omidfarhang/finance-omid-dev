@@ -94,7 +94,8 @@ export class AdminService {
       walletId: string;
       name: string;
       currency: string;
-      openingBalanceMinor: string;
+      initialBalanceMinor: string;
+      initialBalanceAsOf: string;
       isShared: boolean;
     },
   ): Observable<PublicAccount> {

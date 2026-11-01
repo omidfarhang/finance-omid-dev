@@ -25,7 +25,7 @@ Product UI information architecture and interaction patterns for the Angular PWA
 
 1. **IA before chrome polish** — routes, shells, and “where does this live?” come first; visual polish follows.
 2. **Lists first** — list/detail pages show data and a clear primary action; create/edit open in a dialog, drawer, or dedicated route — never always-visible form stacks under every list.
-3. **Money is transparent** — balances and costs must show how they are derived (opening + movements when available); never silent rial/toman inference ([DEC-006](../decisions/DEC-006-money-multi-currency.md)).
+3. **Money is transparent** — balances and costs must show how they are derived (anchor checkpoint + later movements; checkpoint gaps when recorded); never silent rial/toman inference ([DEC-006](../decisions/DEC-006-money-multi-currency.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md)).
 4. **Actuals ≠ forecast** — Activity and account ledgers are historical; Outlook (and the home strip) are labeled projections ([mvp.md](mvp.md)).
 5. **No cross-currency net worth** — group and total only within a currency ([DEC-006](../decisions/DEC-006-money-multi-currency.md)).
 6. **One primary job per screen** — home composes three tight sections; other routes stay focused.
@@ -149,12 +149,12 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Activity (`/activity`)
 
-- Purpose: chronological ledger of actual movements; one focused list page.
+- Purpose: chronological ledger of actual movements **and balance checkpoint markers**; one focused list page.
 - Visual language matches home/settings: **surface panels** (padding, radius, soft background) for filters, period summary, and the day-grouped list — not leading hairline rules. Loading uses skeletons.
 - Filters (live — no Apply): time range (All / Last 30 days / This month / **Custom** with from–to `app-date-time-field`s, user calendar + timezone), account, type (All / Income / Expense / Transfer), **category** (All or one category; options narrow to the selected type when type ≠ All). Client-side **search** filters the loaded result by description, category label, and account names.
-- **Period summary** panel (per currency, from the visible filtered set): Income, Expense, Net (income−expense). Transfers never enter net; show a separate Transfers total when type is All or Transfer. No cross-currency totals.
-- List: day-grouped by user calendar + timezone ([DEC-013](../decisions/DEC-013-calendar-preference.md)); newest day first. Rows show type (income/expense color cues), amount, account (→ counter for transfers), time, category chip, shared mark, description.
-- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); **click/tap row** opens type-specific edit (amount + metadata). Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
+- **Period summary** panel (per currency, from the visible filtered **movements** only): Income, Expense, Net (income−expense). Transfers never enter net; show a separate Transfers total when type is All or Transfer. Checkpoints are **not** counted. No cross-currency totals.
+- List: day-grouped by user calendar + timezone ([DEC-013](../decisions/DEC-013-calendar-preference.md)); newest day first. Movement rows show type (income/expense color cues), amount, account (→ counter for transfers), time, category chip, shared mark, description. **Checkpoint rows** are distinct non-transaction markers (recorded balance, optional note, gap chip when non-zero; account name when viewing all accounts); click → edit checkpoint ([balance-checkpoints.md](balance-checkpoints.md)).
+- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); **click/tap movement row** opens type-specific edit (amount + metadata). Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
 - Empty: “No movements yet” + CTA to add and/or import. Distinct copy when filters/search yield no rows.
 - Must not mix unlabeled forecast rows into this list.
 
@@ -163,8 +163,8 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 - Purpose: structure — wallets and accounts with balances; one focused list page.
 - Visual language matches home/activity/settings: **surface panels** (padding, radius, soft background) for wallet blocks and “Shared with you” — not leading hairline rules. Loading uses skeletons. Layout width/rhythm aligns with Home/Activity (`~58rem`, panel gap).
 - Hierarchy: owned wallets with nested accounts; optional **Shared with you** section for accounts whose wallet the user does not own. **No** cross-currency total.
-- Account rows: link to detail; name, Shared badge when applicable, balance (`Name (CODE)` currency chrome + opening in meta), member names when more than one.
-- Primary actions: create wallet / create account via **dialog** (searchable currency allowlist, `app-amount-input` opening, shared checkbox); navigate to account detail. Prefer opening Create account from an empty wallet’s CTA as well as the header.
+- Account rows: link to detail; name, Shared badge when applicable, balance (`Name (CODE)` currency chrome), member names when more than one.
+- Primary actions: create wallet / create account via **dialog** (searchable currency allowlist, `app-amount-input` + datetime for **initial balance as-of**, shared checkbox); navigate to account detail. Prefer opening Create account from an empty wallet’s CTA as well as the header. ([balance-checkpoints.md](balance-checkpoints.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md))
 - Empty: one sentence + primary CTA to create first wallet. Per-wallet empty accounts: sentence + Create account CTA.
 - **Not** a page of always-visible create forms under the list.
 - Admin-as-user money list (`/admin/users/:userId`) uses the same surface-panel / skeleton / money chrome; acting-as banner stays ([instance-admin.md](instance-admin.md)).
@@ -173,10 +173,10 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Purpose: one account’s balance story, movements, shared badge, member management (email add/remove per [wallets-accounts.md](wallets-accounts.md)).
 - Visual language: **surface panels** for Balance, Movements, and Members (when shared); skeletons while loading; same max-width rhythm as Accounts/Activity.
-- **Balance** panel: large current balance + opening amount + copy that balance is opening plus recorded movements. Currency chrome as `Name (CODE)`; Shared badge in the header lede.
+- **Balance** panel: large current balance + copy that balance is the **anchor checkpoint** plus later movements; checkpoint history (as-of, recorded balance, gap badge); add / edit / delete checkpoint dialogs ([balance-checkpoints.md](balance-checkpoints.md)). Currency chrome as `Name (CODE)`; Shared badge in the header lede.
 - **Movements** panel: day-grouped by user calendar + timezone (same helper as Activity); newest day first. Rows show type (income/expense color cues), amount, transfer counter direction relative to this account, time, category chip, shared mark, description. **Click/tap row** opens type-specific edit; Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
 - Empty movements: one sentence + primary **Add** (+ optional link to `/activity`).
-- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Rename** opens a dialog that PATCHes name only (currency and opening balance immutable); when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).
+- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Rename** opens a dialog that PATCHes name only (currency immutable); **Record balance** opens checkpoint create; when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).
 
 ### Import (`/import`)
 
@@ -218,10 +218,10 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 ### Money display
 
 - Input/storage: integer minor units as digit strings on the wire.
-- Display: shared formatter with locale thousand separators (`en`: `,`; `fa`: `٬`); currency/unit label visible; IRR may present as **labeled** toman (`÷ 10`) when the user opts in. Money amounts (lists, balances, opening, inputs) use **LTR isolate** so the minus sign stays before the digits in RTL layouts.
+- Display: shared formatter with locale thousand separators (`en`: `,`; `fa`: `٬`); currency/unit label visible; IRR may present as **labeled** toman (`÷ 10`) when the user opts in. Money amounts (lists, balances, checkpoints, inputs) use **LTR isolate** so the minus sign stays before the digits in RTL layouts.
 - **Currency in chrome** (account boxes, account detail lede, accounts list meta, outlook per-currency headers/rules, create-account/recurring selects, admin-as-user account meta): show **`Name (CODE)`** via `Intl.DisplayNames` for the active UI locale (e.g. `Euro (EUR)` / `یورو (EUR)`). Transloco is not used for ISO currency names. Unknown codes fall back to the bare code.
 - **Currency pickers** (create account, outlook recurrings, admin-as-user): searchable PrimeNG Select over a fixed Iranian-first **UI allowlist** — `IRR, USD, EUR, GBP, AED, TRY, CAD, AUD, CHF, JPY` — defined in one shared web constant so expansion is configuration-only. API/DB remain any valid ISO 4217 code ([DEC-006](../decisions/DEC-006-money-multi-currency.md)); the allowlist is UI-only.
-- **Amount inputs:** shared `app-amount-input` — typeable digit field with the same locale separators while editing; Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits are accepted on type/paste, counted for caret placement, and normalized to Latin digits in the field and model; model value stays an ungrouped digit string (optional leading `-` only where opening balance allows negatives). Never use binary floating-point inputs for money.
+- **Amount inputs:** shared `app-amount-input` — typeable digit field with the same locale separators while editing; Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits are accepted on type/paste, counted for caret placement, and normalized to Latin digits in the field and model; model value stays an ungrouped digit string (optional leading `-` where checkpoint / initial balances allow negatives). Never use binary floating-point inputs for money.
 - **Preference control lives only in Settings** (not on home or other money lists). Preference is local (`localStorage`) for MVP; applies app-wide including admin-as-user views.
 - Same formatter on home, accounts, activity amounts, admin-as-user views.
 - Never show a merged multi-currency “net worth”.

@@ -9,12 +9,12 @@ Manual ledger movements for MVP. Product rules: [DEC-005](../decisions/DEC-005-w
 - Optional `shared` mark on personal-account expenses (full amount on payer; no automatic IOU)
 - Required typed categories for income, expense, and transfer (separate lists; app catalog + user CRUD; icons + palette colors)
 - Edit amount and metadata, or delete, a wrong movement after add (account and type are fixed — delete + re-add to change those)
-- Displayed account balance = opening balance ± signed movements
+- Displayed account balance = earliest balance checkpoint ± signed movements after its as-of ([balance-checkpoints.md](balance-checkpoints.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md))
 - Session-guarded API; access via account membership (same 404 pattern as wallets/accounts)
 
 ## Out of scope
 
-Imports, recurrings, forecast, FX, cross-currency transfers, split/settlement ledger, editing opening balance, changing account or type via edit, chart rendering by category color, import-time category mapping, hiding app-provided categories.
+Imports, recurrings, forecast, FX, cross-currency transfers, split/settlement ledger, balance checkpoint CRUD (see [balance-checkpoints.md](balance-checkpoints.md)), changing account or type via edit, chart rendering by category color, import-time category mapping, hiding app-provided categories.
 
 ## Schema
 
@@ -47,18 +47,18 @@ One row per income, expense, or transfer. A transfer is a single row that adjust
 
 ### Balance formula
 
-For account `A`:
+For account `A`, let `E` be the earliest [BalanceCheckpoint](balance-checkpoints.md) on `A`:
 
 ```text
 balanceMinor(A) =
-  openingBalanceMinor(A)
-  + sum(amountMinor of INCOME where accountId = A)
-  - sum(amountMinor of EXPENSE where accountId = A)
-  - sum(amountMinor of TRANSFER where accountId = A)   // outflow
-  + sum(amountMinor of TRANSFER where counterAccountId = A)  // inflow
+  E.balanceMinor
+  + sum(amountMinor of INCOME where accountId = A and occurredAt > E.asOf)
+  - sum(amountMinor of EXPENSE where accountId = A and occurredAt > E.asOf)
+  - sum(amountMinor of TRANSFER where accountId = A and occurredAt > E.asOf)   // outflow
+  + sum(amountMinor of TRANSFER where counterAccountId = A and occurredAt > E.asOf)  // inflow
 ```
 
-Income/expense totals for reports exclude `TRANSFER` rows.
+Income/expense totals for reports exclude `TRANSFER` rows. Checkpoints are not movements.
 
 ## Money on the wire
 
@@ -103,7 +103,7 @@ Unknown or inaccessible ids return **404**.
 
 ## Acceptance
 
-- Opening balance plus recorded movements reproduces displayed account balance
+- Earliest checkpoint plus recorded movements after its as-of reproduces displayed account balance
 - Manual income and expense can be entered, listed, filtered by time range, edited (amount + metadata), and deleted
 - Edit cannot change account or type; those require delete + re-add
 - Same-currency transfer adjusts both balances and is not counted as income or expense; transfer requires a TRANSFER category

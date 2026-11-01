@@ -21,12 +21,14 @@ import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { AdminService } from '../../core/admin.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
+import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 @Component({
   selector: 'app-admin-user-page',
   standalone: true,
   imports: [
     AppAmountInputComponent,
+    AppDateTimeFieldComponent,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -55,7 +57,8 @@ export class AdminUserPage implements OnInit {
   accountWalletId = '';
   accountName = '';
   accountCurrency: UiCurrency = 'IRR';
-  openingBalanceMinor = '0';
+  initialBalanceMinor = '0';
+  initialBalanceAsOf = new Date().toISOString();
   isShared = false;
 
   readonly skeletonRows = [0, 1, 2, 3];
@@ -143,7 +146,8 @@ export class AdminUserPage implements OnInit {
     }
     this.accountName = '';
     this.accountCurrency = 'IRR';
-    this.openingBalanceMinor = '0';
+    this.initialBalanceMinor = '0';
+    this.initialBalanceAsOf = new Date().toISOString();
     this.isShared = false;
     this.accountDialogVisible.set(true);
   }
@@ -182,8 +186,12 @@ export class AdminUserPage implements OnInit {
       this.error.set(this.i18n.translate('accounts.needWallet'));
       return;
     }
-    if (!/^-?\d+$/.test(this.openingBalanceMinor.trim())) {
-      this.error.set(this.i18n.translate('accounts.invalidOpening'));
+    if (!/^-?\d+$/.test(this.initialBalanceMinor.trim())) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialBalance'));
+      return;
+    }
+    if (!this.initialBalanceAsOf) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialAsOf'));
       return;
     }
     this.adminApi
@@ -191,7 +199,8 @@ export class AdminUserPage implements OnInit {
         walletId: this.accountWalletId,
         name: this.accountName.trim(),
         currency: this.accountCurrency,
-        openingBalanceMinor: this.openingBalanceMinor.trim(),
+        initialBalanceMinor: this.initialBalanceMinor.trim(),
+        initialBalanceAsOf: new Date(this.initialBalanceAsOf).toISOString(),
         isShared: this.isShared,
       })
       .subscribe({

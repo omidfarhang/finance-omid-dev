@@ -168,12 +168,20 @@
         />
       </label>
       <label>
-        {{ t('accounts.openingBalance') }}
+        {{ t('accounts.initialBalance') }}
         <app-amount-input
-          name="openingBalanceMinor"
-          [(ngModel)]="openingBalanceMinor"
+          name="initialBalanceMinor"
+          [(ngModel)]="initialBalanceMinor"
           [allowNegative]="true"
           [required]="true"
+        />
+      </label>
+      <label>
+        {{ t('accounts.initialBalanceAsOf') }}
+        <app-date-time-field
+          name="initialBalanceAsOf"
+          [(ngModel)]="initialBalanceAsOf"
+          required
         />
       </label>
       <label class="checkbox-row">

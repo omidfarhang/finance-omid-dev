@@ -74,11 +74,7 @@
                     formatBalance(account)
                   }}</span>
                 </div>
-                <p class="meta">
-                  {{ currencyName(account.currency) }} ·
-                  {{ t('accounts.opening') }}:
-                  <span class="money-ltr">{{ formatOpening(account) }}</span>
-                </p>
+                <p class="meta">{{ currencyName(account.currency) }}</p>
                 @if (account.members.length > 1) {
                   <p class="meta">
                     {{ t('accounts.members') }}:
@@ -130,11 +126,7 @@
                     formatBalance(account)
                   }}</span>
                 </div>
-                <p class="meta">
-                  {{ currencyName(account.currency) }} ·
-                  {{ t('accounts.opening') }}:
-                  <span class="money-ltr">{{ formatOpening(account) }}</span>
-                </p>
+                <p class="meta">{{ currencyName(account.currency) }}</p>
               </a>
             </li>
           }
@@ -208,15 +200,23 @@
         />
       </label>
       <label>
-        {{ t('accounts.openingBalance') }}
+        {{ t('accounts.initialBalance') }}
         <span class="hint">{{
-          t('accounts.openingHint', { unit: unitLabel(accountCurrency) })
+          t('accounts.initialBalanceHint', { unit: unitLabel(accountCurrency) })
         }}</span>
         <app-amount-input
-          name="openingBalanceMinor"
-          [(ngModel)]="openingBalanceMinor"
+          name="initialBalanceMinor"
+          [(ngModel)]="initialBalanceMinor"
           [allowNegative]="true"
           [required]="true"
+        />
+      </label>
+      <label>
+        {{ t('accounts.initialBalanceAsOf') }}
+        <app-date-time-field
+          name="initialBalanceAsOf"
+          [(ngModel)]="initialBalanceAsOf"
+          required
         />
       </label>
       <label class="checkbox-row">

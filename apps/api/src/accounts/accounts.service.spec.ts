@@ -22,11 +22,15 @@ describe('AccountsService', () => {
       count: Mock;
       delete: Mock;
     };
+    balanceCheckpoint: {
+      findMany: Mock;
+    };
     transaction: {
       findMany: Mock;
       count: Mock;
     };
     user: { findFirst: Mock };
+    $transaction: Mock;
   };
   let walletsService: { requireOwnedWallet: Mock };
 
@@ -34,6 +38,7 @@ describe('AccountsService', () => {
   const otherUserId = '22222222-2222-2222-2222-222222222222';
   const walletId = '33333333-3333-3333-3333-333333333333';
   const accountId = '44444444-4444-4444-4444-444444444444';
+  const asOf = '2026-01-01T00:00:00.000Z';
 
   const ownerUser = {
     id: userId,
@@ -52,17 +57,16 @@ describe('AccountsService', () => {
     walletId,
     name: 'Cash',
     currency: 'IRR',
-    openingBalanceMinor: 1000n,
     isShared: false,
-    createdAt: new Date('2026-01-01T00:00:00.000Z'),
-    updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+    createdAt: new Date(asOf),
+    updatedAt: new Date(asOf),
     members: [
       {
         id: '55555555-5555-5555-5555-555555555555',
         accountId,
         userId,
         role: AccountMemberRole.OWNER,
-        createdAt: new Date('2026-01-01T00:00:00.000Z'),
+        createdAt: new Date(asOf),
         user: ownerUser,
       },
     ],
@@ -84,11 +88,29 @@ describe('AccountsService', () => {
         count: vi.fn(),
         delete: vi.fn(),
       },
+      balanceCheckpoint: {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            id: 'cp-1',
+            accountId,
+            asOf: new Date(asOf),
+            balanceMinor: 1000n,
+            createdAt: new Date(asOf),
+          },
+        ]),
+      },
       transaction: {
         findMany: vi.fn().mockResolvedValue([]),
         count: vi.fn().mockResolvedValue(0),
       },
       user: { findFirst: vi.fn() },
+      $transaction: vi.fn(async (fn: (tx: unknown) => Promise<unknown>) =>
+        fn({
+          account: {
+            create: prisma.account.create,
+          },
+        }),
+      ),
     };
     walletsService = {
       requireOwnedWallet: vi.fn().mockResolvedValue({
@@ -108,14 +130,15 @@ describe('AccountsService', () => {
     service = module.get(AccountsService);
   });
 
-  it('creates an account with opening balance as integer minor units', async () => {
+  it('creates an account with an initial balance checkpoint', async () => {
     prisma.account.create.mockResolvedValue(baseAccount);
 
     const result = await service.create(userId, {
       walletId,
       name: 'Cash',
       currency: 'IRR',
-      openingBalanceMinor: '1000',
+      initialBalanceMinor: '1000',
+      initialBalanceAsOf: asOf,
       isShared: false,
     });
 
@@ -126,16 +149,22 @@ describe('AccountsService', () => {
     expect(prisma.account.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
-          openingBalanceMinor: 1000n,
           currency: 'IRR',
+          checkpoints: {
+            create: {
+              asOf: new Date(asOf),
+              balanceMinor: 1000n,
+              createdByUserId: userId,
+            },
+          },
           members: {
             create: { userId, role: AccountMemberRole.OWNER },
           },
         }),
       }),
     );
-    expect(result.openingBalanceMinor).toBe('1000');
     expect(result.balanceMinor).toBe('1000');
+    expect(result).not.toHaveProperty('openingBalanceMinor');
   });
 
   it('denies access when user is not a member', async () => {

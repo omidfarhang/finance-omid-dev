@@ -5,8 +5,8 @@ First ledger foundation for MVP. Product rules: [DEC-005](../decisions/DEC-005-w
 ## Goals
 
 - Personal wallets owned by the authenticated user
-- Accounts under a wallet: name, ISO currency, opening balance (integer minor units), personal or shared
-- Displayed balance for this slice equals opening balance (transactions come next)
+- Accounts under a wallet: name, ISO currency, initial balance checkpoint (integer minor units + as-of), personal or shared
+- Displayed balance for this slice equals the earliest checkpoint (transactions / further checkpoints: [transactions.md](transactions.md), [balance-checkpoints.md](balance-checkpoints.md))
 - Session-guarded API; access via account membership
 
 ## Out of scope
@@ -16,9 +16,9 @@ Transactions, transfers, imports, recurrings, FX, cross-currency totals, rich ho
 ## Schema
 
 - **Wallet:** `ownerUserId`, `name` (default `"Personal"`)
-- **Account:** `walletId` (creator’s home wallet), `name`, `currency` (ISO 4217), `openingBalanceMinor` (`BigInt`), `isShared`
+- **Account:** `walletId` (creator’s home wallet), `name`, `currency` (ISO 4217), `isShared` — no `openingBalanceMinor`; initial known balance is a [BalanceCheckpoint](balance-checkpoints.md) ([DEC-017](../decisions/DEC-017-balance-checkpoints.md))
 - **AccountMember:** unique `(accountId, userId)`; role `OWNER` | `MEMBER`; creator always `OWNER`; always written on create so authz is membership-only
-- Currency and opening balance immutable after create in this slice
+- Currency immutable after create; initial checkpoint created with the account (`initialBalanceMinor` + `initialBalanceAsOf`); further checkpoints per [balance-checkpoints.md](balance-checkpoints.md)
 
 ## Money on the wire
 
@@ -38,12 +38,12 @@ Unknown or inaccessible ids return **404** (no existence leak).
 
 ## Balance meaning
 
-This slice shipped with `balanceMinor === openingBalanceMinor`. After [transactions.md](transactions.md): opening ± signed movements.
+Create writes the first checkpoint; listed `balanceMinor` equals that checkpoint until movements exist. After [transactions.md](transactions.md) and [balance-checkpoints.md](balance-checkpoints.md): earliest checkpoint ± signed movements after its `asOf`.
 
 ## Acceptance
 
-- User can create a wallet and accounts with explicit currency and opening balance
-- Listed balance equals opening balance
+- User can create a wallet and accounts with explicit currency and initial balance as-of
+- Listed balance equals the earliest checkpoint when there are no later movements
 - Shared account can include another registered user; they can list it; outsiders cannot
 - Amounts are integer minor units; IRR toman is display-only
 - No cross-currency aggregated total in UI or API

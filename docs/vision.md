@@ -43,7 +43,7 @@ The application prioritizes usefulness, transparency, and user control over feat
 
 ## Definition of success
 
-The application can reliably reproduce account balances from opening balances and recorded movements, import statements from the banks the creator uses without silent duplicates, forecast upcoming cash flow from known recurrings and expected income, and (when specified) calculate recipe costs from ingredient prices and partial usage.
+The application can reliably reproduce account balances from the earliest balance checkpoint and recorded movements, let the user record known balances at exact times to detect gaps, import statements from the banks the creator uses without silent duplicates, forecast upcoming cash flow from known recurrings and expected income, and (when specified) calculate recipe costs from ingredient prices and partial usage.
 
 ## Out of MVP by default
 

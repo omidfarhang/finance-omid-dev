@@ -26,6 +26,7 @@ Keep the living overview in [`../design.md`](../design.md) aligned when acceptin
 | [DEC-014](DEC-014-mit-license.md) | MIT license for the monorepo; standard community docs | Accepted |
 | [DEC-015](DEC-015-theme-preference.md) | Profile theme Light/Dark/System; default System; Settings icon control | Accepted |
 | [DEC-016](DEC-016-category-catalog.md) | Category catalog: system codes + i18n, icons, palette colors, TRANSFER kind | Accepted |
+| [DEC-017](DEC-017-balance-checkpoints.md) | Balance checkpoints replace opening balance; detection-only gaps | Accepted |
 
 Likely early candidates (create when deciding, not before):
 

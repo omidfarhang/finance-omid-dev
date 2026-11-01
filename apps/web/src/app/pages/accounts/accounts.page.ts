@@ -21,12 +21,14 @@ import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { WalletsService } from '../../core/wallets.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
+import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 
 @Component({
   selector: 'app-accounts-page',
   standalone: true,
   imports: [
     AppAmountInputComponent,
+    AppDateTimeFieldComponent,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -54,7 +56,8 @@ export class AccountsPage implements OnInit {
   accountWalletId = '';
   accountName = '';
   accountCurrency: UiCurrency = 'IRR';
-  openingBalanceMinor = '0';
+  initialBalanceMinor = '0';
+  initialBalanceAsOf = new Date().toISOString();
   isShared = false;
 
   readonly skeletonRows = [0, 1, 2, 3];
@@ -123,7 +126,8 @@ export class AccountsPage implements OnInit {
     }
     this.accountName = '';
     this.accountCurrency = 'IRR';
-    this.openingBalanceMinor = '0';
+    this.initialBalanceMinor = '0';
+    this.initialBalanceAsOf = new Date().toISOString();
     this.isShared = false;
     this.accountDialogVisible.set(true);
   }
@@ -158,8 +162,12 @@ export class AccountsPage implements OnInit {
       this.error.set(this.i18n.translate('accounts.needWallet'));
       return;
     }
-    if (!/^-?\d+$/.test(this.openingBalanceMinor.trim())) {
-      this.error.set(this.i18n.translate('accounts.invalidOpening'));
+    if (!/^-?\d+$/.test(this.initialBalanceMinor.trim())) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialBalance'));
+      return;
+    }
+    if (!this.initialBalanceAsOf) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialAsOf'));
       return;
     }
     this.walletsApi
@@ -167,7 +175,8 @@ export class AccountsPage implements OnInit {
         walletId: this.accountWalletId,
         name: this.accountName.trim(),
         currency: this.accountCurrency,
-        openingBalanceMinor: this.openingBalanceMinor.trim(),
+        initialBalanceMinor: this.initialBalanceMinor.trim(),
+        initialBalanceAsOf: new Date(this.initialBalanceAsOf).toISOString(),
         isShared: this.isShared,
       })
       .subscribe({
@@ -201,20 +210,6 @@ export class AccountsPage implements OnInit {
   formatBalance(account: PublicAccount): string {
     return formatBalanceMinor(
       account.balanceMinor,
-      account.currency,
-      this.moneyDisplay.showToman(),
-      {
-        toman: this.i18n.translate('accounts.toman'),
-        rials: this.i18n.translate('accounts.rials'),
-        cents: this.i18n.translate('accounts.cents'),
-      },
-      this.locale.activeLang(),
-    );
-  }
-
-  formatOpening(account: PublicAccount): string {
-    return formatBalanceMinor(
-      account.openingBalanceMinor,
       account.currency,
       this.moneyDisplay.showToman(),
       {

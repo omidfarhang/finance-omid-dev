@@ -161,7 +161,9 @@
         }
       </ul>
     </section>
-  } @else if (transactions().length === 0) {
+  } @else if (
+    transactions().length === 0 && checkpoints().length === 0
+  ) {
     <section class="panel panel-empty">
       <p class="lede">
         {{ filtersNarrowed() ? t('activity.filterEmpty') : t('activity.empty') }}
@@ -179,9 +181,13 @@
         }
       </div>
     </section>
-  } @else if (visibleTransactions().length === 0) {
+  } @else if (!hasTimelineRows()) {
     <section class="panel panel-empty">
-      <p class="lede">{{ t('activity.searchEmpty') }}</p>
+      <p class="lede">{{
+        searchQuery()
+          ? t('activity.searchEmpty')
+          : t('activity.filterEmpty')
+      }}</p>
     </section>
   } @else {
     @if (periodSummaries().length > 0) {
@@ -234,53 +240,101 @@
         <div class="day-group">
           <h3 class="day-heading">{{ dayLabel(group.sampleIso) }}</h3>
           <ul class="tx-list">
-            @for (tx of group.transactions; track tx.id) {
+            @for (item of group.items; track item.kind + '-' + (item.kind === 'transaction' ? item.transaction.id : item.checkpoint.id)) {
               <li>
-                <div
-                  class="tx-row"
-                  role="button"
-                  tabindex="0"
-                  (click)="openEditDialog(tx)"
-                  (keydown)="onRowKeydown($event, tx)"
-                  [attr.aria-label]="t('activity.editRowAria', { type: typeLabel(tx.type) })"
-                >
-                  <div class="tx-main">
-                    <span class="tx-type" [attr.data-type]="tx.type">{{
-                      typeLabel(tx.type)
-                    }}</span>
-                    <span class="balance money-ltr">{{ formatAmount(tx) }}</span>
+                @if (item.kind === 'transaction') {
+                  <div
+                    class="tx-row"
+                    role="button"
+                    tabindex="0"
+                    (click)="openEditDialog(item.transaction)"
+                    (keydown)="onRowKeydown($event, item.transaction)"
+                    [attr.aria-label]="
+                      t('activity.editRowAria', {
+                        type: typeLabel(item.transaction.type),
+                      })
+                    "
+                  >
+                    <div class="tx-main">
+                      <span
+                        class="tx-type"
+                        [attr.data-type]="item.transaction.type"
+                        >{{ typeLabel(item.transaction.type) }}</span
+                      >
+                      <span class="balance money-ltr">{{
+                        formatAmount(item.transaction)
+                      }}</span>
+                    </div>
+                    <p class="meta">
+                      {{ accountName(item.transaction.accountId) }}
+                      @if (item.transaction.type === 'TRANSFER') {
+                        →
+                        {{ accountName(item.transaction.counterAccountId) }}
+                      }
+                      · {{ timeLabel(item.transaction.occurredAt) }}
+                      @if (item.transaction.categoryId) {
+                        ·
+                        <span class="cat-chip">
+                          @if (item.transaction.categoryIcon) {
+                            <span
+                              class="cat-chip-icon"
+                              [style.--cat-swatch]="
+                                colorVar(item.transaction.categoryColor)
+                              "
+                            >
+                              <i
+                                [class]="'pi ' + item.transaction.categoryIcon"
+                                aria-hidden="true"
+                              ></i>
+                            </span>
+                          }
+                          {{ displayCategory(item.transaction) }}
+                        </span>
+                      }
+                      @if (item.transaction.shared) {
+                        · {{ t('activity.sharedMark') }}
+                      }
+                    </p>
+                    @if (item.transaction.description) {
+                      <p class="meta">{{ item.transaction.description }}</p>
+                    }
                   </div>
-                  <p class="meta">
-                    {{ accountName(tx.accountId) }}
-                    @if (tx.type === 'TRANSFER') {
-                      → {{ accountName(tx.counterAccountId) }}
-                    }
-                    · {{ timeLabel(tx.occurredAt) }}
-                    @if (tx.categoryId) {
-                      ·
-                      <span class="cat-chip">
-                        @if (tx.categoryIcon) {
-                          <span
-                            class="cat-chip-icon"
-                            [style.--cat-swatch]="colorVar(tx.categoryColor)"
-                          >
-                            <i
-                              [class]="'pi ' + tx.categoryIcon"
-                              aria-hidden="true"
-                            ></i>
-                          </span>
-                        }
-                        {{ displayCategory(tx) }}
-                      </span>
-                    }
-                    @if (tx.shared) {
-                      · {{ t('activity.sharedMark') }}
-                    }
-                  </p>
-                  @if (tx.description) {
-                    <p class="meta">{{ tx.description }}</p>
-                  }
-                </div>
+                } @else {
+                  <div
+                    class="tx-row checkpoint-row"
+                    role="button"
+                    tabindex="0"
+                    (click)="openCheckpointDialog(item.checkpoint)"
+                    (keydown)="onCheckpointRowKeydown($event, item.checkpoint)"
+                    [attr.aria-label]="t('accounts.editCheckpoint')"
+                  >
+                    <div class="tx-main">
+                      <span class="tx-type" data-type="CHECKPOINT">{{
+                        t('accounts.checkpoint')
+                      }}</span>
+                      <span class="balance money-ltr">{{
+                        formatCheckpointBalance(item.checkpoint)
+                      }}</span>
+                    </div>
+                    <p class="meta">
+                      {{ accountName(item.checkpoint.accountId) }} ·
+                      {{ timeLabel(item.checkpoint.asOf) }}
+                      @if (gapLabel(item.checkpoint); as gap) {
+                        ·
+                        <span
+                          class="gap-chip"
+                          [attr.data-matched]="
+                            item.checkpoint.gapMinor === '0'
+                          "
+                          >{{ gap }}</span
+                        >
+                      }
+                      @if (item.checkpoint.note) {
+                        · {{ item.checkpoint.note }}
+                      }
+                    </p>
+                  </div>
+                }
               </li>
             }
           </ul>
@@ -453,6 +507,60 @@
           (click)="deleteFromEditDialog()"
         >
           {{ t('activity.delete') }}
+        </button>
+      </div>
+    </form>
+  </p-dialog>
+
+  <p-dialog
+    [header]="t('accounts.editCheckpoint')"
+    [modal]="true"
+    [style]="{ width: 'min(28rem, 92vw)' }"
+    [visible]="checkpointDialogVisible()"
+    (visibleChange)="checkpointDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="saveCheckpoint()" class="dialog-form">
+      <p class="meta">{{ accountName(checkpointAccountId) }}</p>
+      <label>
+        {{ t('accounts.checkpointBalance') }}
+        <span class="hint">{{
+          t('accounts.initialBalanceHint', {
+            unit: unitLabel(checkpointAccountCurrency()),
+          })
+        }}</span>
+        <app-amount-input
+          name="checkpointBalanceMinor"
+          [(ngModel)]="checkpointBalanceMinor"
+          [allowNegative]="true"
+          [required]="true"
+        />
+      </label>
+      <label>
+        {{ t('accounts.checkpointAsOf') }}
+        <app-date-time-field
+          name="checkpointAsOf"
+          [(ngModel)]="checkpointAsOf"
+          required
+        />
+      </label>
+      <label>
+        {{ t('accounts.checkpointNote') }}
+        <input
+          pInputText
+          name="checkpointNote"
+          [(ngModel)]="checkpointNote"
+          class="w-full"
+        />
+      </label>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('accounts.saveCheckpoint') }}</button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          (click)="confirmDeleteCheckpoint()"
+        >
+          {{ t('accounts.deleteCheckpoint') }}
         </button>
       </div>
     </form>

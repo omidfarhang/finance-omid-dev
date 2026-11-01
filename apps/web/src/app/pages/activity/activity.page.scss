@@ -202,6 +202,19 @@ label {
   color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
 }
 
+.tx-type[data-type='CHECKPOINT'] {
+  color: var(--app-accent);
+}
+
+.gap-chip {
+  font-weight: 600;
+  color: var(--app-danger, #b42318);
+}
+
+.gap-chip[data-matched='true'] {
+  color: var(--app-success, #027a48);
+}
+
 .balance {
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

@@ -30,7 +30,6 @@ export function toPublicAccount(
     walletId: account.walletId,
     name: account.name,
     currency: account.currency,
-    openingBalanceMinor: minorUnitsToString(account.openingBalanceMinor),
     balanceMinor: minorUnitsToString(balanceMinor),
     isShared: account.isShared,
     members: account.members.map(toPublicAccountMember),

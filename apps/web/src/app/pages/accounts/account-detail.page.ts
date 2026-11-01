@@ -6,6 +6,7 @@ import {
   type CategoryKind,
   type PublicAccount,
   type PublicCategory,
+  type PublicCheckpoint,
   type PublicTransaction,
   type PublicWallet,
 } from '@finance/shared';
@@ -32,6 +33,7 @@ import { formatAppDate, formatAppTime } from '../../core/format-app-date';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
+import { CheckpointsService } from '../../core/checkpoints.service';
 import { groupTransactionsByDay } from '../../core/transaction-day-groups';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
@@ -69,18 +71,24 @@ export class AccountDetailPage implements OnInit {
   allAccounts = signal<PublicAccount[]>([]);
   categories = signal<PublicCategory[]>([]);
   transactions = signal<PublicTransaction[]>([]);
+  checkpoints = signal<PublicCheckpoint[]>([]);
   loading = signal(false);
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   addDialogVisible = signal(false);
   memberDialogVisible = signal(false);
   renameDialogVisible = signal(false);
+  checkpointDialogVisible = signal(false);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
   memberEmail = '';
   renameName = '';
   editingTransactionId: string | null = null;
   editingTransferId: string | null = null;
+  editingCheckpointId: string | null = null;
+  checkpointBalanceMinor = '0';
+  checkpointAsOf = new Date().toISOString();
+  checkpointNote = '';
 
   movementType: 'INCOME' | 'EXPENSE' = 'EXPENSE';
   movementAmount = '';
@@ -100,6 +108,7 @@ export class AccountDetailPage implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly walletsApi = inject(WalletsService);
+  private readonly checkpointsApi = inject(CheckpointsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly locale = inject(LocaleService);
@@ -133,13 +142,15 @@ export class AccountDetailPage implements OnInit {
       accounts: this.walletsApi.listAccounts(),
       categories: this.txApi.listCategories(),
       transactions: this.txApi.listTransactions({ accountId }),
+      checkpoints: this.checkpointsApi.listForAccount(accountId),
     }).subscribe({
-      next: ({ wallets, accounts, categories, transactions }) => {
+      next: ({ wallets, accounts, categories, transactions, checkpoints }) => {
         const account = accounts.find((item) => item.id === accountId) ?? null;
         this.account.set(account);
         this.allAccounts.set(accounts);
         this.categories.set(categories);
         this.transactions.set(transactions);
+        this.checkpoints.set(checkpoints);
         this.wallet.set(
           account
             ? (wallets.find((w) => w.id === account.walletId) ?? null)
@@ -196,6 +207,103 @@ export class AccountDetailPage implements OnInit {
     this.renameDialogVisible.set(true);
   }
 
+  openCheckpointDialog(cp?: PublicCheckpoint) {
+    if (cp) {
+      this.editingCheckpointId = cp.id;
+      this.checkpointBalanceMinor = cp.balanceMinor;
+      this.checkpointAsOf = cp.asOf;
+      this.checkpointNote = cp.note ?? '';
+    } else {
+      this.editingCheckpointId = null;
+      this.checkpointBalanceMinor = '0';
+      this.checkpointAsOf = new Date().toISOString();
+      this.checkpointNote = '';
+    }
+    this.checkpointDialogVisible.set(true);
+  }
+
+  saveCheckpoint() {
+    const account = this.account();
+    if (!account) {
+      return;
+    }
+    if (!/^-?\d+$/.test(this.checkpointBalanceMinor.trim())) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialBalance'));
+      return;
+    }
+    if (!this.checkpointAsOf) {
+      this.error.set(this.i18n.translate('accounts.invalidInitialAsOf'));
+      return;
+    }
+    this.error.set(null);
+    this.message.set(null);
+    const payload = {
+      asOf: new Date(this.checkpointAsOf).toISOString(),
+      balanceMinor: this.checkpointBalanceMinor.trim(),
+      note: this.checkpointNote.trim() || null,
+    };
+    const req = this.editingCheckpointId
+      ? this.checkpointsApi.update(this.editingCheckpointId, payload)
+      : this.checkpointsApi.create(account.id, payload);
+    req.subscribe({
+      next: () => {
+        this.message.set(
+          this.i18n.translate(
+            this.editingCheckpointId
+              ? 'accounts.checkpointUpdated'
+              : 'accounts.checkpointCreated',
+          ),
+        );
+        this.checkpointDialogVisible.set(false);
+        this.reload();
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.error.set(
+          err.error?.message ??
+            this.i18n.translate('accounts.checkpointSaveFailed'),
+        );
+      },
+    });
+  }
+
+  confirmDeleteCheckpoint(cp: PublicCheckpoint) {
+    this.confirm.confirm({
+      message: this.i18n.translate('accounts.confirmDeleteCheckpoint'),
+      header: this.i18n.translate('accounts.deleteCheckpoint'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.checkpointsApi.remove(cp.id).subscribe({
+          next: () => {
+            this.message.set(
+              this.i18n.translate('accounts.checkpointDeleted'),
+            );
+            this.checkpointDialogVisible.set(false);
+            this.reload();
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.error.set(
+              err.error?.message ??
+                this.i18n.translate('accounts.checkpointDeleteFailed'),
+            );
+          },
+        });
+      },
+    });
+  }
+
+  deleteCheckpointFromDialog() {
+    const id = this.editingCheckpointId;
+    if (!id) {
+      return;
+    }
+    const cp = this.checkpoints().find((row) => row.id === id);
+    if (!cp) {
+      return;
+    }
+    this.confirmDeleteCheckpoint(cp);
+  }
+
   saveRename() {
     const account = this.account();
     const name = this.renameName.trim();
@@ -249,6 +357,13 @@ export class AccountDetailPage implements OnInit {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       this.openEditDialog(tx);
+    }
+  }
+
+  onCheckpointRowKeydown(event: KeyboardEvent, cp: PublicCheckpoint) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openCheckpointDialog(cp);
     }
   }
 
@@ -446,10 +561,10 @@ export class AccountDetailPage implements OnInit {
     );
   }
 
-  formatOpening(account: PublicAccount): string {
+  formatCheckpointBalance(minor: string, currency: string): string {
     return formatBalanceMinor(
-      account.openingBalanceMinor,
-      account.currency,
+      minor,
+      currency,
       this.moneyDisplay.showToman(),
       {
         toman: this.i18n.translate('accounts.toman'),
@@ -458,6 +573,18 @@ export class AccountDetailPage implements OnInit {
       },
       this.locale.activeLang(),
     );
+  }
+
+  gapLabel(cp: PublicCheckpoint, currency: string): string | null {
+    if (cp.gapMinor === null) {
+      return null;
+    }
+    if (cp.gapMinor === '0') {
+      return this.i18n.translate('accounts.gapMatched');
+    }
+    return this.i18n.translate('accounts.gapAmount', {
+      amount: this.formatCheckpointBalance(cp.gapMinor, currency),
+    });
   }
 
   dayLabel(sampleIso: string): string {

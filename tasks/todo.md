@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Balance checkpoints replace opening balance (detection-only gaps; account detail + Activity) ([docs/plans/balance-checkpoints.md](../docs/plans/balance-checkpoints.md), [DEC-017](../docs/decisions/DEC-017-balance-checkpoints.md))
 - Activity category filter (`categoryId` on list API + Activity select) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Activity custom date range filter (from/to via shared date-time field) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Accounts UI / UX full pass: surface panels, skeletons, ledger parity with Activity, rename + remove member, admin-as-user list chrome ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/wallets-accounts.md](../docs/plans/wallets-accounts.md))

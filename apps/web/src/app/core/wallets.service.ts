@@ -38,7 +38,8 @@ export class WalletsService {
     walletId: string;
     name: string;
     currency: string;
-    openingBalanceMinor: string;
+    initialBalanceMinor: string;
+    initialBalanceAsOf: string;
     isShared: boolean;
   }): Observable<PublicAccount> {
     return this.http

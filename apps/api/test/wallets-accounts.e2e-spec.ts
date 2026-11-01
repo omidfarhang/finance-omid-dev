@@ -63,14 +63,15 @@ describe('Wallets and accounts (e2e)', () => {
         walletId,
         name: 'Cash',
         currency: 'irr',
-        openingBalanceMinor: '250000',
+        initialBalanceMinor: '250000',
+        initialBalanceAsOf: '2026-01-01T00:00:00.000Z',
         isShared: true,
       })
       .expect(201);
 
     const account = accountRes.body.account;
     expect(account.currency).toBe('IRR');
-    expect(account.openingBalanceMinor).toBe('250000');
+    expect(account.openingBalanceMinor).toBeUndefined();
     expect(account.balanceMinor).toBe('250000');
     expect(account.isShared).toBe(true);
 

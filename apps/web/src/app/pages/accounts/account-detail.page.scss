@@ -143,6 +143,31 @@ label {
   font-weight: 600;
 }
 
+.checkpoint-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.checkpoint-heading {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
+}
+
+.gap-chip {
+  font-weight: 600;
+  color: var(--app-danger, #b42318);
+}
+
+.gap-chip[data-matched='true'] {
+  color: var(--app-success, #027a48);
+}
+
+.tx-type[data-type='CHECKPOINT'] {
+  color: var(--app-accent);
+}
+
 .day-group {
   display: grid;
   gap: 0.65rem;
