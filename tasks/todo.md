@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Activity custom date range filter (from/to via shared date-time field) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Accounts UI / UX full pass: surface panels, skeletons, ledger parity with Activity, rename + remove member, admin-as-user list chrome ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/wallets-accounts.md](../docs/plans/wallets-accounts.md))
 - Activity ledger UX pass: surface panels, live filters (range/account/type) + search, period summary, day groups, clickable rows / delete in edit dialog ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Iranian-first currency UI allowlist + searchable pickers; `Intl.DisplayNames` labels as `Name (CODE)`; API stays any ISO 4217 ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display, [docs/plans/wallets-accounts.md](../docs/plans/wallets-accounts.md), [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md))

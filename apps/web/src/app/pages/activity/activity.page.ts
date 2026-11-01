@@ -42,7 +42,7 @@ import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amoun
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
 import { groupTransactionsByDay } from '../../core/transaction-day-groups';
 
-type RangeKey = 'all' | '30d' | 'month';
+type RangeKey = 'all' | '30d' | 'month' | 'custom';
 type TypeFilterKey = '' | TransactionType;
 
 type CurrencySummary = {
@@ -86,6 +86,8 @@ export class ActivityPage implements OnInit, OnDestroy {
   transferDialogVisible = signal(false);
   editingTransactionId: string | null = null;
   range: RangeKey = '30d';
+  customFrom = '';
+  customTo = '';
   filterAccountId = '';
   filterType: TypeFilterKey = '';
   searchDraft = '';
@@ -131,6 +133,10 @@ export class ActivityPage implements OnInit, OnDestroy {
     {
       label: this.i18n.translate('activity.rangeMonth'),
       value: 'month' as const,
+    },
+    {
+      label: this.i18n.translate('activity.rangeCustom'),
+      value: 'custom' as const,
     },
   ]);
 
@@ -224,6 +230,30 @@ export class ActivityPage implements OnInit, OnDestroy {
 
   onServerFiltersChange() {
     this.reload();
+  }
+
+  onRangeChange() {
+    if (this.range === 'custom') {
+      this.ensureCustomRangeDefaults();
+    }
+    this.reload();
+  }
+
+  onCustomRangeChange() {
+    if (this.range !== 'custom') {
+      return;
+    }
+    this.reload();
+  }
+
+  customFromMaxUnix(): number | null {
+    const to = this.parseIsoMs(this.customTo);
+    return to ?? null;
+  }
+
+  customToMinUnix(): number | null {
+    const from = this.parseIsoMs(this.customFrom);
+    return from ?? null;
   }
 
   filtersNarrowed(): boolean {
@@ -563,11 +593,51 @@ export class ActivityPage implements OnInit, OnDestroy {
       from.setDate(from.getDate() - 30);
       return { from: from.toISOString(), to: now.toISOString() };
     }
+    if (range === 'custom') {
+      const fromMs = this.parseIsoMs(this.customFrom);
+      const toMs = this.parseIsoMs(this.customTo);
+      if (fromMs === null || toMs === null) {
+        return {};
+      }
+      if (fromMs > toMs) {
+        return {
+          from: new Date(toMs).toISOString(),
+          to: new Date(fromMs).toISOString(),
+        };
+      }
+      return {
+        from: new Date(fromMs).toISOString(),
+        to: new Date(toMs).toISOString(),
+      };
+    }
     const bounds = currentMonthBounds(
       now,
       this.calendarPref.calendar(),
       this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
     );
     return { from: bounds.fromIso, to: now.toISOString() };
+  }
+
+  private ensureCustomRangeDefaults() {
+    if (this.customFrom && this.customTo) {
+      return;
+    }
+    const now = new Date();
+    const from = new Date(now);
+    from.setDate(from.getDate() - 30);
+    if (!this.customFrom) {
+      this.customFrom = from.toISOString();
+    }
+    if (!this.customTo) {
+      this.customTo = now.toISOString();
+    }
+  }
+
+  private parseIsoMs(value: string): number | null {
+    if (!value) {
+      return null;
+    }
+    const ms = Date.parse(value);
+    return Number.isNaN(ms) ? null : ms;
   }
 }
