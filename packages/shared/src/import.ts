@@ -6,6 +6,8 @@ export type ImportAdapterId = z.infer<typeof importAdapterIdSchema>;
 export const publicImportAdapterSchema = z.object({
   id: importAdapterIdSchema,
   label: z.string(),
+  /** Public web path to a synthetic sample file for this adapter (e.g. `/samples/generic_csv.csv`). */
+  samplePath: z.string().min(1),
 });
 export type PublicImportAdapter = z.infer<typeof publicImportAdapterSchema>;
 

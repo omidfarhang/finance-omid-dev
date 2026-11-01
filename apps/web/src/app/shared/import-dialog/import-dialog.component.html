@@ -1,0 +1,84 @@
+<p-dialog
+  *transloco="let t"
+  [header]="t('importPage.title')"
+  [modal]="true"
+  [style]="{ width: 'min(28rem, 92vw)' }"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+>
+  @if (formError()) {
+    <p-message severity="error" class="block dialog-error">{{
+      formError()
+    }}</p-message>
+  }
+
+  @if (result(); as result) {
+    <p-message severity="success" class="block dialog-error">
+      {{
+        t('importPage.result', {
+          created: result.created,
+          skipped: result.skippedDuplicate,
+        })
+      }}
+    </p-message>
+    <div class="dialog-actions">
+      <button pButton type="button" (click)="close()">
+        {{ t('importPage.done') }}
+      </button>
+    </div>
+  } @else if (accounts().length === 0) {
+    <p class="lede">{{ t('importPage.needAccount') }}</p>
+  } @else if (loadingAdapters()) {
+    <p class="lede">{{ t('importPage.loading') }}</p>
+  } @else {
+    <form (ngSubmit)="submit()" class="dialog-form">
+      @if (!accountLocked()) {
+        <label>
+          {{ t('importPage.account') }}
+          <p-select
+            [options]="accountOptions()"
+            [(ngModel)]="accountId"
+            name="accountId"
+            optionLabel="label"
+            optionValue="value"
+            class="w-full"
+          />
+        </label>
+      }
+      <label>
+        {{ t('importPage.adapter') }}
+        <p-select
+          [options]="adapterOptions()"
+          [ngModel]="adapterId()"
+          (ngModelChange)="adapterId.set($event)"
+          name="adapterId"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </label>
+      <label>
+        {{ t('importPage.file') }}
+        @if (selectedAdapter(); as adapter) {
+          <a
+            class="sample-link"
+            [href]="adapter.samplePath"
+            [download]="sampleDownloadName()"
+          >
+            {{ t('importPage.sampleDownload') }}
+          </a>
+        }
+        <input
+          type="file"
+          accept=".csv,text/csv"
+          (change)="onFileChange($event)"
+        />
+      </label>
+      <div class="dialog-actions">
+        <button pButton type="submit" [disabled]="submitting()">
+          {{ t('importPage.submit') }}
+        </button>
+      </div>
+    </form>
+  }
+</p-dialog>

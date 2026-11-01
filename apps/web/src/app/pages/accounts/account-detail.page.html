@@ -24,6 +24,14 @@
           pButton
           type="button"
           severity="secondary"
+          (click)="openImportDialog()"
+        >
+          {{ t('activity.import') }}
+        </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
           (click)="openCheckpointDialog()"
         >
           {{ t('accounts.recordBalance') }}
@@ -130,6 +138,14 @@
         <div class="empty-actions">
           <button pButton type="button" (click)="openAddDialog()">
             {{ t('activity.add') }}
+          </button>
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            (click)="openImportDialog()"
+          >
+            {{ t('activity.import') }}
           </button>
           <a routerLink="/activity" pButton severity="secondary">{{
             t('accounts.activityLink')
@@ -248,6 +264,13 @@
     [categories]="categories()"
     [defaultAccountId]="account()?.id ?? null"
     (saved)="onMovementSaved($event)"
+  />
+
+  <app-import-dialog
+    [(visible)]="importDialogVisible"
+    [accounts]="allAccounts()"
+    [fixedAccountId]="account()?.id ?? null"
+    (imported)="onImported($event)"
   />
 
   <p-dialog

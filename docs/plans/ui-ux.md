@@ -7,7 +7,7 @@ Product UI information architecture and interaction patterns for the Angular PWA
 ## Goals
 
 1. Feel like a **personal finance app**, not a broken admin console of stacked forms.
-2. Give every MVP workflow a **dedicated place** in the sitemap (home, activity, accounts, import, outlook, settings, admin).
+2. Give every MVP workflow a **dedicated place** in the sitemap (home, activity, accounts, outlook, settings, admin) or a clear dialog entry (import).
 3. Make the daily landing a **hybrid home**: balance boxes, recent movements with an Add dialog, and a short next-month outlook.
 4. Keep **actuals distinct from projections** in layout and labeling.
 5. Keep **instance admin** visually and structurally separate from personal money workflows.
@@ -59,10 +59,9 @@ Two shells ([DEC-011](../decisions/DEC-011-ui-ia.md)):
 | Route | Purpose |
 | --- | --- |
 | `/` | Hybrid home (balance boxes + recent log / Add + outlook strip) |
-| `/activity` | Ledger list + time-range filters; full add/edit entry |
+| `/activity` | Ledger list + time-range filters; Add + Import dialogs |
 | `/accounts` | Wallets → accounts hierarchy and balances |
-| `/accounts/:accountId` | Account detail, movements, shared members |
-| `/import` | Statement upload, adapter choice, dedup feedback |
+| `/accounts/:accountId` | Account detail, movements, shared members; Import dialog (account fixed) |
 | `/outlook` | Next-month forecast detail (home shows summary only) |
 | `/settings` | Settings shell; redirects to `/settings/profile` |
 | `/settings/profile` | Display name, locale/timezone/calendar, theme, money display; sign-out on shell |
@@ -90,7 +89,6 @@ flowchart TB
     activity[activity]
     accounts[accounts]
     accountDetail[account_detail]
-    importPage[import]
     outlook[outlook]
     settings[settings]
     support[support]
@@ -111,16 +109,16 @@ flowchart TB
 
 ### Primary navigation (App)
 
-**Home · Activity · Accounts · Import · Outlook**
+**Home · Activity · Accounts · Outlook**
 
-Settings, Support, Sign out, and **Admin** (when `ADMIN`) live in the **user menu** — not as equal top-level primary destinations beside Status. Language switching for authenticated users is only on Settings; the Guest shell keeps the language control for login/register.
+Settings, Support, Sign out, and **Admin** (when `ADMIN`) live in the **user menu** — not as equal top-level primary destinations beside Status. Language switching for authenticated users is only on Settings; the Guest shell keeps the language control for login/register. Statement **Import** is not primary nav — it opens as a dialog from Activity and Account detail.
 
 **Chrome layout (responsive):**
 
 | Viewport | Layout |
 | --- | --- |
 | Wide (desktop) | Vertical rail at the **inline-start** (LTR: left; RTL: right): brand at top, primary links (icon + label), **user menu pinned at the rail foot**. No App top bar. |
-| Narrow (mobile) | Fixed **bottom bar**: the five primary destinations (icon + short label) plus a compact **user menu** control at the trailing end. No App top bar. |
+| Narrow (mobile) | Fixed **bottom bar**: the four primary destinations (icon + short label) plus a compact **user menu** control at the trailing end. No App top bar. |
 
 Primary labels and order stay the same across breakpoints. Do not invent extra primary destinations without updating this plan.
 
@@ -154,8 +152,8 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 - Filters (live — no Apply): time range (All / Last 30 days / This month / **Custom** with from–to `app-date-time-field`s, user calendar + timezone), account, type (All / Income / Expense / Transfer), **category** (All or one category; options narrow to the selected type when type ≠ All). Client-side **search** filters the loaded result by description, category label, and account names.
 - **Period summary** panel (per currency, from the visible filtered **movements** only): Income, Expense, Net (income−expense). Transfers never enter net; show a separate Transfers total when type is All or Transfer. Checkpoints are **not** counted. No cross-currency totals.
 - List: day-grouped by user calendar + timezone ([DEC-013](../decisions/DEC-013-calendar-preference.md)); newest day first. Movement rows show type (income/expense color cues), amount, account (→ counter for transfers), time, category chip, shared mark, description. **Checkpoint rows** are distinct non-transaction markers (recorded balance, optional note, gap chip when non-zero; account name when viewing all accounts); click → edit checkpoint ([balance-checkpoints.md](balance-checkpoints.md)).
-- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); **click/tap movement row** opens type-specific edit (amount + metadata). Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
-- Empty: “No movements yet” + CTA to add and/or import. Distinct copy when filters/search yield no rows.
+- Primary actions: **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); **Import** (next to Add) opens the shared import dialog with account picker; **click/tap movement row** opens type-specific edit (amount + metadata). Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
+- Empty: “No movements yet” + CTA to add and/or import (same Import dialog). Distinct copy when filters/search yield no rows.
 - Must not mix unlabeled forecast rows into this list.
 
 ### Accounts (`/accounts`)
@@ -175,14 +173,16 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 - Visual language: **surface panels** for Balance, Movements, and Members (when shared); skeletons while loading; same max-width rhythm as Accounts/Activity.
 - **Balance** panel: large current balance + copy that balance is the **latest known balance** plus later movements; checkpoint history (as-of, recorded balance, gap badge); add / edit / delete checkpoint dialogs ([balance-checkpoints.md](balance-checkpoints.md)). Currency chrome as `Name (CODE)`; Shared badge in the header lede.
 - **Movements** panel: day-grouped by user calendar + timezone (same helper as Activity); newest day first. Rows show type (income/expense color cues), amount, transfer counter direction relative to this account, time, category chip, shared mark, description. **Click/tap row** opens type-specific edit; Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
-- Empty movements: one sentence + primary **Add** (+ optional link to `/activity`).
-- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Rename** opens a dialog that PATCHes name only (currency immutable); **Record balance** opens checkpoint create; when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).
+- Empty movements: one sentence + primary **Add** / **Import** (+ optional link to `/activity`).
+- Primary actions: **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Import** (next to Add) opens the shared import dialog with this account fixed (no account picker); **Rename** opens a dialog that PATCHes name only (currency immutable); **Record balance** opens checkpoint create; when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).
 
-### Import (`/import`)
+### Import (dialog)
 
-- Purpose: upload statement; choose adapter (generic/synthetic first); confirm units when ambiguous (never silent rial/toman).
-- After upload: show created count and skipped-duplicate count ([mvp.md](mvp.md) acceptance).
-- Empty / first visit: short explanation + file picker.
+- Purpose: upload statement; choose adapter (generic/synthetic first); confirm units when ambiguous (never silent rial/toman). Not a primary-nav route — opened from Activity and Account detail ([imports.md](imports.md)).
+- From Activity: account picker shown. From Account detail: account is fixed; picker hidden.
+- Offer a downloadable synthetic sample CSV for the **selected** adapter (`samplePath` from the adapters API; no column-format hint text).
+- After upload: show created count and skipped-duplicate count ([mvp.md](mvp.md) acceptance); parent refreshes the ledger.
+- Legacy `/import` redirects to `/activity`.
 
 ### Outlook (`/outlook`)
 
@@ -269,7 +269,7 @@ Document in implementation, do not rebrand:
 | Same-currency transfers | Shared Add dialog (Home, Activity, Account detail) |
 | Shared mark on personal expense | Shared Add expense + edit forms |
 | Categories (typed, required; icons + colors) | Add/edit fields on shared Add / Activity edit / account detail edit (all movement types); manage lists in `/settings/categories` |
-| CSV import + dedup | `/import` |
+| CSV import + dedup | Import dialog (Activity + Account detail) |
 | Recurring rules | Managed on `/outlook` (list + dialog) |
 | Next-month forecast | Home strip + `/outlook` |
 | Wallets/accounts (done API) | `/accounts`, `/accounts/:accountId` |
@@ -280,7 +280,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 
 ## Acceptance criteria (“feels like an app”)
 
-- Authenticated users see App primary nav (Home, Activity, Accounts, Import, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users.
+- Authenticated users see App primary nav (Home, Activity, Accounts, Outlook) as a start-side vertical rail on wide viewports and as an icon+label bottom bar on narrow viewports, with the user menu in the rail foot / bottom-bar trailing end (no App top bar), and land on `/` after login. Language switcher appears on Guest shell only; Settings holds language for signed-in users. Import is a dialog from Activity / Account detail, not primary nav.
 - Hybrid home shows surface-panel balance boxes (from available APIs), a recent income/expense log with a shared Add dialog (SelectButton for income/expense/transfer; not an inline form), and an outlook strip with per-currency income/expense/surplus; wide layout places Recent and Outlook side-by-side; loading uses skeletons.
 - List pages (Accounts, Activity, Admin users) do **not** permanently show create forms inline under the list; create uses dialog/drawer/route.
 - Status is not in primary nav.

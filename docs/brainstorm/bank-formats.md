@@ -6,7 +6,7 @@ Anonymized column layouts only. **Never** commit real statements, account number
 
 | Adapter | Notes |
 | --- | --- |
-| `generic_csv` | See [imports.md](../plans/imports.md). Columns: `date`, `amount`, `type`, `unit=minor`, optional `description`, `external_id`. Fixture: `apps/api/test/fixtures/generic-statement.csv`. |
+| `generic_csv` | See [imports.md](../plans/imports.md). Columns: `date`, `amount`, `type`, `unit=minor`, optional `description`, `external_id`. Fixture: `apps/api/test/fixtures/generic-statement.csv`. UI sample: `apps/web/public/samples/generic_csv.csv`. |
 
 ## Banks to document (fill in)
 

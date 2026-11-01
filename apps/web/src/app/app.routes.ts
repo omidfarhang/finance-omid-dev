@@ -9,7 +9,6 @@ import { ActivityPage } from './pages/activity/activity.page';
 import { AdminPage } from './pages/admin/admin.page';
 import { AdminUserPage } from './pages/admin/admin-user.page';
 import { HomePage } from './pages/home/home.page';
-import { ImportPage } from './pages/import/import.page';
 import { LoginPage } from './pages/login/login.page';
 import { OutlookPage } from './pages/outlook/outlook.page';
 import { RegisterPage } from './pages/register/register.page';
@@ -53,7 +52,7 @@ export const routes: Routes = [
       { path: 'activity', component: ActivityPage },
       { path: 'accounts', component: AccountsPage },
       { path: 'accounts/:accountId', component: AccountDetailPage },
-      { path: 'import', component: ImportPage },
+      { path: 'import', redirectTo: 'activity', pathMatch: 'full' },
       { path: 'outlook', component: OutlookPage },
       {
         path: 'settings',

@@ -32,7 +32,6 @@ export class AppShellComponent {
     { path: '/', labelKey: 'app.nav.home', icon: 'home', exact: true },
     { path: '/activity', labelKey: 'app.nav.activity', icon: 'activity' },
     { path: '/accounts', labelKey: 'app.nav.accounts', icon: 'accounts' },
-    { path: '/import', labelKey: 'app.nav.import', icon: 'import' },
     { path: '/outlook', labelKey: 'app.nav.outlook', icon: 'outlook' },
   ];
 }

@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import {
   DEFAULT_BOUNDS_TIME_ZONE,
   currentMonthBounds,
   type CategoryKind,
+  type ImportResult,
   type PublicAccount,
   type PublicCategory,
   type PublicCheckpoint,
@@ -43,6 +43,7 @@ import {
 } from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
+import { ImportDialogComponent } from '../../shared/import-dialog/import-dialog.component';
 
 type RangeKey = 'all' | '30d' | 'month' | 'custom';
 type TypeFilterKey = '' | TransactionType;
@@ -62,8 +63,8 @@ type CurrencySummary = {
     AddMovementDialogComponent,
     AppAmountInputComponent,
     AppDateTimeFieldComponent,
+    ImportDialogComponent,
     FormsModule,
-    RouterLink,
     ButtonDirective,
     Checkbox,
     Dialog,
@@ -85,6 +86,7 @@ export class ActivityPage implements OnInit, OnDestroy {
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   addDialogVisible = signal(false);
+  importDialogVisible = signal(false);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
   checkpointDialogVisible = signal(false);
@@ -394,6 +396,10 @@ export class ActivityPage implements OnInit, OnDestroy {
     this.addDialogVisible.set(true);
   }
 
+  openImportDialog() {
+    this.importDialogVisible.set(true);
+  }
+
   onMovementSaved(event: AddMovementSavedEvent) {
     this.message.set(
       event.type === 'TRANSFER'
@@ -401,6 +407,17 @@ export class ActivityPage implements OnInit, OnDestroy {
         : this.i18n.translate('activity.created'),
     );
     this.error.set(event.recurringWarning ?? null);
+    this.reload();
+  }
+
+  onImported(result: ImportResult) {
+    this.message.set(
+      this.i18n.translate('importPage.result', {
+        created: result.created,
+        skipped: result.skippedDuplicate,
+      }),
+    );
+    this.error.set(null);
     this.reload();
   }
 

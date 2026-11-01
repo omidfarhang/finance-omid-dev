@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type AppNavIcon = 'home' | 'activity' | 'accounts' | 'import' | 'outlook';
+export type AppNavIcon = 'home' | 'activity' | 'accounts' | 'outlook';
 
 @Component({
   selector: 'app-nav-icon',

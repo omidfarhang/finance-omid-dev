@@ -8,7 +8,11 @@ import { parseGenericCsv } from './generic-csv.adapter';
 import { toPublicImportBatch } from './imports.mapper';
 
 const ADAPTERS: PublicImportAdapter[] = [
-  { id: 'generic_csv', label: 'Generic CSV (synthetic)' },
+  {
+    id: 'generic_csv',
+    label: 'Generic CSV (synthetic)',
+    samplePath: '/samples/generic_csv.csv',
+  },
 ];
 
 @Injectable()

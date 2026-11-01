@@ -16,7 +16,7 @@ Early UI grew as API-slice forms (top bar + always-visible create fields). There
 ## Decision
 
 - Authenticated daily landing is **`/` hybrid home** (per-currency balances, quick income/expense add, labeled outlook strip). Post-login goes to `/`, not profile.
-- **App shell** primary nav: Home · Activity · Accounts · Import · Outlook. Settings, Support, Sign out, and Admin (if role) live in a **user menu** (signed-in name). Language control is Guest-shell / Settings only — not in the authenticated toolbar. Status/health is not primary nav.
+- **App shell** primary nav: Home · Activity · Accounts · Outlook. Settings, Support, Sign out, and Admin (if role) live in a **user menu** (signed-in name). Language control is Guest-shell / Settings only — not in the authenticated toolbar. Status/health is not primary nav. Statement import is a **dialog** opened from Activity and Account detail (not a primary-nav peer).
 - **Admin shell** is separate; managing another user’s money requires an acting-as context banner and dedicated `/admin/...` routes ([DEC-010](DEC-010-instance-admin.md)).
 - List pages prioritize data and actions; create/edit use dialog, drawer, or sub-route.
 - Visual direction stays current (Aura, blue accent / neutral gray grounds, existing fonts); IA is the corrective change, not a rebrand.
@@ -30,4 +30,4 @@ Early UI grew as API-slice forms (top bar + always-visible create fields). There
 
 ## Revisit when
 
-Evidence that hybrid home is the wrong daily default (e.g. users only ever open Activity), or that Admin must be fully embedded in App chrome for a multi-tenant product.
+Evidence that hybrid home is the wrong daily default (e.g. users only ever open Activity), or that Admin must be fully embedded in App chrome for a multi-tenant product. Import returned to a dedicated primary destination if dialog entry from Activity / Account detail proves too hidden.

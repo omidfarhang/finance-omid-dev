@@ -1,6 +1,6 @@
 # Slice: Statement import and deduplication
 
-Pluggable CSV import for MVP. Product rules: [DEC-012](../decisions/DEC-012-import-adapters.md), [DEC-006](../decisions/DEC-006-money-multi-currency.md). Depends on [transactions.md](transactions.md). Parent: [mvp.md](mvp.md). UI: [ui-ux.md](ui-ux.md) `/import`.
+Pluggable CSV import for MVP. Product rules: [DEC-012](../decisions/DEC-012-import-adapters.md), [DEC-006](../decisions/DEC-006-money-multi-currency.md). Depends on [transactions.md](transactions.md). Parent: [mvp.md](mvp.md). UI: [ui-ux.md](ui-ux.md) import dialog.
 
 ## Goals
 
@@ -51,16 +51,16 @@ Normalized description: trim + collapse internal whitespace. Key is scoped by un
 
 | Route | Behavior |
 | --- | --- |
-| `GET /imports/adapters` | List adapter ids + labels (at least `generic_csv`) |
+| `GET /imports/adapters` | List adapter ids + labels + `samplePath` (at least `generic_csv`) |
 | `POST /imports` | `multipart/form-data`: `file`, `accountId`, `adapterId` → `{ batch, created, skippedDuplicate }` |
 
 User must be a member of `accountId`. Created rows are `INCOME`/`EXPENSE` only, each with `categoryId` set to Uncategorized for that kind (seed defaults if missing).
 
-## UI (`/import`)
+## UI (import dialog)
 
-- Choose account, choose adapter, upload file
-- Show result counts; link to Activity / account detail
-- Empty state until first successful import
+- Shared dialog opened from **Activity** (header Import next to Add; account picker shown) and **Account detail** (Import next to Add; account fixed to that account — no account picker)
+- Choose adapter, upload file; each adapter exposes a **`samplePath`** (synthetic fixture under web `/samples/`) — the dialog’s download link follows the **selected** adapter
+- Show created / skipped-duplicate counts after success; parent list refreshes on success; legacy `/import` redirects to Activity
 
 ## Acceptance
 

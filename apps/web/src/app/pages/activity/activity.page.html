@@ -9,6 +9,14 @@
         <button pButton type="button" (click)="openAddDialog()">
           {{ t('activity.add') }}
         </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          (click)="openImportDialog()"
+        >
+          {{ t('activity.import') }}
+        </button>
       }
     </div>
   </header>
@@ -173,11 +181,16 @@
           <button pButton type="button" (click)="openAddDialog()">
             {{ t('activity.add') }}
           </button>
-        }
-        @if (!filtersNarrowed()) {
-          <a routerLink="/import" pButton severity="secondary">{{
-            t('activity.importLink')
-          }}</a>
+          @if (!filtersNarrowed()) {
+            <button
+              pButton
+              type="button"
+              severity="secondary"
+              (click)="openImportDialog()"
+            >
+              {{ t('activity.import') }}
+            </button>
+          }
         }
       </div>
     </section>
@@ -348,6 +361,12 @@
     [accounts]="accounts()"
     [categories]="categories()"
     (saved)="onMovementSaved($event)"
+  />
+
+  <app-import-dialog
+    [(visible)]="importDialogVisible"
+    [accounts]="accounts()"
+    (imported)="onImported($event)"
   />
 
   <p-dialog

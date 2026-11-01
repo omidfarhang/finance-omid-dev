@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   DEFAULT_BOUNDS_TIME_ZONE,
   type CategoryKind,
+  type ImportResult,
   type PublicAccount,
   type PublicCategory,
   type PublicCheckpoint,
@@ -43,6 +44,7 @@ import {
 } from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
+import { ImportDialogComponent } from '../../shared/import-dialog/import-dialog.component';
 
 @Component({
   selector: 'app-account-detail-page',
@@ -51,6 +53,7 @@ import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-
     AddMovementDialogComponent,
     AppAmountInputComponent,
     AppDateTimeFieldComponent,
+    ImportDialogComponent,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -76,6 +79,7 @@ export class AccountDetailPage implements OnInit {
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   addDialogVisible = signal(false);
+  importDialogVisible = signal(false);
   memberDialogVisible = signal(false);
   renameDialogVisible = signal(false);
   checkpointDialogVisible = signal(false);
@@ -184,6 +188,10 @@ export class AccountDetailPage implements OnInit {
     this.addDialogVisible.set(true);
   }
 
+  openImportDialog() {
+    this.importDialogVisible.set(true);
+  }
+
   onMovementSaved(event: AddMovementSavedEvent) {
     this.message.set(
       event.type === 'TRANSFER'
@@ -191,6 +199,17 @@ export class AccountDetailPage implements OnInit {
         : this.i18n.translate('activity.created'),
     );
     this.error.set(event.recurringWarning ?? null);
+    this.reload();
+  }
+
+  onImported(result: ImportResult) {
+    this.message.set(
+      this.i18n.translate('importPage.result', {
+        created: result.created,
+        skipped: result.skippedDuplicate,
+      }),
+    );
+    this.error.set(null);
     this.reload();
   }
 
