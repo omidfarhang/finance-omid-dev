@@ -24,6 +24,8 @@ Transactions, transfers, imports, recurrings, FX, cross-currency totals, rich ho
 
 JSON money fields are **digit strings** (integer minor units). Prisma stores `BigInt`. No silent rial/toman inference; IRR toman is UI presentation only (`÷ 10`).
 
+Currency on create is any valid ISO 4217 code at the API/schema layer. The web UI offers a fixed Iranian-first searchable allowlist (`IRR, USD, EUR, GBP, AED, TRY, CAD, AUD, CHF, JPY`) and labels via `Intl.DisplayNames` as `Name (CODE)` — see [ui-ux.md](ui-ux.md) Money display. Expanding the picker does not require API or database changes.
+
 ## API (`/api/v1`)
 
 | Area | Routes |

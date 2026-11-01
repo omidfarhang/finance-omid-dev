@@ -5,7 +5,7 @@
       @if (account(); as account) {
         <h1>{{ account.name }}</h1>
         <p class="lede">
-          {{ wallet()?.name ?? t('accounts.sharedWithYou') }} · {{ account.currency }}
+          {{ wallet()?.name ?? t('accounts.sharedWithYou') }} · {{ currencyName(account.currency) }}
           @if (account.isShared) {
             <span class="badge">{{ t('accounts.shared') }}</span>
           }

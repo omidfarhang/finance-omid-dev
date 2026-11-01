@@ -53,7 +53,7 @@
                 </span>
                 <span class="balance money-ltr">{{ formatBalance(account) }}</span>
               </div>
-              <p class="meta">{{ account.currency }}</p>
+              <p class="meta">{{ currencyName(account.currency) }}</p>
             </li>
           } @empty {
             <li class="lede">{{ t('accounts.noAccounts') }}</li>
@@ -109,11 +109,13 @@
       <label>
         {{ t('accounts.currency') }}
         <p-select
-          [options]="currencies"
+          [options]="currencies()"
           [(ngModel)]="accountCurrency"
           name="accountCurrency"
           optionLabel="label"
           optionValue="value"
+          [filter]="true"
+          filterBy="label,value"
           class="w-full"
         />
       </label>

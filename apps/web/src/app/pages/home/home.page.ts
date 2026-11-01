@@ -18,6 +18,7 @@ import {
   categoryLabel,
 } from '../../core/category-display';
 import { LocaleService } from '../../core/i18n/locale.service';
+import { currencyLabel } from '../../core/currencies';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
@@ -128,6 +129,10 @@ export class HomePage implements OnInit {
         : this.i18n.translate('activity.created'),
     );
     this.reload();
+  }
+
+  currencyName(currency: string): string {
+    return currencyLabel(currency, this.locale.activeLang());
   }
 
   formatBalance(account: PublicAccount): string {

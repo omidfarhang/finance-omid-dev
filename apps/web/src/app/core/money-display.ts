@@ -1,3 +1,4 @@
+import { currencyFractionDigits } from './currencies';
 import { formatAmountInputDigits } from './money-amount-input';
 
 /**
@@ -16,16 +17,32 @@ export function formatBalanceMinor(
   if (currency === 'IRR' && showToman) {
     return `${formatTomanBody(minor, locale)} ${labels.toman}`;
   }
-  return `${formatSignedGrouped(minor, locale)} ${minorUnitLabel(currency, labels)}`;
+  return `${formatSignedGrouped(minor, locale)} ${minorUnitLabel(currency, labels, locale)}`;
 }
 
 export function minorUnitLabel(
   currency: string,
   labels: { rials: string; cents: string },
+  locale = 'en',
 ): string {
   if (currency === 'IRR') return labels.rials;
-  if (currency === 'USD') return labels.cents;
-  return currency;
+  if (currencyFractionDigits(currency, locale) === 0) {
+    // Zero-fraction currencies (e.g. JPY): the minor unit is the currency itself.
+    return zeroFractionUnitName(currency, locale);
+  }
+  return labels.cents;
+}
+
+function zeroFractionUnitName(currency: string, locale: string): string {
+  const normalized = currency.trim().toUpperCase();
+  try {
+    const name = new Intl.DisplayNames([locale], { type: 'currency' }).of(
+      normalized,
+    );
+    return name && name !== normalized ? name : normalized;
+  } catch {
+    return normalized;
+  }
 }
 
 /** Group absolute digits; prefix negatives with LTR mark + `-`. */

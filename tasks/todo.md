@@ -12,6 +12,8 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Iranian-first currency UI allowlist + searchable pickers; `Intl.DisplayNames` labels as `Name (CODE)`; API stays any ISO 4217 ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display, [docs/plans/wallets-accounts.md](../docs/plans/wallets-accounts.md), [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md))
+- Localized currency labels in UI chrome (account boxes, detail, lists, outlook, selects) via Transloco; ISO codes stay on the wire ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display, [DEC-006](../docs/decisions/DEC-006-money-multi-currency.md))
 - Money display: locale thousand separators + RTL-safe minus (LTR isolate) on amounts/opening balances ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display)
 - Amount inputs: locale thousand separators via shared `app-amount-input` ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Money display)
 - Fix Select overlays clipped inside Dialogs (Add dialog categories/accounts): global `overlayAppendTo: 'body'` ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md) Forms)

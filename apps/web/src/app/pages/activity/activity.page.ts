@@ -335,10 +335,14 @@ export class ActivityPage implements OnInit {
   }
 
   unitLabel(currency: string): string {
-    return minorUnitLabel(currency, {
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return minorUnitLabel(
+      currency,
+      {
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
   }
 
   displayCategory(tx: PublicTransaction): string {

@@ -54,7 +54,7 @@
                 <span class="balance money-ltr">{{ formatBalance(account) }}</span>
               </a>
               <p class="meta">
-                {{ account.currency }} ·
+                {{ currencyName(account.currency) }} ·
                 {{ t('accounts.opening') }}:
                 <span class="money-ltr">{{ formatOpening(account) }}</span>
               </p>
@@ -88,7 +88,7 @@
                 <span class="balance money-ltr">{{ formatBalance(account) }}</span>
               </a>
               <p class="meta">
-                {{ account.currency }} ·
+                {{ currencyName(account.currency) }} ·
                 {{ t('accounts.opening') }}:
                 <span class="money-ltr">{{ formatOpening(account) }}</span>
               </p>
@@ -141,11 +141,13 @@
       <label>
         {{ t('accounts.currency') }}
         <p-select
-          [options]="currencies"
+          [options]="currencies()"
           [(ngModel)]="accountCurrency"
           name="accountCurrency"
           optionLabel="label"
           optionValue="value"
+          [filter]="true"
+          filterBy="label,value"
           class="w-full"
         />
       </label>

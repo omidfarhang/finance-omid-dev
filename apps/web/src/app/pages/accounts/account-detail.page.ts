@@ -25,6 +25,7 @@ import {
   defaultCategoryId,
 } from '../../core/category-display';
 import { LocaleService } from '../../core/i18n/locale.service';
+import { currencyLabel } from '../../core/currencies';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { TransactionsService } from '../../core/transactions.service';
@@ -318,6 +319,10 @@ export class AccountDetailPage implements OnInit {
       });
   }
 
+  currencyName(currency: string): string {
+    return currencyLabel(currency, this.locale.activeLang());
+  }
+
   formatBalance(account: PublicAccount): string {
     return formatBalanceMinor(
       account.balanceMinor,
@@ -382,9 +387,13 @@ export class AccountDetailPage implements OnInit {
   }
 
   unitLabel(currency: string): string {
-    return minorUnitLabel(currency, {
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return minorUnitLabel(
+      currency,
+      {
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
   }
 }

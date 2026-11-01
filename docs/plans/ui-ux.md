@@ -207,6 +207,8 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Input/storage: integer minor units as digit strings on the wire.
 - Display: shared formatter with locale thousand separators (`en`: `,`; `fa`: `٬`); currency/unit label visible; IRR may present as **labeled** toman (`÷ 10`) when the user opts in. Money amounts (lists, balances, opening, inputs) use **LTR isolate** so the minus sign stays before the digits in RTL layouts.
+- **Currency in chrome** (account boxes, account detail lede, accounts list meta, outlook per-currency headers/rules, create-account/recurring selects, admin-as-user account meta): show **`Name (CODE)`** via `Intl.DisplayNames` for the active UI locale (e.g. `Euro (EUR)` / `یورو (EUR)`). Transloco is not used for ISO currency names. Unknown codes fall back to the bare code.
+- **Currency pickers** (create account, outlook recurrings, admin-as-user): searchable PrimeNG Select over a fixed Iranian-first **UI allowlist** — `IRR, USD, EUR, GBP, AED, TRY, CAD, AUD, CHF, JPY` — defined in one shared web constant so expansion is configuration-only. API/DB remain any valid ISO 4217 code ([DEC-006](../decisions/DEC-006-money-multi-currency.md)); the allowlist is UI-only.
 - **Amount inputs:** shared `app-amount-input` — typeable digit field with the same locale separators while editing; Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits are accepted on type/paste, counted for caret placement, and normalized to Latin digits in the field and model; model value stays an ungrouped digit string (optional leading `-` only where opening balance allows negatives). Never use binary floating-point inputs for money.
 - **Preference control lives only in Settings** (not on home or other money lists). Preference is local (`localStorage`) for MVP; applies app-wide including admin-as-user views.
 - Same formatter on home, accounts, activity amounts, admin-as-user views.
@@ -271,6 +273,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 - No cross-currency net-worth total anywhere in UI.
 - Forecast copy is labeled as projection wherever shown.
 - `fa` / `en` and RTL continue to work for new chrome ([DEC-009](../decisions/DEC-009-i18n.md)).
+- Account/outlook chrome shows `Name (CODE)` via `Intl.DisplayNames` when the UI language changes; currency pickers are searchable over the Iranian-first UI allowlist.
 - Theme preference Light / Dark / System (default System) applies via Settings icon control and persists on the profile ([DEC-015](../decisions/DEC-015-theme-preference.md)).
 - Settings uses the same surface-panel language as home (profile / categories / security sections).
 

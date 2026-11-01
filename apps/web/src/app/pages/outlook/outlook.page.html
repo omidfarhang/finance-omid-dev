@@ -35,7 +35,7 @@
           @for (row of forecast.currencies; track row.currency) {
             <li>
               <div class="tx-main">
-                <strong>{{ row.currency }}</strong>
+                <strong>{{ currencyName(row.currency) }}</strong>
                 <span class="balance money-ltr">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
               </div>
               <p class="meta">
@@ -61,7 +61,7 @@
           <li>
             <div class="tx-main">
               <span>
-                {{ typeLabel(rule.type) }} · {{ rule.currency }}
+                {{ typeLabel(rule.type) }} · {{ currencyName(rule.currency) }}
                 @if (!rule.active) {
                   <span class="badge">{{ t('outlook.inactive') }}</span>
                 }
@@ -110,11 +110,13 @@
       <label>
         {{ t('accounts.currency') }}
         <p-select
-          [options]="currencies"
+          [options]="currencies()"
           [(ngModel)]="currency"
           name="currency"
           optionLabel="label"
           optionValue="value"
+          [filter]="true"
+          filterBy="label,value"
           class="w-full"
         />
       </label>

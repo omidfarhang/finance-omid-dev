@@ -10,13 +10,16 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
+import {
+  currencyLabel,
+  currencyOptions,
+  type UiCurrency,
+} from '../../core/currencies';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { WalletsService } from '../../core/wallets.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
-
-const CURRENCIES = ['IRR', 'USD'] as const;
 
 @Component({
   selector: 'app-accounts-page',
@@ -37,8 +40,6 @@ const CURRENCIES = ['IRR', 'USD'] as const;
   styleUrl: './accounts.page.scss',
 })
 export class AccountsPage implements OnInit {
-  readonly currencies = CURRENCIES.map((code) => ({ label: code, value: code }));
-
   wallets = signal<PublicWallet[]>([]);
   accounts = signal<PublicAccount[]>([]);
   loading = signal(false);
@@ -50,9 +51,18 @@ export class AccountsPage implements OnInit {
   walletName = 'Personal';
   accountWalletId = '';
   accountName = '';
-  accountCurrency: (typeof CURRENCIES)[number] = 'IRR';
+  accountCurrency: UiCurrency = 'IRR';
   openingBalanceMinor = '0';
   isShared = false;
+
+  private readonly walletsApi = inject(WalletsService);
+  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
+  private readonly i18n = inject(TranslocoService);
+
+  readonly currencies = computed(() =>
+    currencyOptions(this.locale.activeLang()),
+  );
 
   readonly accountsByWallet = computed(() => {
     const map = new Map<string, PublicAccount[]>();
@@ -67,11 +77,6 @@ export class AccountsPage implements OnInit {
   readonly walletOptions = computed(() =>
     this.wallets().map((w) => ({ label: w.name, value: w.id })),
   );
-
-  private readonly walletsApi = inject(WalletsService);
-  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
-  private readonly locale = inject(LocaleService);
-  private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
     this.reload();
@@ -183,6 +188,10 @@ export class AccountsPage implements OnInit {
     return this.accounts().filter((a) => !owned.has(a.walletId));
   }
 
+  currencyName(currency: string): string {
+    return currencyLabel(currency, this.locale.activeLang());
+  }
+
   formatBalance(account: PublicAccount): string {
     return formatBalanceMinor(
       account.balanceMinor,
@@ -212,9 +221,13 @@ export class AccountsPage implements OnInit {
   }
 
   unitLabel(currency: string): string {
-    return minorUnitLabel(currency, {
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return minorUnitLabel(
+      currency,
+      {
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
   }
 }

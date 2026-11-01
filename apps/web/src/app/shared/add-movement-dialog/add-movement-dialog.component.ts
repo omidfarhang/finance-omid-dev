@@ -23,6 +23,7 @@ import {
   categoryOptionFrom,
   defaultCategoryId,
 } from '../../core/category-display';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { minorUnitLabel } from '../../core/money-display';
 import { TransactionsService } from '../../core/transactions.service';
 import { AppAmountInputComponent } from '../app-amount-input/app-amount-input.component';
@@ -111,6 +112,7 @@ export class AddMovementDialogComponent {
 
   private readonly txApi = inject(TransactionsService);
   private readonly i18n = inject(TranslocoService);
+  private readonly locale = inject(LocaleService);
 
   constructor() {
     effect(() => {
@@ -145,10 +147,14 @@ export class AddMovementDialogComponent {
   }
 
   unitLabel(currency: string): string {
-    return minorUnitLabel(currency, {
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return minorUnitLabel(
+      currency,
+      {
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
   }
 
   submit() {

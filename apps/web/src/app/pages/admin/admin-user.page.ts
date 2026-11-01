@@ -10,13 +10,16 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin, of, switchMap } from 'rxjs';
+import {
+  currencyLabel,
+  currencyOptions,
+  type UiCurrency,
+} from '../../core/currencies';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { AdminService } from '../../core/admin.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
-
-const CURRENCIES = ['IRR', 'USD'] as const;
 
 @Component({
   selector: 'app-admin-user-page',
@@ -37,8 +40,6 @@ const CURRENCIES = ['IRR', 'USD'] as const;
   styleUrl: './admin-user.page.scss',
 })
 export class AdminUserPage implements OnInit {
-  readonly currencies = CURRENCIES.map((code) => ({ label: code, value: code }));
-
   user = signal<AdminUser | null>(null);
   wallets = signal<PublicWallet[]>([]);
   accounts = signal<PublicAccount[]>([]);
@@ -51,9 +52,19 @@ export class AdminUserPage implements OnInit {
   walletName = 'Personal';
   accountWalletId = '';
   accountName = '';
-  accountCurrency: (typeof CURRENCIES)[number] = 'IRR';
+  accountCurrency: UiCurrency = 'IRR';
   openingBalanceMinor = '0';
   isShared = false;
+
+  private readonly route = inject(ActivatedRoute);
+  private readonly adminApi = inject(AdminService);
+  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
+  private readonly locale = inject(LocaleService);
+  private readonly i18n = inject(TranslocoService);
+
+  readonly currencies = computed(() =>
+    currencyOptions(this.locale.activeLang()),
+  );
 
   readonly accountsByWallet = computed(() => {
     const map = new Map<string, PublicAccount[]>();
@@ -68,12 +79,6 @@ export class AdminUserPage implements OnInit {
   readonly walletOptions = computed(() =>
     this.wallets().map((w) => ({ label: w.name, value: w.id })),
   );
-
-  private readonly route = inject(ActivatedRoute);
-  private readonly adminApi = inject(AdminService);
-  private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
-  private readonly locale = inject(LocaleService);
-  private readonly i18n = inject(TranslocoService);
 
   ngOnInit() {
     this.reload();
@@ -200,6 +205,10 @@ export class AdminUserPage implements OnInit {
 
   accountsFor(walletId: string): PublicAccount[] {
     return this.accountsByWallet().get(walletId) ?? [];
+  }
+
+  currencyName(currency: string): string {
+    return currencyLabel(currency, this.locale.activeLang());
   }
 
   formatBalance(account: PublicAccount): string {

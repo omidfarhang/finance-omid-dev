@@ -13,13 +13,16 @@ import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
 import { forkJoin } from 'rxjs';
 import { formatCalendarMonthLabel } from '../../core/format-app-date';
+import {
+  currencyLabel,
+  currencyOptions,
+  type UiCurrency,
+} from '../../core/currencies';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
 import { RecurringsService } from '../../core/recurrings.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
-
-const CURRENCIES = ['IRR', 'USD'] as const;
 
 @Component({
   selector: 'app-outlook-page',
@@ -49,21 +52,23 @@ export class OutlookPage implements OnInit {
 
   type: 'INCOME' | 'EXPENSE' = 'EXPENSE';
   amount = '';
-  currency: (typeof CURRENCIES)[number] = 'IRR';
+  currency: UiCurrency = 'IRR';
   description = '';
   anchorDay = 1;
   active = true;
-
-  readonly currencies = CURRENCIES.map((code) => ({ label: code, value: code }));
-  readonly typeOptions = computed(() => [
-    { label: this.i18n.translate('activity.type.INCOME'), value: 'INCOME' },
-    { label: this.i18n.translate('activity.type.EXPENSE'), value: 'EXPENSE' },
-  ]);
 
   private readonly api = inject(RecurringsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
+
+  readonly currencies = computed(() =>
+    currencyOptions(this.locale.activeLang()),
+  );
+  readonly typeOptions = computed(() => [
+    { label: this.i18n.translate('activity.type.INCOME'), value: 'INCOME' },
+    { label: this.i18n.translate('activity.type.EXPENSE'), value: 'EXPENSE' },
+  ]);
 
   ngOnInit() {
     this.reload();
@@ -105,7 +110,7 @@ export class OutlookPage implements OnInit {
     this.editingId = rule.id;
     this.type = rule.type;
     this.amount = rule.amountMinor;
-    this.currency = rule.currency as (typeof CURRENCIES)[number];
+    this.currency = rule.currency as UiCurrency;
     this.description = rule.description ?? '';
     this.anchorDay = rule.anchorDay;
     this.active = rule.active;
@@ -168,6 +173,10 @@ export class OutlookPage implements OnInit {
     );
   }
 
+  currencyName(currency: string): string {
+    return currencyLabel(currency, this.locale.activeLang());
+  }
+
   formatMoney(amountMinor: string, currency: string): string {
     return formatBalanceMinor(
       amountMinor,
@@ -183,10 +192,14 @@ export class OutlookPage implements OnInit {
   }
 
   unitLabel(currency: string): string {
-    return minorUnitLabel(currency, {
-      rials: this.i18n.translate('accounts.rials'),
-      cents: this.i18n.translate('accounts.cents'),
-    });
+    return minorUnitLabel(
+      currency,
+      {
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
   }
 
   typeLabel(type: PublicRecurring['type']): string {

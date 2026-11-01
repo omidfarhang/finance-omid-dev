@@ -30,7 +30,7 @@
         @for (row of accountRows(); track row.account.id) {
           <a [routerLink]="['/accounts', row.account.id]" class="balance-box">
             <span class="account-name">{{ row.account.name }}</span>
-            <span class="meta">{{ row.walletName }} · {{ row.account.currency }}</span>
+            <span class="meta">{{ row.walletName }} · {{ currencyName(row.account.currency) }}</span>
             <span class="balance money-ltr">{{ formatBalance(row.account) }}</span>
           </a>
         }
@@ -132,7 +132,7 @@
           @for (row of forecast.currencies; track row.currency) {
             <li>
               <div class="tx-main">
-                <span class="account-name">{{ row.currency }}</span>
+                <span class="account-name">{{ currencyName(row.currency) }}</span>
                 <span class="balance money-ltr">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
               </div>
               <p class="meta">
