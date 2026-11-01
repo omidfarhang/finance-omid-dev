@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Favicon / PWA icons: replace default Angular marks with omid.dev brand assets ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Home polish: panels size to content (Outlook no longer stretches with Recent), richer outlook strip (month label, surplus headline, income/expense bars, active-rule count, distinct empty states), recent row dividers + description clamp ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md))
 - CI-built Docker images on GHCR; server deploy is pull + up (no `--build`) ([DEC-018](../docs/decisions/DEC-018-ci-container-images.md), [DEC-008](../docs/decisions/DEC-008-self-hosted-docker.md))
 - Upgrade package manager to pnpm 12.16.1 (`packageManager` + Docker pins; [DEC-002](../docs/decisions/DEC-002-stack.md))
