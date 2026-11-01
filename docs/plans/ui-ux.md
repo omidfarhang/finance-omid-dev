@@ -160,15 +160,23 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Accounts (`/accounts`)
 
-- Purpose: structure — wallets and accounts with balances.
-- Primary actions: create wallet / create account via dialog or dedicated sub-route; navigate to account detail.
-- Empty: CTA to create first wallet/account.
+- Purpose: structure — wallets and accounts with balances; one focused list page.
+- Visual language matches home/activity/settings: **surface panels** (padding, radius, soft background) for wallet blocks and “Shared with you” — not leading hairline rules. Loading uses skeletons. Layout width/rhythm aligns with Home/Activity (`~58rem`, panel gap).
+- Hierarchy: owned wallets with nested accounts; optional **Shared with you** section for accounts whose wallet the user does not own. **No** cross-currency total.
+- Account rows: link to detail; name, Shared badge when applicable, balance (`Name (CODE)` currency chrome + opening in meta), member names when more than one.
+- Primary actions: create wallet / create account via **dialog** (searchable currency allowlist, `app-amount-input` opening, shared checkbox); navigate to account detail. Prefer opening Create account from an empty wallet’s CTA as well as the header.
+- Empty: one sentence + primary CTA to create first wallet. Per-wallet empty accounts: sentence + Create account CTA.
 - **Not** a page of always-visible create forms under the list.
+- Admin-as-user money list (`/admin/users/:userId`) uses the same surface-panel / skeleton / money chrome; acting-as banner stays ([instance-admin.md](instance-admin.md)).
 
 ### Account detail (`/accounts/:accountId`)
 
 - Purpose: one account’s balance story, movements, shared badge, member management (email add/remove per [wallets-accounts.md](wallets-accounts.md)).
-- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); edit/delete movements; manage members if shared; edit name when API allows. Edit stays type-specific.
+- Visual language: **surface panels** for Balance, Movements, and Members (when shared); skeletons while loading; same max-width rhythm as Accounts/Activity.
+- **Balance** panel: large current balance + opening amount + copy that balance is opening plus recorded movements. Currency chrome as `Name (CODE)`; Shared badge in the header lede.
+- **Movements** panel: day-grouped by user calendar + timezone (same helper as Activity); newest day first. Rows show type (income/expense color cues), amount, transfer counter direction relative to this account, time, category chip, shared mark, description. **Click/tap row** opens type-specific edit; Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
+- Empty movements: one sentence + primary **Add** (+ optional link to `/activity`).
+- Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Rename** opens a dialog that PATCHes name only (currency and opening balance immutable); when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).
 
 ### Import (`/import`)
 
@@ -280,6 +288,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 - Account/outlook chrome shows `Name (CODE)` via `Intl.DisplayNames` when the UI language changes; currency pickers are searchable over the Iranian-first UI allowlist.
 - Theme preference Light / Dark / System (default System) applies via Settings icon control and persists on the profile ([DEC-015](../decisions/DEC-015-theme-preference.md)).
 - Settings uses the same surface-panel language as home (profile / categories / security sections).
+- Accounts list and account detail use the same surface-panel language as home/activity (wallet panels, balance/movements/members); account detail movements are day-grouped with clickable rows and delete in the edit dialog.
 
 ## Out of scope for this plan’s UI work
 

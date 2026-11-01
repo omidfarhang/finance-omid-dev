@@ -9,6 +9,7 @@ import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
 import {
   currencyLabel,
@@ -34,6 +35,7 @@ import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amoun
     InputText,
     Message,
     Select,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './accounts.page.html',
@@ -54,6 +56,8 @@ export class AccountsPage implements OnInit {
   accountCurrency: UiCurrency = 'IRR';
   openingBalanceMinor = '0';
   isShared = false;
+
+  readonly skeletonRows = [0, 1, 2, 3];
 
   private readonly walletsApi = inject(WalletsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
@@ -111,8 +115,10 @@ export class AccountsPage implements OnInit {
     this.walletDialogVisible.set(true);
   }
 
-  openAccountDialog() {
-    if (!this.accountWalletId && this.wallets()[0]) {
+  openAccountDialog(walletId?: string) {
+    if (walletId) {
+      this.accountWalletId = walletId;
+    } else if (!this.accountWalletId && this.wallets()[0]) {
       this.accountWalletId = this.wallets()[0].id;
     }
     this.accountName = '';

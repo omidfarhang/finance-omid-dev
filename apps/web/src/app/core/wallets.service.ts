@@ -59,4 +59,29 @@ export class WalletsService {
       )
       .pipe(map((res) => res.account));
   }
+
+  updateAccount(
+    accountId: string,
+    payload: { name: string },
+  ): Observable<PublicAccount> {
+    return this.http
+      .patch<{ account: PublicAccount }>(
+        `${environment.apiBaseUrl}/accounts/${accountId}`,
+        payload,
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.account));
+  }
+
+  removeMember(
+    accountId: string,
+    userId: string,
+  ): Observable<PublicAccount> {
+    return this.http
+      .delete<{ account: PublicAccount }>(
+        `${environment.apiBaseUrl}/accounts/${accountId}/members/${userId}`,
+        { withCredentials: true },
+      )
+      .pipe(map((res) => res.account));
+  }
 }

@@ -1,5 +1,5 @@
 import type { PublicTransaction } from '@finance/shared';
-import { civilDayKey, groupTransactionsByDay } from './activity-day-groups';
+import { civilDayKey, groupTransactionsByDay } from './transaction-day-groups';
 
 function tx(
   id: string,

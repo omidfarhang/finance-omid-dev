@@ -1,9 +1,9 @@
 .account-detail-page {
-  max-width: 44rem;
-  margin: 2rem auto;
-  padding: 0 1.25rem;
+  max-width: 58rem;
+  margin: 1.5rem auto;
+  padding: 0 1.25rem 1.5rem;
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .page-header {
@@ -12,6 +12,10 @@
   gap: 1rem;
   align-items: flex-start;
   flex-wrap: wrap;
+}
+
+.page-header h1 {
+  margin: 0 0 0.35rem;
 }
 
 .header-actions {
@@ -30,14 +34,23 @@
 
 .lede,
 .meta {
+  margin: 0;
   color: var(--app-text-muted);
 }
 
 .panel {
   display: grid;
-  gap: 0.75rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  gap: 0.85rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--app-panel-radius);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  box-shadow: var(--app-panel-shadow);
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 .balance-lg {
@@ -59,12 +72,39 @@
   margin-inline-start: 0.35rem;
 }
 
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.members-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .member-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.65rem;
+  gap: 0.55rem;
+}
+
+.member-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--app-row-border);
+  border-radius: 0.5rem;
+  background: var(--app-row-bg);
 }
 
 .member-name {
@@ -75,6 +115,13 @@
 .dialog-form {
   display: grid;
   gap: 1rem;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
 }
 
 label {
@@ -96,11 +143,22 @@ label {
   font-weight: 600;
 }
 
-.row-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+.day-group {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.day-group + .day-group {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--app-text) 10%, transparent);
+}
+
+.day-heading {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--app-text-muted);
 }
 
 .tx-list {
@@ -108,7 +166,31 @@ label {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.85rem;
+  gap: 0.55rem;
+}
+
+.tx-row {
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--app-row-border);
+  border-radius: 0.5rem;
+  background: var(--app-row-bg);
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.tx-row:hover,
+.tx-row:focus-visible {
+  border-color: color-mix(in srgb, var(--app-accent) 45%, transparent);
+  background: var(--app-surface);
+  outline: none;
 }
 
 .tx-main {
@@ -122,13 +204,28 @@ label {
   font-weight: 600;
 }
 
+.tx-type[data-type='INCOME'] {
+  color: color-mix(in srgb, var(--app-accent) 85%, #1c2a27);
+}
+
+.tx-type[data-type='EXPENSE'] {
+  color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
+}
+
 .balance {
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
 }
 
-a {
-  font-weight: 600;
-  color: var(--app-accent);
-  text-decoration: none;
+.tx-skel {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
+}
+
+.meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--app-text-muted);
 }

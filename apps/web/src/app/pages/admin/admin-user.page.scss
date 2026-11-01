@@ -1,9 +1,9 @@
 .admin-user-page {
-  max-width: 48rem;
-  margin: 2rem auto;
-  padding: 0 1.25rem;
+  max-width: 58rem;
+  margin: 1.5rem auto;
+  padding: 0 1.25rem 1.5rem;
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .acting-as {
@@ -13,7 +13,7 @@
   align-items: center;
   padding: 0.85rem 1rem;
   border: 1px solid color-mix(in srgb, #b45309 35%, transparent);
-  border-radius: 0.5rem;
+  border-radius: var(--app-panel-radius);
   background: #fff7ed;
   color: #9a3412;
 }
@@ -33,6 +33,10 @@
   flex-wrap: wrap;
 }
 
+.page-header h1 {
+  margin: 0 0 0.35rem;
+}
+
 .header-actions {
   display: flex;
   flex-wrap: wrap;
@@ -41,19 +45,23 @@
 
 .lede,
 .meta {
+  margin: 0;
   color: var(--app-text-muted);
 }
 
 .panel {
   display: grid;
-  gap: 1rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  gap: 0.85rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--app-panel-radius);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  box-shadow: var(--app-panel-shadow);
 }
 
-.wallet-block {
-  display: grid;
-  gap: 0.75rem;
+.wallet-heading h2 {
+  margin: 0;
+  font-size: 1.05rem;
 }
 
 .account-list {
@@ -61,7 +69,16 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.85rem;
+  gap: 0.55rem;
+}
+
+.account-card {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--app-row-border);
+  border-radius: 0.5rem;
+  background: var(--app-row-bg);
 }
 
 .account-row {
@@ -76,11 +93,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .balance {
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
 }
 
 .badge {
@@ -91,6 +110,19 @@
   padding: 0.1rem 0.4rem;
   border: 1px solid color-mix(in srgb, var(--app-text) 20%, transparent);
   border-radius: 0.25rem;
+}
+
+.wallet-empty {
+  display: grid;
+  gap: 0.65rem;
+  justify-items: start;
+  padding: 0.35rem 0;
+}
+
+.account-skel {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
 }
 
 .dialog-form {

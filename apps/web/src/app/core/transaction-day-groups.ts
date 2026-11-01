@@ -5,7 +5,7 @@ import {
   type PublicTransaction,
 } from '@finance/shared';
 
-export type ActivityDayGroup = {
+export type TransactionDayGroup = {
   key: string;
   sampleIso: string;
   transactions: PublicTransaction[];
@@ -20,8 +20,8 @@ export function groupTransactionsByDay(
   transactions: PublicTransaction[],
   calendar: CalendarSystem,
   timeZone: string | null | undefined,
-): ActivityDayGroup[] {
-  const groups = new Map<string, ActivityDayGroup>();
+): TransactionDayGroup[] {
+  const groups = new Map<string, TransactionDayGroup>();
   const order: string[] = [];
 
   for (const tx of transactions) {

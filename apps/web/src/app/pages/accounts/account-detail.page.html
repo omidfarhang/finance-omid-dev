@@ -5,7 +5,8 @@
       @if (account(); as account) {
         <h1>{{ account.name }}</h1>
         <p class="lede">
-          {{ wallet()?.name ?? t('accounts.sharedWithYou') }} · {{ currencyName(account.currency) }}
+          {{ wallet()?.name ?? t('accounts.sharedWithYou') }} ·
+          {{ currencyName(account.currency) }}
           @if (account.isShared) {
             <span class="badge">{{ t('accounts.shared') }}</span>
           }
@@ -19,8 +20,21 @@
         <button pButton type="button" (click)="openAddDialog()">
           {{ t('activity.add') }}
         </button>
+        <button
+          pButton
+          type="button"
+          severity="secondary"
+          (click)="openRenameDialog()"
+        >
+          {{ t('accounts.rename') }}
+        </button>
         @if (account.isShared) {
-          <button pButton type="button" severity="secondary" (click)="openMemberDialog()">
+          <button
+            pButton
+            type="button"
+            severity="secondary"
+            (click)="openMemberDialog()"
+          >
             {{ t('accounts.addMember') }}
           </button>
         }
@@ -34,11 +48,28 @@
   @if (error()) {
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
-  @if (loading()) {
-    <p class="lede">{{ t('accounts.loading') }}</p>
-  }
 
-  @if (account(); as account) {
+  @if (loading()) {
+    <section class="panel" aria-busy="true">
+      <p-skeleton width="25%" height="1rem" />
+      <p-skeleton width="45%" height="1.8rem" />
+      <p-skeleton width="70%" height="0.85rem" />
+    </section>
+    <section class="panel" aria-busy="true">
+      <p-skeleton width="30%" height="1rem" />
+      <ul class="tx-list">
+        @for (_ of skeletonRows; track $index) {
+          <li class="tx-skel">
+            <div class="tx-main">
+              <p-skeleton width="35%" height="1rem" />
+              <p-skeleton width="30%" height="1rem" />
+            </div>
+            <p-skeleton width="75%" height="0.75rem" />
+          </li>
+        }
+      </ul>
+    </section>
+  } @else if (account(); as account) {
     <section class="panel">
       <h2>{{ t('accounts.balanceStory') }}</h2>
       <p class="balance-lg money-ltr">{{ formatBalance(account) }}</p>
@@ -49,84 +80,118 @@
       </p>
     </section>
 
-    <section class="panel">
+    <section class="panel panel-list">
       <h2>{{ t('accounts.movements') }}</h2>
       @if (transactions().length === 0) {
         <p class="lede">{{ t('accounts.movementsEmpty') }}</p>
-        <a routerLink="/activity">{{ t('accounts.activityLink') }}</a>
+        <div class="empty-actions">
+          <button pButton type="button" (click)="openAddDialog()">
+            {{ t('activity.add') }}
+          </button>
+          <a routerLink="/activity" pButton severity="secondary">{{
+            t('accounts.activityLink')
+          }}</a>
+        </div>
       } @else {
-        <ul class="tx-list">
-          @for (tx of transactions(); track tx.id) {
-            <li>
-              <div class="tx-main">
-                <span class="tx-type">{{ typeLabel(tx.type) }}</span>
-                <span class="balance money-ltr">{{ formatAmount(tx, account.currency) }}</span>
-              </div>
-              <p class="meta">
-                {{ tx.occurredAt | appDateTime }}
-                @if (tx.type === 'TRANSFER') {
-                  ·
-                  @if (tx.accountId === account.id) {
-                    → {{ counterName(tx.counterAccountId) }}
-                  } @else {
-                    ← {{ counterName(tx.accountId) }}
-                  }
-                }
-                @if (tx.categoryId) {
-                  ·
-                  <span class="cat-chip">
-                    @if (tx.categoryIcon) {
-                      <span
-                        class="cat-chip-icon"
-                        [style.--cat-swatch]="colorVar(tx.categoryColor)"
-                      >
-                        <i [class]="'pi ' + tx.categoryIcon" aria-hidden="true"></i>
-                      </span>
+        @for (group of dayGroups(); track group.key) {
+          <div class="day-group">
+            <h3 class="day-heading">{{ dayLabel(group.sampleIso) }}</h3>
+            <ul class="tx-list">
+              @for (tx of group.transactions; track tx.id) {
+                <li>
+                  <div
+                    class="tx-row"
+                    role="button"
+                    tabindex="0"
+                    (click)="openEditDialog(tx)"
+                    (keydown)="onRowKeydown($event, tx)"
+                    [attr.aria-label]="
+                      t('activity.editRowAria', { type: typeLabel(tx.type) })
+                    "
+                  >
+                    <div class="tx-main">
+                      <span class="tx-type" [attr.data-type]="tx.type">{{
+                        typeLabel(tx.type)
+                      }}</span>
+                      <span class="balance money-ltr">{{
+                        formatAmount(tx, account.currency)
+                      }}</span>
+                    </div>
+                    <p class="meta">
+                      {{ timeLabel(tx.occurredAt) }}
+                      @if (tx.type === 'TRANSFER') {
+                        ·
+                        @if (tx.accountId === account.id) {
+                          → {{ counterName(tx.counterAccountId) }}
+                        } @else {
+                          ← {{ counterName(tx.accountId) }}
+                        }
+                      }
+                      @if (tx.categoryId) {
+                        ·
+                        <span class="cat-chip">
+                          @if (tx.categoryIcon) {
+                            <span
+                              class="cat-chip-icon"
+                              [style.--cat-swatch]="colorVar(tx.categoryColor)"
+                            >
+                              <i
+                                [class]="'pi ' + tx.categoryIcon"
+                                aria-hidden="true"
+                              ></i>
+                            </span>
+                          }
+                          {{ displayCategory(tx) }}
+                        </span>
+                      }
+                      @if (tx.shared) {
+                        · {{ t('activity.sharedMark') }}
+                      }
+                    </p>
+                    @if (tx.description) {
+                      <p class="meta">{{ tx.description }}</p>
                     }
-                    {{ displayCategory(tx) }}
-                  </span>
-                }
-                @if (tx.shared) {
-                  · {{ t('activity.sharedMark') }}
-                }
-              </p>
-              @if (tx.description) {
-                <p class="meta">{{ tx.description }}</p>
+                  </div>
+                </li>
               }
-              <div class="row-actions">
-                <button
-                  pButton
-                  type="button"
-                  severity="secondary"
-                  size="small"
-                  (click)="openEditDialog(tx)"
-                >
-                  {{ t('activity.edit') }}
-                </button>
-                <button
-                  pButton
-                  type="button"
-                  severity="danger"
-                  size="small"
-                  (click)="confirmDelete(tx)"
-                >
-                  {{ t('activity.delete') }}
-                </button>
-              </div>
-            </li>
-          }
-        </ul>
+            </ul>
+          </div>
+        }
       }
     </section>
 
     @if (account.isShared) {
       <section class="panel">
-        <h2>{{ t('accounts.members') }}</h2>
+        <div class="members-heading">
+          <h2>{{ t('accounts.members') }}</h2>
+          <button
+            pButton
+            type="button"
+            size="small"
+            severity="secondary"
+            (click)="openMemberDialog()"
+          >
+            {{ t('accounts.addMember') }}
+          </button>
+        </div>
         <ul class="member-list">
           @for (member of account.members; track member.userId) {
-            <li>
-              <span class="member-name">{{ member.displayName }}</span>
-              <span class="meta">{{ member.email }} · {{ member.role }}</span>
+            <li class="member-row">
+              <div>
+                <span class="member-name">{{ member.displayName }}</span>
+                <span class="meta"
+                  >{{ member.email }} · {{ member.role }}</span
+                >
+              </div>
+              <button
+                pButton
+                type="button"
+                size="small"
+                severity="danger"
+                (click)="confirmRemoveMember(member)"
+              >
+                {{ t('accounts.removeMember') }}
+              </button>
             </li>
           }
         </ul>
@@ -141,6 +206,28 @@
     [defaultAccountId]="account()?.id ?? null"
     (saved)="onMovementSaved($event)"
   />
+
+  <p-dialog
+    [header]="t('accounts.renameAccount')"
+    [modal]="true"
+    [style]="{ width: 'min(24rem, 92vw)' }"
+    [visible]="renameDialogVisible()"
+    (visibleChange)="renameDialogVisible.set($event)"
+  >
+    <form (ngSubmit)="saveRename()" class="dialog-form">
+      <label>
+        {{ t('accounts.accountName') }}
+        <input
+          pInputText
+          name="renameName"
+          [(ngModel)]="renameName"
+          required
+          class="w-full"
+        />
+      </label>
+      <button pButton type="submit">{{ t('accounts.saveName') }}</button>
+    </form>
+  </p-dialog>
 
   <p-dialog
     [header]="t('accounts.addMember')"
@@ -176,7 +263,9 @@
       <label>
         {{ t('activity.amount') }}
         @if (account(); as account) {
-          <span class="hint">{{ t('activity.amountHint', { unit: unitLabel(account.currency) }) }}</span>
+          <span class="hint">{{
+            t('activity.amountHint', { unit: unitLabel(account.currency) })
+          }}</span>
         }
         <app-amount-input
           name="movementAmount"
@@ -237,7 +326,17 @@
           </label>
         }
       }
-      <button pButton type="submit">{{ t('activity.save') }}</button>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('activity.save') }}</button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          (click)="deleteFromEditDialog()"
+        >
+          {{ t('activity.delete') }}
+        </button>
+      </div>
     </form>
   </p-dialog>
 
@@ -300,7 +399,17 @@
           class="w-full"
         />
       </label>
-      <button pButton type="submit">{{ t('activity.save') }}</button>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('activity.save') }}</button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          (click)="deleteFromEditDialog()"
+        >
+          {{ t('activity.delete') }}
+        </button>
+      </div>
     </form>
   </p-dialog>
 </section>

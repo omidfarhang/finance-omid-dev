@@ -40,7 +40,7 @@ import {
 } from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
-import { groupTransactionsByDay } from './activity-day-groups';
+import { groupTransactionsByDay } from '../../core/transaction-day-groups';
 
 type RangeKey = 'all' | '30d' | 'month';
 type TypeFilterKey = '' | TransactionType;

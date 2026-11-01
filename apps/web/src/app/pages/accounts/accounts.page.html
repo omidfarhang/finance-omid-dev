@@ -5,7 +5,12 @@
       <p class="lede">{{ t('accounts.lede') }}</p>
     </div>
     <div class="header-actions">
-      <button pButton type="button" severity="secondary" (click)="openWalletDialog()">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        (click)="openWalletDialog()"
+      >
         {{ t('accounts.createWallet') }}
       </button>
       <button
@@ -27,77 +32,116 @@
   }
 
   @if (loading()) {
-    <p class="lede">{{ t('accounts.loading') }}</p>
-  }
-
-  <div class="panel">
-    <h2>{{ t('accounts.yourWallets') }}</h2>
-    @if (wallets().length === 0) {
+    <section class="panel" aria-busy="true">
+      <p-skeleton width="30%" height="1.1rem" />
+      <ul class="account-list">
+        @for (_ of skeletonRows; track $index) {
+          <li class="account-skel">
+            <div class="account-link">
+              <p-skeleton width="40%" height="1rem" />
+              <p-skeleton width="28%" height="1rem" />
+            </div>
+            <p-skeleton width="55%" height="0.75rem" />
+          </li>
+        }
+      </ul>
+    </section>
+  } @else if (wallets().length === 0) {
+    <section class="panel panel-empty">
       <p class="lede">{{ t('accounts.empty') }}</p>
       <button pButton type="button" (click)="openWalletDialog()">
         {{ t('accounts.createWallet') }}
       </button>
-    }
+    </section>
+  } @else {
     @for (wallet of wallets(); track wallet.id) {
-      <article class="wallet-block">
-        <h3>{{ wallet.name }}</h3>
+      <section class="panel">
+        <div class="wallet-heading">
+          <h2>{{ wallet.name }}</h2>
+        </div>
         <ul class="account-list">
           @for (account of accountsFor(wallet.id); track account.id) {
             <li>
-              <a [routerLink]="['/accounts', account.id]" class="account-link">
-                <span class="account-name">
-                  {{ account.name }}
-                  @if (account.isShared) {
-                    <span class="badge">{{ t('accounts.shared') }}</span>
-                  }
-                </span>
-                <span class="balance money-ltr">{{ formatBalance(account) }}</span>
-              </a>
-              <p class="meta">
-                {{ currencyName(account.currency) }} ·
-                {{ t('accounts.opening') }}:
-                <span class="money-ltr">{{ formatOpening(account) }}</span>
-              </p>
-              @if (account.members.length > 1) {
+              <a [routerLink]="['/accounts', account.id]" class="account-row">
+                <div class="account-main">
+                  <span class="account-name">
+                    {{ account.name }}
+                    @if (account.isShared) {
+                      <span class="badge">{{ t('accounts.shared') }}</span>
+                    }
+                  </span>
+                  <span class="balance money-ltr">{{
+                    formatBalance(account)
+                  }}</span>
+                </div>
                 <p class="meta">
-                  {{ t('accounts.members') }}:
-                  @for (member of account.members; track member.userId; let last = $last) {
-                    {{ member.displayName }}@if (!last) {, }
-                  }
+                  {{ currencyName(account.currency) }} ·
+                  {{ t('accounts.opening') }}:
+                  <span class="money-ltr">{{ formatOpening(account) }}</span>
                 </p>
-              }
+                @if (account.members.length > 1) {
+                  <p class="meta">
+                    {{ t('accounts.members') }}:
+                    @for (
+                      member of account.members;
+                      track member.userId;
+                      let last = $last
+                    ) {
+                      {{ member.displayName }}@if (!last) {
+                        ,
+                      }
+                    }
+                  </p>
+                }
+              </a>
             </li>
           } @empty {
-            <li class="lede">{{ t('accounts.noAccounts') }}</li>
+            <li class="wallet-empty">
+              <p class="lede">{{ t('accounts.noAccounts') }}</p>
+              <button
+                pButton
+                type="button"
+                size="small"
+                (click)="openAccountDialog(wallet.id)"
+              >
+                {{ t('accounts.createAccountInWallet') }}
+              </button>
+            </li>
           }
         </ul>
-      </article>
+      </section>
     }
 
     @if (externalAccounts().length > 0) {
-      <article class="wallet-block">
-        <h3>{{ t('accounts.sharedWithYou') }}</h3>
+      <section class="panel">
+        <div class="wallet-heading">
+          <h2>{{ t('accounts.sharedWithYou') }}</h2>
+        </div>
         <ul class="account-list">
           @for (account of externalAccounts(); track account.id) {
             <li>
-              <a [routerLink]="['/accounts', account.id]" class="account-link">
-                <span class="account-name">
-                  {{ account.name }}
-                  <span class="badge">{{ t('accounts.shared') }}</span>
-                </span>
-                <span class="balance money-ltr">{{ formatBalance(account) }}</span>
+              <a [routerLink]="['/accounts', account.id]" class="account-row">
+                <div class="account-main">
+                  <span class="account-name">
+                    {{ account.name }}
+                    <span class="badge">{{ t('accounts.shared') }}</span>
+                  </span>
+                  <span class="balance money-ltr">{{
+                    formatBalance(account)
+                  }}</span>
+                </div>
+                <p class="meta">
+                  {{ currencyName(account.currency) }} ·
+                  {{ t('accounts.opening') }}:
+                  <span class="money-ltr">{{ formatOpening(account) }}</span>
+                </p>
               </a>
-              <p class="meta">
-                {{ currencyName(account.currency) }} ·
-                {{ t('accounts.opening') }}:
-                <span class="money-ltr">{{ formatOpening(account) }}</span>
-              </p>
             </li>
           }
         </ul>
-      </article>
+      </section>
     }
-  </div>
+  }
 
   <p-dialog
     [header]="t('accounts.createWallet')"
@@ -109,7 +153,13 @@
     <form (ngSubmit)="createWallet()" class="dialog-form">
       <label>
         {{ t('accounts.walletName') }}
-        <input pInputText name="walletName" [(ngModel)]="walletName" required class="w-full" />
+        <input
+          pInputText
+          name="walletName"
+          [(ngModel)]="walletName"
+          required
+          class="w-full"
+        />
       </label>
       <button pButton type="submit">{{ t('accounts.createWallet') }}</button>
     </form>
@@ -136,7 +186,13 @@
       </label>
       <label>
         {{ t('accounts.accountName') }}
-        <input pInputText name="accountName" [(ngModel)]="accountName" required class="w-full" />
+        <input
+          pInputText
+          name="accountName"
+          [(ngModel)]="accountName"
+          required
+          class="w-full"
+        />
       </label>
       <label>
         {{ t('accounts.currency') }}
@@ -153,7 +209,9 @@
       </label>
       <label>
         {{ t('accounts.openingBalance') }}
-        <span class="hint">{{ t('accounts.openingHint', { unit: unitLabel(accountCurrency) }) }}</span>
+        <span class="hint">{{
+          t('accounts.openingHint', { unit: unitLabel(accountCurrency) })
+        }}</span>
         <app-amount-input
           name="openingBalanceMinor"
           [(ngModel)]="openingBalanceMinor"

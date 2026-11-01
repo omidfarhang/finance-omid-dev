@@ -13,7 +13,12 @@
       <p class="lede">{{ t('admin.userMoneyLede') }}</p>
     </div>
     <div class="header-actions">
-      <button pButton type="button" severity="secondary" (click)="openWalletDialog()">
+      <button
+        pButton
+        type="button"
+        severity="secondary"
+        (click)="openWalletDialog()"
+      >
         {{ t('accounts.createWallet') }}
       </button>
       <button
@@ -33,39 +38,70 @@
   @if (error()) {
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
-  @if (loading()) {
-    <p class="lede">{{ t('admin.loading') }}</p>
-  }
 
-  <div class="panel">
+  @if (loading()) {
+    <section class="panel" aria-busy="true">
+      <p-skeleton width="30%" height="1.1rem" />
+      <ul class="account-list">
+        @for (_ of skeletonRows; track $index) {
+          <li class="account-skel">
+            <div class="account-row">
+              <p-skeleton width="40%" height="1rem" />
+              <p-skeleton width="28%" height="1rem" />
+            </div>
+            <p-skeleton width="45%" height="0.75rem" />
+          </li>
+        }
+      </ul>
+    </section>
+  } @else if (user() && wallets().length === 0) {
+    <section class="panel panel-empty">
+      <p class="lede">{{ t('admin.noWallets') }}</p>
+      <button pButton type="button" (click)="openWalletDialog()">
+        {{ t('accounts.createWallet') }}
+      </button>
+    </section>
+  } @else {
     @for (wallet of wallets(); track wallet.id) {
-      <article class="wallet-block">
-        <h3>{{ wallet.name }}</h3>
+      <section class="panel">
+        <div class="wallet-heading">
+          <h2>{{ wallet.name }}</h2>
+        </div>
         <ul class="account-list">
           @for (account of accountsFor(wallet.id); track account.id) {
             <li>
-              <div class="account-row">
-                <span class="account-name">
-                  {{ account.name }}
-                  @if (account.isShared) {
-                    <span class="badge">{{ t('accounts.shared') }}</span>
-                  }
-                </span>
-                <span class="balance money-ltr">{{ formatBalance(account) }}</span>
+              <div class="account-card">
+                <div class="account-row">
+                  <span class="account-name">
+                    {{ account.name }}
+                    @if (account.isShared) {
+                      <span class="badge">{{ t('accounts.shared') }}</span>
+                    }
+                  </span>
+                  <span class="balance money-ltr">{{
+                    formatBalance(account)
+                  }}</span>
+                </div>
+                <p class="meta">{{ currencyName(account.currency) }}</p>
               </div>
-              <p class="meta">{{ currencyName(account.currency) }}</p>
             </li>
           } @empty {
-            <li class="lede">{{ t('accounts.noAccounts') }}</li>
+            <li class="wallet-empty">
+              <p class="lede">{{ t('accounts.noAccounts') }}</p>
+              <button
+                pButton
+                type="button"
+                size="small"
+                (click)="openAccountDialog(wallet.id)"
+              >
+                {{ t('accounts.createAccountInWallet') }}
+              </button>
+            </li>
           }
         </ul>
-      </article>
-    } @empty {
-      @if (!loading() && user()) {
-        <p class="lede">{{ t('admin.noWallets') }}</p>
-      }
+      </section>
     }
-  </div>
+  }
 
   <p-dialog
     [header]="t('accounts.createWallet')"
@@ -77,7 +113,13 @@
     <form (ngSubmit)="createWallet()" class="dialog-form">
       <label>
         {{ t('accounts.walletName') }}
-        <input pInputText name="walletName" [(ngModel)]="walletName" required class="w-full" />
+        <input
+          pInputText
+          name="walletName"
+          [(ngModel)]="walletName"
+          required
+          class="w-full"
+        />
       </label>
       <button pButton type="submit">{{ t('accounts.createWallet') }}</button>
     </form>
@@ -104,7 +146,13 @@
       </label>
       <label>
         {{ t('accounts.accountName') }}
-        <input pInputText name="accountName" [(ngModel)]="accountName" required class="w-full" />
+        <input
+          pInputText
+          name="accountName"
+          [(ngModel)]="accountName"
+          required
+          class="w-full"
+        />
       </label>
       <label>
         {{ t('accounts.currency') }}

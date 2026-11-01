@@ -1,12 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import type {
-  CategoryKind,
-  PublicAccount,
-  PublicCategory,
-  PublicTransaction,
-  PublicWallet,
+import {
+  DEFAULT_BOUNDS_TIME_ZONE,
+  type CategoryKind,
+  type PublicAccount,
+  type PublicCategory,
+  type PublicTransaction,
+  type PublicWallet,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
@@ -16,18 +17,22 @@ import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
-import { AppDateTimePipe } from '../../core/app-date-time.pipe';
+import { AuthService } from '../../core/auth.service';
+import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import {
   categoryColorCssVar,
   categoryLabel,
   categoryOptionFrom,
   defaultCategoryId,
 } from '../../core/category-display';
-import { LocaleService } from '../../core/i18n/locale.service';
 import { currencyLabel } from '../../core/currencies';
+import { formatAppDate, formatAppTime } from '../../core/format-app-date';
+import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
+import { groupTransactionsByDay } from '../../core/transaction-day-groups';
 import { TransactionsService } from '../../core/transactions.service';
 import { WalletsService } from '../../core/wallets.service';
 import {
@@ -44,7 +49,6 @@ import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-
     AddMovementDialogComponent,
     AppAmountInputComponent,
     AppDateTimeFieldComponent,
-    AppDateTimePipe,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -53,6 +57,7 @@ import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-
     InputText,
     Message,
     Select,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './account-detail.page.html',
@@ -69,9 +74,11 @@ export class AccountDetailPage implements OnInit {
   error = signal<string | null>(null);
   addDialogVisible = signal(false);
   memberDialogVisible = signal(false);
+  renameDialogVisible = signal(false);
   movementDialogVisible = signal(false);
   transferDialogVisible = signal(false);
   memberEmail = '';
+  renameName = '';
   editingTransactionId: string | null = null;
   editingTransferId: string | null = null;
 
@@ -89,13 +96,25 @@ export class AccountDetailPage implements OnInit {
   transferDescription = '';
   transferCategoryId = '';
 
+  readonly skeletonRows = [0, 1, 2, 3];
+
   private readonly route = inject(ActivatedRoute);
   private readonly walletsApi = inject(WalletsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly locale = inject(LocaleService);
+  private readonly calendarPref = inject(CalendarPreferenceService);
+  private readonly auth = inject(AuthService);
   private readonly i18n = inject(TranslocoService);
   private readonly confirm = inject(ConfirmationService);
+
+  readonly dayGroups = computed(() =>
+    groupTransactionsByDay(
+      this.transactions(),
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+    ),
+  );
 
   ngOnInit() {
     this.reload();
@@ -168,9 +187,42 @@ export class AccountDetailPage implements OnInit {
     this.memberDialogVisible.set(true);
   }
 
+  openRenameDialog() {
+    const account = this.account();
+    if (!account) {
+      return;
+    }
+    this.renameName = account.name;
+    this.renameDialogVisible.set(true);
+  }
+
+  saveRename() {
+    const account = this.account();
+    const name = this.renameName.trim();
+    if (!account || !name) {
+      return;
+    }
+    this.error.set(null);
+    this.message.set(null);
+    this.walletsApi.updateAccount(account.id, { name }).subscribe({
+      next: (updated) => {
+        this.account.set(updated);
+        this.message.set(this.i18n.translate('accounts.accountRenamed'));
+        this.renameDialogVisible.set(false);
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.error.set(
+          err.error?.message ??
+            this.i18n.translate('accounts.accountRenameFailed'),
+        );
+      },
+    });
+  }
+
   openEditDialog(tx: PublicTransaction) {
     if (tx.type === 'TRANSFER') {
       this.editingTransferId = tx.id;
+      this.editingTransactionId = null;
       this.transferFromId = tx.accountId;
       this.transferToId = tx.counterAccountId ?? '';
       this.transferAmount = tx.amountMinor;
@@ -182,6 +234,7 @@ export class AccountDetailPage implements OnInit {
       return;
     }
     this.editingTransactionId = tx.id;
+    this.editingTransferId = null;
     this.movementType = tx.type;
     this.movementAmount = tx.amountMinor;
     this.movementOccurredAt = tx.occurredAt;
@@ -192,28 +245,35 @@ export class AccountDetailPage implements OnInit {
     this.movementDialogVisible.set(true);
   }
 
+  onRowKeydown(event: KeyboardEvent, tx: PublicTransaction) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openEditDialog(tx);
+    }
+  }
+
   confirmDelete(tx: PublicTransaction) {
     this.confirm.confirm({
       message: this.i18n.translate('activity.confirmDelete'),
       header: this.i18n.translate('activity.delete'),
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.error.set(null);
-        this.message.set(null);
-        this.txApi.deleteTransaction(tx.id).subscribe({
-          next: () => {
-            this.message.set(this.i18n.translate('activity.deleted'));
-            this.reload();
-          },
-          error: (err: { error?: { message?: string } }) => {
-            this.error.set(
-              err.error?.message ?? this.i18n.translate('activity.deleteFailed'),
-            );
-          },
-        });
-      },
+      accept: () => this.deleteTransaction(tx.id),
     });
+  }
+
+  deleteFromEditDialog() {
+    const id = this.editingTransactionId ?? this.editingTransferId;
+    if (!id) {
+      return;
+    }
+    const tx = this.transactions().find((row) => row.id === id);
+    if (!tx) {
+      return;
+    }
+    this.movementDialogVisible.set(false);
+    this.transferDialogVisible.set(false);
+    this.confirmDelete(tx);
   }
 
   addMember() {
@@ -234,6 +294,41 @@ export class AccountDetailPage implements OnInit {
         this.error.set(
           err.error?.message ?? this.i18n.translate('accounts.memberAddFailed'),
         );
+      },
+    });
+  }
+
+  confirmRemoveMember(member: {
+    userId: string;
+    displayName: string;
+    email: string;
+  }) {
+    const account = this.account();
+    if (!account) {
+      return;
+    }
+    this.confirm.confirm({
+      message: this.i18n.translate('accounts.confirmRemoveMember', {
+        name: member.displayName || member.email,
+      }),
+      header: this.i18n.translate('accounts.removeMember'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.error.set(null);
+        this.message.set(null);
+        this.walletsApi.removeMember(account.id, member.userId).subscribe({
+          next: (updated) => {
+            this.account.set(updated);
+            this.message.set(this.i18n.translate('accounts.memberRemoved'));
+          },
+          error: (err: { error?: { message?: string } }) => {
+            this.error.set(
+              err.error?.message ??
+                this.i18n.translate('accounts.memberRemoveFailed'),
+            );
+          },
+        });
       },
     });
   }
@@ -365,6 +460,24 @@ export class AccountDetailPage implements OnInit {
     );
   }
 
+  dayLabel(sampleIso: string): string {
+    return formatAppDate(
+      sampleIso,
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+      this.locale.activeLang(),
+    );
+  }
+
+  timeLabel(iso: string): string {
+    return formatAppTime(
+      iso,
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+      this.locale.activeLang(),
+    );
+  }
+
   typeLabel(type: PublicTransaction['type']): string {
     return this.i18n.translate(`activity.type.${type}`);
   }
@@ -395,5 +508,21 @@ export class AccountDetailPage implements OnInit {
       },
       this.locale.activeLang(),
     );
+  }
+
+  private deleteTransaction(id: string) {
+    this.error.set(null);
+    this.message.set(null);
+    this.txApi.deleteTransaction(id).subscribe({
+      next: () => {
+        this.message.set(this.i18n.translate('activity.deleted'));
+        this.reload();
+      },
+      error: (err: { error?: { message?: string } }) => {
+        this.error.set(
+          err.error?.message ?? this.i18n.translate('activity.deleteFailed'),
+        );
+      },
+    });
   }
 }
