@@ -96,6 +96,8 @@
     "rangeTo": "To",
     "filterAccount": "Account",
     "allAccounts": "All accounts",
+    "filterCategory": "Category",
+    "allCategories": "All categories",
     "search": "Search",
     "searchPlaceholder": "Description, category, or account",
     "summary": "Period summary",

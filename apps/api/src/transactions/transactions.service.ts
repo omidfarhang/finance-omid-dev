@@ -40,6 +40,16 @@ export class TransactionsService {
       throw new NotFoundException('Account not found');
     }
 
+    if (query.categoryId) {
+      const category = await this.prisma.category.findFirst({
+        where: { id: query.categoryId, userId },
+        select: { id: true },
+      });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+    }
+
     const accountFilter = query.accountId
       ? {
           OR: [
@@ -58,6 +68,7 @@ export class TransactionsService {
       AND: [
         accountFilter,
         query.type ? { type: query.type } : {},
+        query.categoryId ? { categoryId: query.categoryId } : {},
         query.from || query.to
           ? {
               occurredAt: {

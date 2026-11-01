@@ -161,6 +161,38 @@ describe('TransactionsService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
+  it('lists transactions filtered by categoryId', async () => {
+    prisma.accountMember.findMany.mockResolvedValue([{ accountId: accountA }]);
+    prisma.category.findFirst.mockResolvedValue({ id: expenseCategoryId });
+    prisma.transaction.findMany.mockResolvedValue([baseTx]);
+
+    const rows = await service.listForUser(userId, {
+      categoryId: expenseCategoryId,
+    });
+
+    expect(prisma.category.findFirst).toHaveBeenCalledWith({
+      where: { id: expenseCategoryId, userId },
+      select: { id: true },
+    });
+    expect(prisma.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          AND: expect.arrayContaining([{ categoryId: expenseCategoryId }]),
+        },
+      }),
+    );
+    expect(rows).toHaveLength(1);
+  });
+
+  it('rejects list when categoryId is not owned', async () => {
+    prisma.accountMember.findMany.mockResolvedValue([{ accountId: accountA }]);
+    prisma.category.findFirst.mockResolvedValue(null);
+
+    await expect(
+      service.listForUser(userId, { categoryId: expenseCategoryId }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
   it('updates amount on an existing expense', async () => {
     prisma.accountMember.findMany.mockResolvedValue([{ accountId: accountA }]);
     prisma.transaction.findFirst.mockResolvedValue(baseTx);

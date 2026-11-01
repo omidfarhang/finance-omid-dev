@@ -96,6 +96,8 @@
     "rangeTo": "تا",
     "filterAccount": "حساب",
     "allAccounts": "همه حساب‌ها",
+    "filterCategory": "دسته",
+    "allCategories": "همه دسته‌ها",
     "search": "جستجو",
     "searchPlaceholder": "توضیح، دسته یا حساب",
     "summary": "خلاصه بازه",

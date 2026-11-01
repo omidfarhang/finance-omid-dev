@@ -90,6 +90,7 @@ export class ActivityPage implements OnInit, OnDestroy {
   customTo = '';
   filterAccountId = '';
   filterType: TypeFilterKey = '';
+  filterCategoryId = '';
   searchDraft = '';
   searchQuery = signal('');
 
@@ -239,6 +240,16 @@ export class ActivityPage implements OnInit, OnDestroy {
     this.reload();
   }
 
+  onTypeFilterChange() {
+    if (this.filterCategoryId) {
+      const cat = this.categories().find((c) => c.id === this.filterCategoryId);
+      if (!cat || (this.filterType && cat.kind !== this.filterType)) {
+        this.filterCategoryId = '';
+      }
+    }
+    this.reload();
+  }
+
   onCustomRangeChange() {
     if (this.range !== 'custom') {
       return;
@@ -256,11 +267,42 @@ export class ActivityPage implements OnInit, OnDestroy {
     return from ?? null;
   }
 
+  filterCategoryOptions() {
+    const kindOrder: Record<CategoryKind, number> = {
+      INCOME: 0,
+      EXPENSE: 1,
+      TRANSFER: 2,
+    };
+    let list = [...this.categories()];
+    if (this.filterType) {
+      list = list.filter((c) => c.kind === this.filterType);
+    }
+    list.sort((a, b) => {
+      const byKind = kindOrder[a.kind] - kindOrder[b.kind];
+      if (byKind !== 0) {
+        return byKind;
+      }
+      return categoryLabel(a, this.i18n).localeCompare(
+        categoryLabel(b, this.i18n),
+      );
+    });
+    return [
+      {
+        label: this.i18n.translate('activity.allCategories'),
+        value: '',
+        icon: null as string | null,
+        color: null as string | null,
+      },
+      ...list.map((c) => categoryOptionFrom(c, this.i18n)),
+    ];
+  }
+
   filtersNarrowed(): boolean {
     return (
       this.range !== 'all' ||
       this.filterAccountId !== '' ||
-      this.filterType !== ''
+      this.filterType !== '' ||
+      this.filterCategoryId !== ''
     );
   }
 
@@ -290,6 +332,7 @@ export class ActivityPage implements OnInit, OnDestroy {
         from: range.from,
         to: range.to,
         type: this.filterType || undefined,
+        categoryId: this.filterCategoryId || undefined,
       }),
     }).subscribe({
       next: ({ accounts, categories, transactions }) => {

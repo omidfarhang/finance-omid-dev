@@ -65,6 +65,7 @@ export const listTransactionsQuerySchema = z.object({
   from: z.preprocess(emptyToUndefined, z.iso.datetime().optional()),
   to: z.preprocess(emptyToUndefined, z.iso.datetime().optional()),
   type: z.preprocess(emptyToUndefined, transactionTypeSchema.optional()),
+  categoryId: z.preprocess(emptyToUndefined, z.uuid().optional()),
 });
 export type ListTransactionsQuery = z.infer<typeof listTransactionsQuerySchema>;
 

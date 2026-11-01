@@ -17,6 +17,7 @@ export type ListTransactionsParams = {
   from?: string;
   to?: string;
   type?: 'INCOME' | 'EXPENSE' | 'TRANSFER';
+  categoryId?: string;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -38,6 +39,9 @@ export class TransactionsService {
     }
     if (params.type) {
       httpParams = httpParams.set('type', params.type);
+    }
+    if (params.categoryId) {
+      httpParams = httpParams.set('categoryId', params.categoryId);
     }
     return this.http
       .get<{ transactions: PublicTransaction[] }>(

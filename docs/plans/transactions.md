@@ -69,7 +69,7 @@ JSON money fields are **digit strings** (integer minor units). Prisma stores `Bi
 | Area | Routes |
 | --- | --- |
 | Categories | `GET/POST /categories` (list query: `kind?`), `PATCH/DELETE /categories/:id` |
-| Transactions | `GET /transactions` (query: `accountId?`, `from?`, `to?`, `type?`), `POST /transactions`, `GET/PATCH/DELETE /transactions/:id` |
+| Transactions | `GET /transactions` (query: `accountId?`, `from?`, `to?`, `type?`, `categoryId?`), `POST /transactions`, `GET/PATCH/DELETE /transactions/:id` |
 
 ### Create body
 
@@ -89,14 +89,14 @@ JSON money fields are **digit strings** (integer minor units). Prisma stores `Bi
 
 ### List
 
-Returns chronological actuals (newest first by default). Time range filters on `occurredAt`. Never includes forecast rows.
+Returns chronological actuals (newest first by default). Time range filters on `occurredAt`; optional `categoryId` must belong to the user (unknown → 404). Never includes forecast rows.
 
 Unknown or inaccessible ids return **404**.
 
 ## UI (fill existing slots)
 
 - **Shared Add dialog**: one create entry point on Home, Activity, and Account detail — SelectButton (icon + label) for Income / Expense / Transfer; required category on all types (icon + color + localized label); shared-cost mark on personal-account expense; Account detail preselects the current account
-- **Activity** (`/activity`): surface-panel ledger; live filters (time range presets + custom from/to, account, type) + client-side search; per-currency period summary (income/expense/net; transfers separate); day-grouped list; shared Add; row click → type-specific edit; delete from edit dialog with confirm; category chip (icon/color) on rows
+- **Activity** (`/activity`): surface-panel ledger; live filters (time range presets + custom from/to, account, type, category) + client-side search; per-currency period summary (income/expense/net; transfers separate); day-grouped list; shared Add; row click → type-specific edit; delete from edit dialog with confirm; category chip (icon/color) on rows
 - **Home**: recent income/expense log + shared Add (transfers created here show on Activity, not in home recent)
 - **Account detail**: movements list with edit/delete; shared Add; type-specific edit dialogs
 - **Settings**: three surface panels (Income / Expense / Transfer) — system catalog read-only; user add/edit/delete with icon + color pickers
