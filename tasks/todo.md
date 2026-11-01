@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- CI-built Docker images on GHCR; server deploy is pull + up (no `--build`) ([DEC-018](../docs/decisions/DEC-018-ci-container-images.md), [DEC-008](../docs/decisions/DEC-008-self-hosted-docker.md))
 - Upgrade package manager to pnpm 12.16.1 (`packageManager` + Docker pins; [DEC-002](../docs/decisions/DEC-002-stack.md))
 - Pin runtime to Node 24 (engines, Docker API/web images, `@types/node`; [DEC-002](../docs/decisions/DEC-002-stack.md), [DEC-008](../docs/decisions/DEC-008-self-hosted-docker.md))
 - BluBank Excel import adapter (`blubank_xlsx`): rial-labeled debit/credit, Jalali datetimes → UTC, IRR-only account ([docs/plans/imports.md](../docs/plans/imports.md), [docs/brainstorm/bank-formats.md](../docs/brainstorm/bank-formats.md), [DEC-012](../docs/decisions/DEC-012-import-adapters.md))

@@ -37,13 +37,23 @@ For local API/web, set `DATABASE_URL` / `CORS_ORIGIN` to localhost values (see c
 
 ## Deploy (Docker Compose)
 
-Self-hosted under **https://finance.omid.dev**. Compose runs Postgres, the NestJS API, and nginx (Angular SPA + `/api/` proxy). Host nginx terminates TLS and proxies to the published port ([DEC-008](docs/decisions/DEC-008-self-hosted-docker.md)).
+Self-hosted under **https://finance.omid.dev**. Compose runs Postgres, the NestJS API, and nginx (Angular SPA + `/api/` proxy). Host nginx terminates TLS and proxies to the published port ([DEC-008](docs/decisions/DEC-008-self-hosted-docker.md)). App images are built on every push to `master` and published to GHCR; the server only pulls and starts them ([DEC-018](docs/decisions/DEC-018-ci-container-images.md)).
+
+**CI (once):** add repo secret `PRIMENG_LICENSE` (free Community key from https://primeui.dev) so the web image build clears the PrimeUI banner. After the first successful [Docker images](https://github.com/omidfarhang/finance-omid-dev/actions) workflow, confirm the `api` and `web` GHCR packages are **public** (the workflow sets this; otherwise Package settings → Change visibility).
+
+**Server — first time:**
 
 ```bash
 cp .env.example .env
 # Set SESSION_SECRET, POSTGRES_PASSWORD, DATABASE_URL, CORS_ORIGIN=https://finance.omid.dev
-# Set PRIMENG_LICENSE (free Community key from https://primeui.dev) to clear the PrimeUI banner
-docker compose up -d --build
+docker compose pull
+docker compose up -d
+```
+
+**Server — after each merge to `master` (wait for Actions to finish):**
+
+```bash
+git pull && docker compose pull && docker compose up -d
 ```
 
 App listens on **http://127.0.0.1:8080** by default (`APP_PORT`). If that host port is taken, set e.g. `APP_PORT=9080` in `.env` and point nginx at the same port — see [docs/nginx-reverse-proxy.conf.example](docs/nginx-reverse-proxy.conf.example).

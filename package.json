@@ -13,7 +13,7 @@
     "lint": "pnpm -r run lint",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "deploy:up": "docker compose up -d --build",
+    "deploy:up": "docker compose pull && docker compose up -d",
     "deploy:down": "docker compose down",
     "db:migrate": "pnpm --filter @finance/api prisma:migrate",
     "db:generate": "pnpm --filter @finance/api prisma:generate"

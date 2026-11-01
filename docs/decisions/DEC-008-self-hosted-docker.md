@@ -18,13 +18,14 @@ The app is personal / household, self-hosted under `finance.omid.dev`. Local dev
 - **Full stack in one Compose file:** `postgres`, NestJS `api`, and nginx `web` (static Angular + `/api/` proxy to the API).
 - **Same-origin API:** production web uses `apiBaseUrl: '/api/v1'`; container nginx proxies `/api/` to the API service so cookie sessions stay first-party.
 - **TLS at host nginx:** Compose publishes only the web container on `127.0.0.1:${APP_PORT:-8080}` (HTTP). Host nginx terminates HTTPS for `finance.omid.dev` and proxies to that port (same pattern as `tools.omid.dev`).
-- **Local Postgres unchanged:** `pnpm db:up` still starts only the `postgres` service; full `docker compose up --build` is for deploy.
+- **Local Postgres unchanged:** `pnpm db:up` still starts only the `postgres` service.
+- **App images from CI:** `api` and `web` are built in GitHub Actions and pulled from GHCR at deploy time — not built on the server ([DEC-018](DEC-018-ci-container-images.md)).
 - **Migrations on boot:** the API container runs `prisma migrate deploy` before listening.
 - **Node base image:** API and web build stages use `node:24-bookworm-slim` (same major as local `engines`; see [DEC-002](DEC-002-stack.md)).
 
 ## Consequences
 
-- Deploy is `cp .env.example .env`, set secrets, `docker compose up -d --build`, then point host nginx at `APP_PORT`.
+- First-time deploy: `cp .env.example .env`, set secrets, then `docker compose pull && docker compose up -d`, and point host nginx at `APP_PORT`. Ongoing: `git pull && docker compose pull && docker compose up -d` after CI publishes `:latest`.
 - Cookie `Secure` + `CORS_ORIGIN=https://finance.omid.dev` must match the public origin.
 - Postgres need not be reachable from the public internet; host bind for `5432` stays localhost-only for local tools.
 

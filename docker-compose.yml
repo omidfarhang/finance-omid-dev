@@ -18,10 +18,7 @@ services:
       retries: 10
 
   api:
-    build:
-      context: .
-      dockerfile: apps/api/Dockerfile
-    image: finance-omid-api:local
+    image: ghcr.io/omidfarhang/finance-omid-dev/api:${IMAGE_TAG:-latest}
     container_name: finance-omid-api
     restart: unless-stopped
     env_file:
@@ -49,12 +46,7 @@ services:
       start_period: 20s
 
   web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-      args:
-        PRIMENG_LICENSE: ${PRIMENG_LICENSE:-}
-    image: finance-omid-web:local
+    image: ghcr.io/omidfarhang/finance-omid-dev/web:${IMAGE_TAG:-latest}
     container_name: finance-omid-web
     restart: unless-stopped
     ports:
