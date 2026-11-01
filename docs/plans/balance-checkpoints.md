@@ -5,7 +5,7 @@ Dated known balances for detecting missing income, expense, and transfers. Produ
 ## Goals
 
 - Record an exact account balance at an exact UTC instant whenever the user wants
-- Derive displayed current balance from the earliest checkpoint plus later movements
+- Derive displayed current balance from the **latest** checkpoint plus later movements
 - Show a **gap** between consecutive checkpoints vs movements in that window (detection only)
 - Surface checkpoints on account detail and in the Activity timeline
 - Session-guarded API; access via account membership (same 404 pattern as accounts)
@@ -14,7 +14,6 @@ Dated known balances for detecting missing income, expense, and transfers. Produ
 
 - Auto-creating balancing income/expense to close a gap
 - Import “closing balance” / statement-total comparison
-- Rolling current balance only from the *latest* checkpoint (would hide fixes to earlier gaps)
 - FX, cross-currency totals, forecast mixing into checkpoints
 
 ## Schema
@@ -30,17 +29,19 @@ Dated known balances for detecting missing income, expense, and transfers. Produ
 - **Account:** no `openingBalanceMinor`; every account has ≥1 checkpoint
 - Migration: each existing `openingBalanceMinor` becomes one checkpoint with `asOf = Account.createdAt`
 
-### Anchor and current balance
+### Current balance (forward from latest known)
 
-Earliest checkpoint by `asOf` (tie-break: `createdAt`, then `id`) is the ledger **anchor**.
+**Latest** checkpoint by `asOf` (tie-break: `createdAt`, then `id`) is the forward **anchor** for the displayed balance. Recording a new known balance updates what the app shows as current (plus any movements after that instant).
 
 ```text
 balanceMinor(A) =
-  earliestCheckpoint(A).balanceMinor
-  + signedSum(movements on A with occurredAt > earliest.asOf)
+  latestCheckpoint(A).balanceMinor
+  + signedSum(movements on A with occurredAt > latest.asOf)
 ```
 
 Sign rules match [transactions.md](transactions.md): income +, expense −, transfer out − / in +.
+
+Earlier checkpoints are kept for **gap detection** only; they do not override a newer recorded balance.
 
 ### Gap between consecutive checkpoints
 
@@ -89,14 +90,14 @@ Newest `asOf` first. Each row includes `computedBalanceMinor` and `gapMinor` (`n
 ## UI
 
 - **Create account:** amount + datetime for the initial checkpoint (not an immutable “opening” field).
-- **Account detail — Balance panel:** large current balance; copy that balance is the anchor checkpoint plus later movements; checkpoint history with gap badges; add / edit / delete checkpoint dialogs.
+- **Account detail — Balance panel:** large current balance; copy that balance is the **latest** known balance plus later movements; checkpoint history with gap badges; add / edit / delete checkpoint dialogs.
 - **Activity:** checkpoint markers in the day-grouped timeline (account name when viewing all accounts). Distinct non-transaction rows; click → edit; gap chip when non-zero. Not counted in period income/expense/net summary.
 - Money: `app-amount-input`, locale formatters, IRR toman presentation unchanged ([ui-ux.md](ui-ux.md)).
 
 ## Acceptance
 
 - Account create requires initial balance + as-of; no `openingBalanceMinor` on the wire
-- Displayed balance equals earliest checkpoint ± signed movements after its `asOf`
+- Displayed balance equals latest checkpoint ± signed movements after its `asOf`
 - User can add further checkpoints; list shows gap vs previous window
 - Earliest checkpoint has null gap; deleting the last checkpoint is rejected
 - Gaps never auto-create transactions

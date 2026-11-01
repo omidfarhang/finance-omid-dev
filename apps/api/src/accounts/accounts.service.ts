@@ -255,11 +255,11 @@ export class AccountsService {
         );
       }
       const sorted = [...list].sort(compareCheckpointsAsc);
-      const earliest = sorted[0]!;
+      const latest = sorted[sorted.length - 1]!;
       return {
         id,
-        balanceMinor: earliest.balanceMinor,
-        asOf: earliest.asOf,
+        balanceMinor: latest.balanceMinor,
+        asOf: latest.asOf,
       };
     });
 

@@ -12,7 +12,7 @@ describe('balance helpers', () => {
   const t1 = new Date('2026-01-15T12:00:00.000Z');
   const t2 = new Date('2026-02-01T00:00:00.000Z');
 
-  it('reproduces balance from earliest checkpoint plus later movements', () => {
+  it('reproduces balance from latest checkpoint plus later movements', () => {
     const balance = computeBalanceMinor(
       1000n,
       accountA,
@@ -60,6 +60,30 @@ describe('balance helpers', () => {
       t0,
     );
     expect(balance).toBe(900n);
+  });
+
+  it('uses the provided latest anchor and ignores earlier movements', () => {
+    // Display path anchors on the latest checkpoint (195M at t2), not the earliest.
+    const balances = buildBalanceMap(
+      [{ id: accountA, balanceMinor: 195_555_555n, asOf: t2 }],
+      [
+        {
+          type: TransactionType.INCOME,
+          accountId: accountA,
+          counterAccountId: null,
+          amountMinor: 5_555_555n,
+          occurredAt: t0,
+        },
+        {
+          type: TransactionType.EXPENSE,
+          accountId: accountA,
+          counterAccountId: null,
+          amountMinor: 100n,
+          occurredAt: new Date('2026-02-02T00:00:00.000Z'),
+        },
+      ],
+    );
+    expect(balances.get(accountA)).toBe(195_555_455n);
   });
 
   it('applies same-currency transfer to both accounts after their anchors', () => {

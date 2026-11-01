@@ -432,7 +432,7 @@
     "notFound": "Account not found",
     "notFoundTitle": "Account not found",
     "balanceStory": "Balance",
-    "balanceFromMovements": "Earliest known balance plus later movements",
+    "balanceFromMovements": "Latest known balance plus later movements",
     "movements": "Movements",
     "movementsEmpty": "No movements on this account yet.",
     "activityLink": "Open Activity"

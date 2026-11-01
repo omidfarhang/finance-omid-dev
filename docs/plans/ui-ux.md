@@ -25,7 +25,7 @@ Product UI information architecture and interaction patterns for the Angular PWA
 
 1. **IA before chrome polish** — routes, shells, and “where does this live?” come first; visual polish follows.
 2. **Lists first** — list/detail pages show data and a clear primary action; create/edit open in a dialog, drawer, or dedicated route — never always-visible form stacks under every list.
-3. **Money is transparent** — balances and costs must show how they are derived (anchor checkpoint + later movements; checkpoint gaps when recorded); never silent rial/toman inference ([DEC-006](../decisions/DEC-006-money-multi-currency.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md)).
+3. **Money is transparent** — balances and costs must show how they are derived (latest known balance + later movements; checkpoint gaps when recorded); never silent rial/toman inference ([DEC-006](../decisions/DEC-006-money-multi-currency.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md)).
 4. **Actuals ≠ forecast** — Activity and account ledgers are historical; Outlook (and the home strip) are labeled projections ([mvp.md](mvp.md)).
 5. **No cross-currency net worth** — group and total only within a currency ([DEC-006](../decisions/DEC-006-money-multi-currency.md)).
 6. **One primary job per screen** — home composes three tight sections; other routes stay focused.
@@ -173,7 +173,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Purpose: one account’s balance story, movements, shared badge, member management (email add/remove per [wallets-accounts.md](wallets-accounts.md)).
 - Visual language: **surface panels** for Balance, Movements, and Members (when shared); skeletons while loading; same max-width rhythm as Accounts/Activity.
-- **Balance** panel: large current balance + copy that balance is the **anchor checkpoint** plus later movements; checkpoint history (as-of, recorded balance, gap badge); add / edit / delete checkpoint dialogs ([balance-checkpoints.md](balance-checkpoints.md)). Currency chrome as `Name (CODE)`; Shared badge in the header lede.
+- **Balance** panel: large current balance + copy that balance is the **latest known balance** plus later movements; checkpoint history (as-of, recorded balance, gap badge); add / edit / delete checkpoint dialogs ([balance-checkpoints.md](balance-checkpoints.md)). Currency chrome as `Name (CODE)`; Shared badge in the header lede.
 - **Movements** panel: day-grouped by user calendar + timezone (same helper as Activity); newest day first. Rows show type (income/expense color cues), amount, transfer counter direction relative to this account, time, category chip, shared mark, description. **Click/tap row** opens type-specific edit; Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
 - Empty movements: one sentence + primary **Add** (+ optional link to `/activity`).
 - Primary actions: single **Add** opens the shared Add dialog (preselects this account for income/expense and transfer-from); **Rename** opens a dialog that PATCHes name only (currency immutable); **Record balance** opens checkpoint create; when shared, **Add member** by email and **remove member** with ConfirmDialog (API rejects removing the last owner — surface the error).

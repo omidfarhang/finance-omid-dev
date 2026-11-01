@@ -432,7 +432,7 @@
     "notFound": "حساب یافت نشد",
     "notFoundTitle": "حساب یافت نشد",
     "balanceStory": "مانده",
-    "balanceFromMovements": "اولین موجودی معلوم به‌علاوه حرکت‌های بعدی",
+    "balanceFromMovements": "آخرین موجودی معلوم به‌علاوه حرکت‌های بعدی",
     "movements": "حرکت‌ها",
     "movementsEmpty": "هنوز حرکتی روی این حساب نیست.",
     "activityLink": "باز کردن فعالیت"

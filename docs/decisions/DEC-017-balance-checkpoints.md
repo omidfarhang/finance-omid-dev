@@ -10,14 +10,14 @@ Users need to record the exact bank (or cash) balance at arbitrary times so gaps
 ## Options considered
 
 - Keep `openingBalanceMinor` and add separate reconciliation snapshots that never affect the ledger formula.
-- Replace opening balance with dated **BalanceCheckpoint** rows; earliest is the ledger anchor; later rows are detection-only.
+- Replace opening balance with dated **BalanceCheckpoint** rows; display from **earliest** + all later movements (checkpoints only for gaps).
+- Replace opening balance with dated checkpoints; display from **latest** + movements after it; earlier rows for gap detection only.
 - Allow optional auto-adjustment transactions when a gap is non-zero.
-- Compute current balance by rolling forward only from the *latest* checkpoint.
 
 ## Decision
 
 - Remove `Account.openingBalanceMinor`. Every account has ≥1 **BalanceCheckpoint** (`asOf`, `balanceMinor`, optional `note`).
-- **Displayed balance** = earliest checkpoint (by `asOf`) + signed movements with `occurredAt` after that `asOf`.
+- **Displayed balance** = latest checkpoint (by `asOf`) + signed movements with `occurredAt` after that `asOf`.
 - **Gaps** between consecutive checkpoints are detection-only (`recorded − computed` for the window); users fix drift by editing the ledger, not by inventing balancing movements in this slice.
 - Account create takes `initialBalanceMinor` + `initialBalanceAsOf` and writes the first checkpoint.
 - Existing openings migrate to a checkpoint at `Account.createdAt`.

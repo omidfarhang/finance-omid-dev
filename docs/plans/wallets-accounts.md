@@ -6,7 +6,7 @@ First ledger foundation for MVP. Product rules: [DEC-005](../decisions/DEC-005-w
 
 - Personal wallets owned by the authenticated user
 - Accounts under a wallet: name, ISO currency, initial balance checkpoint (integer minor units + as-of), personal or shared
-- Displayed balance for this slice equals the earliest checkpoint (transactions / further checkpoints: [transactions.md](transactions.md), [balance-checkpoints.md](balance-checkpoints.md))
+- Displayed balance for this slice equals the latest checkpoint (transactions / further checkpoints: [transactions.md](transactions.md), [balance-checkpoints.md](balance-checkpoints.md))
 - Session-guarded API; access via account membership
 
 ## Out of scope
@@ -38,12 +38,12 @@ Unknown or inaccessible ids return **404** (no existence leak).
 
 ## Balance meaning
 
-Create writes the first checkpoint; listed `balanceMinor` equals that checkpoint until movements exist. After [transactions.md](transactions.md) and [balance-checkpoints.md](balance-checkpoints.md): earliest checkpoint ± signed movements after its `asOf`.
+Create writes the first checkpoint; listed `balanceMinor` equals that checkpoint until movements exist. After [transactions.md](transactions.md) and [balance-checkpoints.md](balance-checkpoints.md): latest checkpoint ± signed movements after its `asOf`.
 
 ## Acceptance
 
 - User can create a wallet and accounts with explicit currency and initial balance as-of
-- Listed balance equals the earliest checkpoint when there are no later movements
+- Listed balance equals the latest checkpoint when there are no later movements
 - Shared account can include another registered user; they can list it; outsiders cannot
 - Amounts are integer minor units; IRR toman is display-only
 - No cross-currency aggregated total in UI or API

@@ -15,7 +15,7 @@ The first useful release for personal (and soon household) use. Outcomes over im
 
 - Auth: register, login, logout, optional TOTP 2FA, profile ([DEC-007](../decisions/DEC-007-auth.md))
 - Instance admin: first user is admin; registration toggle; manage users and any user’s wallets/accounts ([DEC-010](../decisions/DEC-010-instance-admin.md), [instance-admin.md](instance-admin.md))
-- Personal **wallets** with accounts that may be personal or **shared**; dated balance checkpoints (earliest replaces opening balance) ([DEC-005](../decisions/DEC-005-wallets-and-accounts.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md), [balance-checkpoints.md](balance-checkpoints.md))
+- Personal **wallets** with accounts that may be personal or **shared**; dated balance checkpoints (latest known balance replaces opening balance) ([DEC-005](../decisions/DEC-005-wallets-and-accounts.md), [DEC-017](../decisions/DEC-017-balance-checkpoints.md), [balance-checkpoints.md](balance-checkpoints.md))
 - Manual income and expense entry (with categories or tags as needed for daily use)
 - Same-currency transfers between accounts that do not inflate income/expense totals
 - Shared cost paid from a personal account: full expense on payer + optional “shared” mark; settlement via later transfer (richer IOU model deferred)
@@ -37,7 +37,7 @@ The first useful release for personal (and soon household) use. Outcomes over im
 
 ## Acceptance criteria
 
-- Earliest balance checkpoint plus recorded movements after its as-of reproduces the displayed account balance; further checkpoints show detection-only gaps.
+- Latest balance checkpoint plus recorded movements after its as-of reproduces the displayed account balance; earlier checkpoints show detection-only gaps.
 - Manual income and expense can be entered, listed, and filtered by a useful time range.
 - A same-currency transfer between two accounts adjusts both balances and is not counted as both income and expense.
 - Importing a statement twice does not silently double-count transactions.
