@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
 FROM node:24-bookworm-slim AS build
-# Install pnpm directly (avoid Corepack enable in CI/build images).
-RUN npm install -g pnpm@9.15.0
+# Match root packageManager via Corepack (avoids npm allowScripts noise for global pnpm).
+RUN corepack enable && corepack prepare pnpm@12.16.1 --activate
 
 WORKDIR /app
 

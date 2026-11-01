@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 FROM node:24-bookworm-slim AS build
-# Install pnpm directly (avoid Corepack enable in CI/build images).
-RUN npm install -g pnpm@9.15.0 \
+# Match root packageManager via Corepack (avoids npm allowScripts noise for global pnpm).
+RUN corepack enable \
+  && corepack prepare pnpm@12.16.1 --activate \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssl python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
@@ -24,7 +25,8 @@ ENV DATABASE_URL="postgresql://build:build@127.0.0.1:5432/build"
 RUN pnpm exec prisma generate && pnpm run build
 
 FROM node:24-bookworm-slim AS runtime
-RUN npm install -g pnpm@9.15.0 \
+RUN corepack enable \
+  && corepack prepare pnpm@12.16.1 --activate \
   && apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*

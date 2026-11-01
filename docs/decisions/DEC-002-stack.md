@@ -20,13 +20,14 @@ We needed a stack for a REST API, relational persistence, safe validation, and a
 - **API:** NestJS + **PostgreSQL** + **Prisma** + **Zod** (shared HTTP DTOs; Prisma models stay server-side).
 - **Web:** Angular (standalone) PWA with **PrimeNG** as the sole UI component library (single theme when scaffolded).
 - **Layout:** monorepo with `apps/api`, `apps/web`, and `packages/shared` for Zod schemas and shared TypeScript types.
-- **Package manager:** **pnpm** workspaces.
+- **Package manager:** **pnpm** workspaces (pinned via `packageManager`; Docker images activate the same version with Corepack).
 - **Local Postgres:** **Docker Compose**.
 - Prefer Angular over React unless a future need clearly conflicts with Angular PWA constraints.
 
 ### Current major versions (as of 2026-11-01)
 
 - **Node.js** 24 (LTS) for local `engines` and Docker API/web build images; Prisma 7’s install allowlist is 20 / 22 / 24 only.
+- **pnpm** 12 (`packageManager` + Compose build images).
 - **NestJS** 12 (TypeScript 6 for `@nestjs/schematics` peer).
 - **Prisma** 7 (`prisma-client` generator + `@prisma/adapter-pg`; `DATABASE_URL` in `prisma.config.ts`).
 - **Zod** 4 in `packages/shared` and `apps/api` (keep in lockstep).
@@ -37,7 +38,8 @@ We needed a stack for a REST API, relational persistence, safe validation, and a
 
 - TypeScript can span API, shared contracts, and web client.
 - NestJS modules map cleanly to MVP nouns (auth, wallets, accounts, transactions, imports, etc.).
-- Local dev depends on pnpm and Compose for Postgres; runtime is Node 24 everywhere (host + Compose images).
+- Local dev depends on pnpm 12 and Compose for Postgres; runtime is Node 24 everywhere (host + Compose images).
+- pnpm 12 blocks dependency lifecycle scripts until approved; allowed packages are listed under `allowBuilds` in `pnpm-workspace.yaml` (needed for Docker `pnpm install` too).
 - Prisma Client is generated under `apps/api/src/generated/prisma` (not `@prisma/client` in `node_modules`); Docker build must run `prisma generate` before `nest build`.
 - API unit/e2e tests run under Vitest; Nest DI still uses `@nestjs/testing`.
 

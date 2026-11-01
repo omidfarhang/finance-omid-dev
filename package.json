@@ -2,7 +2,7 @@
   "name": "finance-omid",
   "private": true,
   "license": "MIT",
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@12.16.1",
   "scripts": {
     "dev:api": "pnpm --filter @finance/api start:dev",
     "dev:web": "node scripts/inject-primeng-license.mjs && pnpm --filter @finance/web start",
