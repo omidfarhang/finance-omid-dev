@@ -133,7 +133,14 @@
             <li>
               <div class="tx-main">
                 <span class="account-name">{{ currencyName(row.currency) }}</span>
-                <span class="balance money-ltr">{{ formatMoney(row.surplusMinor, row.currency) }}</span>
+                <span class="outlook-surplus">
+                  <span class="meta">{{ surplusLabel(row.surplusMinor) }}</span>
+                  <span
+                    class="balance money-ltr"
+                    [class.summary-shortfall]="isShortfall(row.surplusMinor)"
+                    >{{ formatMoney(row.surplusMinor, row.currency) }}</span
+                  >
+                </span>
               </div>
               <p class="meta">
                 {{ t('outlook.income') }}:

@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- Outlook UI / UX full pass: surface panels, summary-block forecast, rule cards + ConfirmDialog, skeletons, empty CTAs ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md))
 - Balance checkpoints replace opening balance (detection-only gaps; account detail + Activity) ([docs/plans/balance-checkpoints.md](../docs/plans/balance-checkpoints.md), [DEC-017](../docs/decisions/DEC-017-balance-checkpoints.md))
 - Activity category filter (`categoryId` on list API + Activity select) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))
 - Activity custom date range filter (from/to via shared date-time field) ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/transactions.md](../docs/plans/transactions.md))

@@ -5,12 +5,15 @@ import type {
   PublicRecurring,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonDirective } from 'primeng/button';
 import { Checkbox } from 'primeng/checkbox';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { SelectButton } from 'primeng/selectbutton';
+import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
 import { formatCalendarMonthLabel } from '../../core/format-app-date';
 import {
@@ -24,6 +27,12 @@ import { MoneyDisplayPreferenceService } from '../../core/money-display-preferen
 import { RecurringsService } from '../../core/recurrings.service';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 
+type TypeOption = {
+  label: string;
+  value: 'INCOME' | 'EXPENSE';
+  icon: string;
+};
+
 @Component({
   selector: 'app-outlook-page',
   standalone: true,
@@ -36,6 +45,8 @@ import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amoun
     InputText,
     Message,
     Select,
+    SelectButton,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './outlook.page.html',
@@ -44,7 +55,7 @@ import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amoun
 export class OutlookPage implements OnInit {
   forecast = signal<NextMonthForecast | null>(null);
   rules = signal<PublicRecurring[]>([]);
-  loading = signal(false);
+  loading = signal(true);
   message = signal<string | null>(null);
   error = signal<string | null>(null);
   dialogVisible = signal(false);
@@ -57,17 +68,29 @@ export class OutlookPage implements OnInit {
   anchorDay = 1;
   active = true;
 
+  readonly skeletonForecast = [0, 1];
+  readonly skeletonRules = [0, 1, 2];
+
   private readonly api = inject(RecurringsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
   private readonly locale = inject(LocaleService);
   private readonly i18n = inject(TranslocoService);
+  private readonly confirm = inject(ConfirmationService);
 
   readonly currencies = computed(() =>
     currencyOptions(this.locale.activeLang()),
   );
-  readonly typeOptions = computed(() => [
-    { label: this.i18n.translate('activity.type.INCOME'), value: 'INCOME' },
-    { label: this.i18n.translate('activity.type.EXPENSE'), value: 'EXPENSE' },
+  readonly typeOptions = computed((): TypeOption[] => [
+    {
+      label: this.i18n.translate('activity.type.INCOME'),
+      value: 'INCOME',
+      icon: 'pi pi-arrow-down',
+    },
+    {
+      label: this.i18n.translate('activity.type.EXPENSE'),
+      value: 'EXPENSE',
+      icon: 'pi pi-arrow-up',
+    },
   ]);
 
   ngOnInit() {
@@ -103,6 +126,7 @@ export class OutlookPage implements OnInit {
     this.description = '';
     this.anchorDay = 1;
     this.active = true;
+    this.error.set(null);
     this.dialogVisible.set(true);
   }
 
@@ -114,6 +138,7 @@ export class OutlookPage implements OnInit {
     this.description = rule.description ?? '';
     this.anchorDay = rule.anchorDay;
     this.active = rule.active;
+    this.error.set(null);
     this.dialogVisible.set(true);
   }
 
@@ -150,7 +175,22 @@ export class OutlookPage implements OnInit {
     });
   }
 
+  confirmRemove(rule: PublicRecurring) {
+    const name =
+      rule.description?.trim() ||
+      `${this.typeLabel(rule.type)} · ${this.currencyName(rule.currency)}`;
+    this.confirm.confirm({
+      message: this.i18n.translate('outlook.confirmDelete', { name }),
+      header: this.i18n.translate('outlook.delete'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.remove(rule),
+    });
+  }
+
   remove(rule: PublicRecurring) {
+    this.error.set(null);
+    this.message.set(null);
     this.api.remove(rule.id).subscribe({
       next: () => {
         this.message.set(this.i18n.translate('outlook.deleted'));
@@ -170,6 +210,20 @@ export class OutlookPage implements OnInit {
       forecast.month,
       forecast.calendar,
       this.locale.activeLang(),
+    );
+  }
+
+  isShortfall(surplusMinor: string): boolean {
+    try {
+      return BigInt(surplusMinor) < 0n;
+    } catch {
+      return surplusMinor.trim().startsWith('-');
+    }
+  }
+
+  surplusLabel(surplusMinor: string): string {
+    return this.i18n.translate(
+      this.isShortfall(surplusMinor) ? 'outlook.shortfall' : 'outlook.surplus',
     );
   }
 

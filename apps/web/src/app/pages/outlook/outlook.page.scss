@@ -1,9 +1,9 @@
 .outlook-page {
-  max-width: 44rem;
-  margin: 2rem auto;
-  padding: 0 1.25rem;
+  max-width: 58rem;
+  margin: 1.5rem auto;
+  padding: 0 1.25rem 1.5rem;
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .page-header {
@@ -14,37 +14,118 @@
   flex-wrap: wrap;
 }
 
+.page-header h1 {
+  margin: 0 0 0.35rem;
+}
+
 .header-actions,
-.row-actions {
+.panel-actions,
+.row-actions,
+.empty-actions,
+.dialog-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .lede,
 .meta,
-.hint {
+.hint,
+.projection {
+  margin: 0;
   color: var(--app-text-muted);
 }
 
 .projection {
   font-style: italic;
-  color: var(--app-text-muted);
 }
 
 .panel {
   display: grid;
-  gap: 1rem;
-  padding: 1.25rem 0;
-  border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent);
+  gap: 0.85rem;
+  padding: 1.15rem 1.25rem;
+  border-radius: var(--app-panel-radius);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  box-shadow: var(--app-panel-shadow);
 }
 
-.forecast-list {
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.panel-header h2,
+.panel-summary h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.summary-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.summary-block {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-row-border);
+  background: var(--app-row-bg);
+}
+
+.summary-currency {
+  margin: 0;
+  font-weight: 700;
+}
+
+.summary-line {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--app-text-muted);
+}
+
+.summary-net {
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.summary-shortfall {
+  color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
+}
+
+.rule-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.85rem;
+  gap: 0.65rem;
+}
+
+.rule-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--app-row-border);
+  background: var(--app-row-bg);
+}
+
+.rule-row-inactive {
+  opacity: 0.72;
+}
+
+.rule-row-skeleton {
+  pointer-events: none;
 }
 
 .tx-main {
@@ -54,9 +135,22 @@
   align-items: baseline;
 }
 
+.tx-type {
+  font-weight: 600;
+}
+
+.tx-type[data-type='INCOME'] {
+  color: color-mix(in srgb, var(--app-accent) 85%, #1c2a27);
+}
+
+.tx-type[data-type='EXPENSE'] {
+  color: color-mix(in srgb, #8b3a3a 70%, var(--app-text));
+}
+
 .balance {
   font-variant-numeric: tabular-nums;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
 }
 
 .badge {
@@ -66,6 +160,12 @@
   padding: 0.1rem 0.4rem;
   border: 1px solid color-mix(in srgb, var(--app-text) 20%, transparent);
   border-radius: 0.25rem;
+  vertical-align: middle;
+}
+
+.meta {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
 }
 
 .dialog-form {
@@ -89,4 +189,14 @@ label {
 .hint {
   font-weight: 400;
   font-size: 0.85rem;
+}
+
+.type-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+:host ::ng-deep .type-select .p-togglebutton {
+  flex: 1 1 0;
 }

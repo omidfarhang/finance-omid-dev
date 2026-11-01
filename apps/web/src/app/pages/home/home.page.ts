@@ -187,6 +187,20 @@ export class HomePage implements OnInit {
     return categoryColorCssVar(color);
   }
 
+  isShortfall(surplusMinor: string): boolean {
+    try {
+      return BigInt(surplusMinor) < 0n;
+    } catch {
+      return surplusMinor.trim().startsWith('-');
+    }
+  }
+
+  surplusLabel(surplusMinor: string): string {
+    return this.i18n.translate(
+      this.isShortfall(surplusMinor) ? 'outlook.shortfall' : 'outlook.surplus',
+    );
+  }
+
   formatMoney(amountMinor: string, currency: string): string {
     return formatBalanceMinor(
       amountMinor,

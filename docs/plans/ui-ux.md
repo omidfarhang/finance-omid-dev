@@ -186,9 +186,12 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Outlook (`/outlook`)
 
-- Purpose: next-month expected income, recurrings, surplus/shortfall **per currency**, labeled projections.
-- Recurring rules are **managed on this page** (list + create/edit dialog) — not Settings ([recurrings-forecast.md](recurrings-forecast.md)).
-- Empty until recurrings exist: explain and prompt to add a rule here.
+- Purpose: next-month expected income, recurrings, surplus/shortfall **per currency**, labeled projections ([recurrings-forecast.md](recurrings-forecast.md)). Home shows a short strip only; this page is the detail + rule management surface.
+- Visual language matches home/activity/settings: **surface panels** (padding, radius, soft background) for the forecast summary and rules list — not leading hairline rules. Layout width/rhythm aligns with Home/Activity (`~58rem`, panel gap). Loading uses skeletons.
+- **Next-month forecast panel:** heading with month label from the forecast payload’s calendar year/month ([DEC-013](../decisions/DEC-013-calendar-preference.md)); projection banner inside the panel; per-currency **summary blocks** (expected income, expected expenses, labeled surplus or shortfall with signed amount); currency chrome as `Name (CODE)`. Empty (no active rules for next month): one sentence + **Add recurring** CTA. Must not invent numbers.
+- **Recurring rules panel:** `panel-header` with Add; row cards with type color cue (income/expense), amount, day of month, optional description, inactive badge (muted when inactive); Edit + Delete per row. Delete uses ConfirmDialog. Empty: one sentence + Add CTA.
+- Create/edit dialog: SelectButton for Income / Expense (icon + label; no Transfer); searchable currency Select over the Iranian-first UI allowlist; `app-amount-input`; anchor day 1–28; optional description; active checkbox. Rules are MONTHLY only in MVP.
+- Must not mix unlabeled forecast into Activity or alter historical balances.
 
 ### Settings (`/settings`)
 
@@ -289,6 +292,7 @@ Later feature slices must **fill these routes**, not invent new top-level nav it
 - Theme preference Light / Dark / System (default System) applies via Settings icon control and persists on the profile ([DEC-015](../decisions/DEC-015-theme-preference.md)).
 - Settings uses the same surface-panel language as home (profile / categories / security sections).
 - Accounts list and account detail use the same surface-panel language as home/activity (wallet panels, balance/movements/members); account detail movements are day-grouped with clickable rows and delete in the edit dialog.
+- Outlook uses the same surface-panel language as home/activity: next-month summary blocks per currency (labeled surplus/shortfall), recurring rule row cards with ConfirmDialog delete, skeletons and empty CTAs; home outlook strip remains summary-only with a link to `/outlook`.
 
 ## Out of scope for this plan’s UI work
 

@@ -45,8 +45,8 @@ Writing recurrings into actual transactions, mid-month â€œremaining this monthâ€
 
 ## UI
 
-- **`/outlook`:** projection banner; per-currency summary; list of rules with add/edit dialog; empty state explains projections
-- **Home strip:** same summary from `GET /forecast/next-month`, or stub empty copy if no rules / zero currencies
+- **`/outlook`:** surface panels (same visual language as home/activity). Forecast panel: projection banner, month label from payload calendar, per-currency summary blocks (expected income, expected expenses, labeled surplus/shortfall). Rules panel: list of row cards with add/edit dialog (SelectButton Income/Expense), ConfirmDialog on delete, skeletons and empty CTAs that prompt to add a rule. Full detail in [ui-ux.md](ui-ux.md).
+- **Home strip:** same summary from `GET /forecast/next-month` (short per-currency rows + link to `/outlook`), or stub empty copy if no rules / zero currencies
 
 ## Acceptance
 
