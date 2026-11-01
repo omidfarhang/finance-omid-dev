@@ -20,12 +20,13 @@
     <p-message severity="error" class="block">{{ error() }}</p-message>
   }
 
-  <div class="filters panel">
+  <section class="panel panel-filters">
     <label>
       {{ t('activity.range') }}
       <p-select
         [options]="rangeOptions()"
         [(ngModel)]="range"
+        (ngModelChange)="onServerFiltersChange()"
         optionLabel="label"
         optionValue="value"
         class="w-full"
@@ -36,79 +37,188 @@
       <p-select
         [options]="filterAccountOptions()"
         [(ngModel)]="filterAccountId"
+        (ngModelChange)="onServerFiltersChange()"
         optionLabel="label"
         optionValue="value"
         class="w-full"
       />
     </label>
-    <button pButton type="button" severity="secondary" (click)="applyFilters()">
-      {{ t('activity.applyFilters') }}
-    </button>
-  </div>
+    <label>
+      {{ t('activity.typeLabel') }}
+      <p-select
+        [options]="typeFilterOptions()"
+        [(ngModel)]="filterType"
+        (ngModelChange)="onServerFiltersChange()"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full"
+      />
+    </label>
+    <label class="search-field">
+      {{ t('activity.search') }}
+      <input
+        pInputText
+        class="w-full"
+        [ngModel]="searchDraft"
+        (ngModelChange)="onSearchDraftChange($event)"
+        [placeholder]="t('activity.searchPlaceholder')"
+        autocomplete="off"
+      />
+    </label>
+  </section>
 
   @if (loading()) {
-    <p class="lede">{{ t('activity.loading') }}</p>
+    <section class="panel panel-summary" aria-busy="true">
+      <div class="summary-grid">
+        @for (_ of skeletonSummary; track $index) {
+          <div class="summary-block">
+            <p-skeleton width="40%" height="0.85rem" />
+            <p-skeleton width="70%" height="0.85rem" />
+            <p-skeleton width="65%" height="0.85rem" />
+            <p-skeleton width="55%" height="0.85rem" />
+          </div>
+        }
+      </div>
+    </section>
+    <section class="panel panel-list" aria-busy="true">
+      <ul class="tx-list">
+        @for (_ of skeletonRows; track $index) {
+          <li class="tx-skel">
+            <div class="tx-main">
+              <p-skeleton width="35%" height="1rem" />
+              <p-skeleton width="30%" height="1rem" />
+            </div>
+            <p-skeleton width="75%" height="0.75rem" />
+          </li>
+        }
+      </ul>
+    </section>
   } @else if (transactions().length === 0) {
-    <p class="lede">{{ t('activity.empty') }}</p>
-    <a routerLink="/import">{{ t('activity.importLink') }}</a>
+    <section class="panel panel-empty">
+      <p class="lede">
+        {{ filtersNarrowed() ? t('activity.filterEmpty') : t('activity.empty') }}
+      </p>
+      <div class="empty-actions">
+        @if (accounts().length > 0) {
+          <button pButton type="button" (click)="openAddDialog()">
+            {{ t('activity.add') }}
+          </button>
+        }
+        @if (!filtersNarrowed()) {
+          <a routerLink="/import" pButton severity="secondary">{{
+            t('activity.importLink')
+          }}</a>
+        }
+      </div>
+    </section>
+  } @else if (visibleTransactions().length === 0) {
+    <section class="panel panel-empty">
+      <p class="lede">{{ t('activity.searchEmpty') }}</p>
+    </section>
   } @else {
-    <ul class="tx-list">
-      @for (tx of transactions(); track tx.id) {
-        <li>
-          <div class="tx-main">
-            <span class="tx-type">{{ typeLabel(tx.type) }}</span>
-            <span class="balance money-ltr">{{ formatAmount(tx) }}</span>
-          </div>
-          <p class="meta">
-            {{ accountName(tx.accountId) }}
-            @if (tx.type === 'TRANSFER') {
-              → {{ accountName(tx.counterAccountId) }}
-            }
-            · {{ tx.occurredAt | appDateTime }}
-            @if (tx.categoryId) {
-              ·
-              <span class="cat-chip">
-                @if (tx.categoryIcon) {
-                  <span
-                    class="cat-chip-icon"
-                    [style.--cat-swatch]="colorVar(tx.categoryColor)"
-                  >
-                    <i [class]="'pi ' + tx.categoryIcon" aria-hidden="true"></i>
-                  </span>
-                }
-                {{ displayCategory(tx) }}
-              </span>
-            }
-            @if (tx.shared) {
-              · {{ t('activity.sharedMark') }}
-            }
-          </p>
-          @if (tx.description) {
-            <p class="meta">{{ tx.description }}</p>
+    @if (periodSummaries().length > 0) {
+      <section class="panel panel-summary">
+        <h2>{{ t('activity.summary') }}</h2>
+        <div class="summary-grid">
+          @for (row of periodSummaries(); track row.currency) {
+            <div class="summary-block">
+              <p class="summary-currency">{{ row.currency }}</p>
+              @if (filterType !== 'TRANSFER' && filterType !== 'EXPENSE') {
+                <p class="summary-line">
+                  <span>{{ t('activity.summaryIncome') }}</span>
+                  <span class="money-ltr">{{
+                    formatSummaryAmount(row.incomeMinor, row.currency)
+                  }}</span>
+                </p>
+              }
+              @if (filterType !== 'TRANSFER' && filterType !== 'INCOME') {
+                <p class="summary-line">
+                  <span>{{ t('activity.summaryExpense') }}</span>
+                  <span class="money-ltr">{{
+                    formatSummaryAmount(row.expenseMinor, row.currency)
+                  }}</span>
+                </p>
+              }
+              @if (filterType === '' || filterType === 'INCOME' || filterType === 'EXPENSE') {
+                <p class="summary-line summary-net">
+                  <span>{{ t('activity.summaryNet') }}</span>
+                  <span class="money-ltr">{{
+                    formatSummaryAmount(row.netMinor, row.currency)
+                  }}</span>
+                </p>
+              }
+              @if (showTransfersInSummary()) {
+                <p class="summary-line summary-transfers">
+                  <span>{{ t('activity.summaryTransfers') }}</span>
+                  <span class="money-ltr">{{
+                    formatSummaryAmount(row.transferMinor, row.currency)
+                  }}</span>
+                </p>
+              }
+            </div>
           }
-          <div class="row-actions">
-            <button
-              pButton
-              type="button"
-              severity="secondary"
-              size="small"
-              (click)="openEditDialog(tx)"
-            >
-              {{ t('activity.edit') }}
-            </button>
-            <button
-              pButton
-              type="button"
-              severity="danger"
-              size="small"
-              (click)="confirmDelete(tx)"
-            >
-              {{ t('activity.delete') }}
-            </button>
-          </div>
-        </li>
+        </div>
+      </section>
+    }
+
+    <section class="panel panel-list">
+      @for (group of dayGroups(); track group.key) {
+        <div class="day-group">
+          <h3 class="day-heading">{{ dayLabel(group.sampleIso) }}</h3>
+          <ul class="tx-list">
+            @for (tx of group.transactions; track tx.id) {
+              <li>
+                <div
+                  class="tx-row"
+                  role="button"
+                  tabindex="0"
+                  (click)="openEditDialog(tx)"
+                  (keydown)="onRowKeydown($event, tx)"
+                  [attr.aria-label]="t('activity.editRowAria', { type: typeLabel(tx.type) })"
+                >
+                  <div class="tx-main">
+                    <span class="tx-type" [attr.data-type]="tx.type">{{
+                      typeLabel(tx.type)
+                    }}</span>
+                    <span class="balance money-ltr">{{ formatAmount(tx) }}</span>
+                  </div>
+                  <p class="meta">
+                    {{ accountName(tx.accountId) }}
+                    @if (tx.type === 'TRANSFER') {
+                      → {{ accountName(tx.counterAccountId) }}
+                    }
+                    · {{ timeLabel(tx.occurredAt) }}
+                    @if (tx.categoryId) {
+                      ·
+                      <span class="cat-chip">
+                        @if (tx.categoryIcon) {
+                          <span
+                            class="cat-chip-icon"
+                            [style.--cat-swatch]="colorVar(tx.categoryColor)"
+                          >
+                            <i
+                              [class]="'pi ' + tx.categoryIcon"
+                              aria-hidden="true"
+                            ></i>
+                          </span>
+                        }
+                        {{ displayCategory(tx) }}
+                      </span>
+                    }
+                    @if (tx.shared) {
+                      · {{ t('activity.sharedMark') }}
+                    }
+                  </p>
+                  @if (tx.description) {
+                    <p class="meta">{{ tx.description }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ul>
+        </div>
       }
-    </ul>
+    </section>
   }
 
   <app-add-movement-dialog
@@ -193,7 +303,17 @@
           </label>
         }
       }
-      <button pButton type="submit">{{ t('activity.save') }}</button>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('activity.save') }}</button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          (click)="deleteFromEditDialog()"
+        >
+          {{ t('activity.delete') }}
+        </button>
+      </div>
     </form>
   </p-dialog>
 
@@ -256,7 +376,17 @@
           class="w-full"
         />
       </label>
-      <button pButton type="submit">{{ t('activity.save') }}</button>
+      <div class="dialog-actions">
+        <button pButton type="submit">{{ t('activity.save') }}</button>
+        <button
+          pButton
+          type="button"
+          severity="danger"
+          (click)="deleteFromEditDialog()"
+        >
+          {{ t('activity.delete') }}
+        </button>
+      </div>
     </form>
   </p-dialog>
 </section>

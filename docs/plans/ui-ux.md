@@ -149,9 +149,13 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 ### Activity (`/activity`)
 
-- Purpose: chronological ledger of actual movements; filter by useful time range.
-- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); open row to edit (amount + metadata) or delete (ConfirmDialog). Account and type are not editable — delete + re-add. Edit uses type-specific dialogs (no type switcher).
-- Empty: “No movements yet” + CTA to add or import.
+- Purpose: chronological ledger of actual movements; one focused list page.
+- Visual language matches home/settings: **surface panels** (padding, radius, soft background) for filters, period summary, and the day-grouped list — not leading hairline rules. Loading uses skeletons.
+- Filters (live — no Apply): time range, account, type (All / Income / Expense / Transfer). Client-side **search** filters the loaded result by description, category label, and account names.
+- **Period summary** panel (per currency, from the visible filtered set): Income, Expense, Net (income−expense). Transfers never enter net; show a separate Transfers total when type is All or Transfer. No cross-currency totals.
+- List: day-grouped by user calendar + timezone ([DEC-013](../decisions/DEC-013-calendar-preference.md)); newest day first. Rows show type (income/expense color cues), amount, account (→ counter for transfers), time, category chip, shared mark, description.
+- Primary actions: single **Add** opens the shared Add dialog (SelectButton: Income / Expense / Transfer); **click/tap row** opens type-specific edit (amount + metadata). Delete lives in the edit dialog (ConfirmDialog). Account and type are not editable — delete + re-add.
+- Empty: “No movements yet” + CTA to add and/or import. Distinct copy when filters/search yield no rows.
 - Must not mix unlabeled forecast rows into this list.
 
 ### Accounts (`/accounts`)

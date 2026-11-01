@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -8,6 +8,7 @@ import {
   type PublicAccount,
   type PublicCategory,
   type PublicTransaction,
+  type TransactionType,
 } from '@finance/shared';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { ConfirmationService } from 'primeng/api';
@@ -17,8 +18,8 @@ import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Select } from 'primeng/select';
+import { Skeleton } from 'primeng/skeleton';
 import { forkJoin } from 'rxjs';
-import { AppDateTimePipe } from '../../core/app-date-time.pipe';
 import { AuthService } from '../../core/auth.service';
 import { CalendarPreferenceService } from '../../core/calendar-preference.service';
 import {
@@ -27,6 +28,7 @@ import {
   categoryOptionFrom,
   defaultCategoryId,
 } from '../../core/category-display';
+import { formatAppDate, formatAppTime } from '../../core/format-app-date';
 import { LocaleService } from '../../core/i18n/locale.service';
 import { formatBalanceMinor, minorUnitLabel } from '../../core/money-display';
 import { MoneyDisplayPreferenceService } from '../../core/money-display-preference.service';
@@ -38,8 +40,18 @@ import {
 } from '../../shared/add-movement-dialog/add-movement-dialog.component';
 import { AppAmountInputComponent } from '../../shared/app-amount-input/app-amount-input.component';
 import { AppDateTimeFieldComponent } from '../../shared/app-date-time-field/app-date-time-field.component';
+import { groupTransactionsByDay } from './activity-day-groups';
 
 type RangeKey = 'all' | '30d' | 'month';
+type TypeFilterKey = '' | TransactionType;
+
+type CurrencySummary = {
+  currency: string;
+  incomeMinor: bigint;
+  expenseMinor: bigint;
+  transferMinor: bigint;
+  netMinor: bigint;
+};
 
 @Component({
   selector: 'app-activity-page',
@@ -48,7 +60,6 @@ type RangeKey = 'all' | '30d' | 'month';
     AddMovementDialogComponent,
     AppAmountInputComponent,
     AppDateTimeFieldComponent,
-    AppDateTimePipe,
     FormsModule,
     RouterLink,
     ButtonDirective,
@@ -57,12 +68,13 @@ type RangeKey = 'all' | '30d' | 'month';
     InputText,
     Message,
     Select,
+    Skeleton,
     TranslocoDirective,
   ],
   templateUrl: './activity.page.html',
   styleUrl: './activity.page.scss',
 })
-export class ActivityPage implements OnInit {
+export class ActivityPage implements OnInit, OnDestroy {
   accounts = signal<PublicAccount[]>([]);
   categories = signal<PublicCategory[]>([]);
   transactions = signal<PublicTransaction[]>([]);
@@ -75,6 +87,9 @@ export class ActivityPage implements OnInit {
   editingTransactionId: string | null = null;
   range: RangeKey = '30d';
   filterAccountId = '';
+  filterType: TypeFilterKey = '';
+  searchDraft = '';
+  searchQuery = signal('');
 
   movementType: 'INCOME' | 'EXPENSE' = 'EXPENSE';
   movementAccountId = '';
@@ -91,6 +106,9 @@ export class ActivityPage implements OnInit {
   transferDescription = '';
   transferCategoryId = '';
   editingTransferId: string | null = null;
+
+  readonly skeletonRows = [0, 1, 2, 3, 4];
+  readonly skeletonSummary = [0, 1];
 
   readonly accountOptions = computed(() =>
     this.accounts().map((a) => ({
@@ -116,6 +134,74 @@ export class ActivityPage implements OnInit {
     },
   ]);
 
+  readonly typeFilterOptions = computed(() => [
+    {
+      label: this.i18n.translate('activity.typeAll'),
+      value: '' as const,
+    },
+    {
+      label: this.i18n.translate('activity.type.INCOME'),
+      value: 'INCOME' as const,
+    },
+    {
+      label: this.i18n.translate('activity.type.EXPENSE'),
+      value: 'EXPENSE' as const,
+    },
+    {
+      label: this.i18n.translate('activity.type.TRANSFER'),
+      value: 'TRANSFER' as const,
+    },
+  ]);
+
+  readonly visibleTransactions = computed(() => {
+    const q = this.searchQuery().toLowerCase();
+    const rows = this.transactions();
+    if (!q) {
+      return rows;
+    }
+    return rows.filter((tx) => this.matchesSearch(tx, q));
+  });
+
+  readonly dayGroups = computed(() =>
+    groupTransactionsByDay(
+      this.visibleTransactions(),
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+    ),
+  );
+
+  readonly periodSummaries = computed((): CurrencySummary[] => {
+    const byCurrency = new Map<string, CurrencySummary>();
+    for (const tx of this.visibleTransactions()) {
+      const currency = this.accountCurrency(tx.accountId) || 'IRR';
+      let row = byCurrency.get(currency);
+      if (!row) {
+        row = {
+          currency,
+          incomeMinor: 0n,
+          expenseMinor: 0n,
+          transferMinor: 0n,
+          netMinor: 0n,
+        };
+        byCurrency.set(currency, row);
+      }
+      const amount = BigInt(tx.amountMinor);
+      if (tx.type === 'INCOME') {
+        row.incomeMinor += amount;
+      } else if (tx.type === 'EXPENSE') {
+        row.expenseMinor += amount;
+      } else {
+        row.transferMinor += amount;
+      }
+    }
+    for (const row of byCurrency.values()) {
+      row.netMinor = row.incomeMinor - row.expenseMinor;
+    }
+    return [...byCurrency.values()].sort((a, b) =>
+      a.currency.localeCompare(b.currency),
+    );
+  });
+
   private readonly walletsApi = inject(WalletsService);
   private readonly txApi = inject(TransactionsService);
   private readonly moneyDisplay = inject(MoneyDisplayPreferenceService);
@@ -124,9 +210,42 @@ export class ActivityPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly i18n = inject(TranslocoService);
   private readonly confirm = inject(ConfirmationService);
+  private searchTimer: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit() {
     this.reload();
+  }
+
+  ngOnDestroy() {
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+  }
+
+  onServerFiltersChange() {
+    this.reload();
+  }
+
+  filtersNarrowed(): boolean {
+    return (
+      this.range !== 'all' ||
+      this.filterAccountId !== '' ||
+      this.filterType !== ''
+    );
+  }
+
+  showTransfersInSummary(): boolean {
+    return this.filterType === '' || this.filterType === 'TRANSFER';
+  }
+
+  onSearchDraftChange(value: string) {
+    this.searchDraft = value;
+    if (this.searchTimer) {
+      clearTimeout(this.searchTimer);
+    }
+    this.searchTimer = setTimeout(() => {
+      this.searchQuery.set(this.searchDraft.trim());
+    }, 200);
   }
 
   reload() {
@@ -140,6 +259,7 @@ export class ActivityPage implements OnInit {
         accountId: this.filterAccountId || undefined,
         from: range.from,
         to: range.to,
+        type: this.filterType || undefined,
       }),
     }).subscribe({
       next: ({ accounts, categories, transactions }) => {
@@ -155,10 +275,6 @@ export class ActivityPage implements OnInit {
         );
       },
     });
-  }
-
-  applyFilters() {
-    this.reload();
   }
 
   openAddDialog() {
@@ -187,6 +303,7 @@ export class ActivityPage implements OnInit {
   openEditDialog(tx: PublicTransaction) {
     if (tx.type === 'TRANSFER') {
       this.editingTransferId = tx.id;
+      this.editingTransactionId = null;
       this.transferFromId = tx.accountId;
       this.transferToId = tx.counterAccountId ?? '';
       this.transferAmount = tx.amountMinor;
@@ -198,6 +315,7 @@ export class ActivityPage implements OnInit {
       return;
     }
     this.editingTransactionId = tx.id;
+    this.editingTransferId = null;
     this.movementType = tx.type;
     this.movementAccountId = tx.accountId;
     this.movementAmount = tx.amountMinor;
@@ -209,6 +327,13 @@ export class ActivityPage implements OnInit {
     this.movementDialogVisible.set(true);
   }
 
+  onRowKeydown(event: KeyboardEvent, tx: PublicTransaction) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openEditDialog(tx);
+    }
+  }
+
   confirmDelete(tx: PublicTransaction) {
     this.confirm.confirm({
       message: this.i18n.translate('activity.confirmDelete'),
@@ -217,6 +342,20 @@ export class ActivityPage implements OnInit {
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.deleteTransaction(tx.id),
     });
+  }
+
+  deleteFromEditDialog() {
+    const id = this.editingTransactionId ?? this.editingTransferId;
+    if (!id) {
+      return;
+    }
+    const tx = this.transactions().find((row) => row.id === id);
+    if (!tx) {
+      return;
+    }
+    this.movementDialogVisible.set(false);
+    this.transferDialogVisible.set(false);
+    this.confirmDelete(tx);
   }
 
   selectedMovementAccount(): PublicAccount | undefined {
@@ -330,6 +469,38 @@ export class ActivityPage implements OnInit {
     );
   }
 
+  formatSummaryAmount(amountMinor: bigint, currency: string): string {
+    return formatBalanceMinor(
+      amountMinor.toString(),
+      currency,
+      this.moneyDisplay.showToman(),
+      {
+        toman: this.i18n.translate('accounts.toman'),
+        rials: this.i18n.translate('accounts.rials'),
+        cents: this.i18n.translate('accounts.cents'),
+      },
+      this.locale.activeLang(),
+    );
+  }
+
+  dayLabel(sampleIso: string): string {
+    return formatAppDate(
+      sampleIso,
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+      this.locale.activeLang(),
+    );
+  }
+
+  timeLabel(iso: string): string {
+    return formatAppTime(
+      iso,
+      this.calendarPref.calendar(),
+      this.auth.user()?.timeZone ?? DEFAULT_BOUNDS_TIME_ZONE,
+      this.locale.activeLang(),
+    );
+  }
+
   typeLabel(type: PublicTransaction['type']): string {
     return this.i18n.translate(`activity.type.${type}`);
   }
@@ -353,6 +524,17 @@ export class ActivityPage implements OnInit {
       { name: tx.categoryName ?? '', code: tx.categoryCode },
       this.i18n,
     );
+  }
+
+  private matchesSearch(tx: PublicTransaction, q: string): boolean {
+    const haystacks = [
+      tx.description ?? '',
+      this.displayCategory(tx),
+      this.accountName(tx.accountId),
+      this.accountName(tx.counterAccountId),
+      this.typeLabel(tx.type),
+    ];
+    return haystacks.some((value) => value.toLowerCase().includes(q));
   }
 
   private deleteTransaction(id: string) {
