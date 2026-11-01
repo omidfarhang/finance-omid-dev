@@ -39,7 +39,7 @@ For local API/web, set `DATABASE_URL` / `CORS_ORIGIN` to localhost values (see c
 
 Self-hosted under **https://finance.omid.dev**. Compose runs Postgres, the NestJS API, and nginx (Angular SPA + `/api/` proxy). Host nginx terminates TLS and proxies to the published port ([DEC-008](docs/decisions/DEC-008-self-hosted-docker.md)). App images are built on every push to `master` and published to GHCR; the server only pulls and starts them ([DEC-018](docs/decisions/DEC-018-ci-container-images.md)).
 
-**CI (once):** add repo secret `PRIMENG_LICENSE` (free Community key from https://primeui.dev) so the web image build clears the PrimeUI banner. After the first successful [Docker images](https://github.com/omidfarhang/finance-omid-dev/actions) workflow, confirm the `api` and `web` GHCR packages are **public** (the workflow sets this; otherwise Package settings → Change visibility).
+**CI (once):** add repo secret `PRIMENG_LICENSE` (free Community key from https://primeui.dev) so the web image build clears the PrimeUI banner. The `api` and `web` GHCR packages must be **public** so the server can pull anonymously; GitHub has no API for this, so if a package ever shows as private, use Package settings → Change visibility.
 
 **Server — first time:**
 

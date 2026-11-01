@@ -19,7 +19,7 @@ Self-hosted deploy under `finance.omid.dev` previously built `api` and `web` ima
 - **CI builds images** on every push to `master` via GitHub Actions (`.github/workflows/docker-images.yml`).
 - **Registry:** GHCR — `ghcr.io/omidfarhang/finance-omid-dev/api` and `.../web`.
 - **Tag:** `:latest` only for now (no semver / release tags yet); Compose may use `IMAGE_TAG` (default `latest`).
-- **Packages are public** so the server can pull without a registry token.
+- **Packages are public** so the server can pull without a registry token. Visibility is a package setting (no REST API to change it), not a workflow step.
 - **Server deploy:** `git pull && docker compose pull && docker compose up -d` — no `--build`. Compose still defines postgres + api + web; TLS remains at host nginx ([DEC-008](DEC-008-self-hosted-docker.md)).
 - **PrimeNG license:** `PRIMENG_LICENSE` is a GitHub Actions secret (web image build-arg); not required in server `.env` when using GHCR images.
 - **Local Postgres:** `pnpm db:up` unchanged (Compose `postgres` only). Local rebuild of app images is optional (`docker build`); not the production path.

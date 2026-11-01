@@ -51,17 +51,3 @@ jobs:
             PRIMENG_LICENSE=${{ secrets.PRIMENG_LICENSE }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
-
-      - name: Make GHCR packages public
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          for pkg in finance-omid-dev%2Fapi finance-omid-dev%2Fweb; do
-            gh api \
-              --method PUT \
-              -H "Accept: application/vnd.github+json" \
-              "/user/packages/container/${pkg}/visibility" \
-              -f visibility=public \
-              || echo "Could not set visibility for ${pkg} (set public in Package settings if needed)"
-          done
