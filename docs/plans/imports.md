@@ -80,7 +80,7 @@ User must be a member of `accountId`. Created rows are `INCOME`/`EXPENSE` only, 
 ## UI (import dialog)
 
 - Shared dialog opened from **Activity** (header Import next to Add; account picker shown) and **Account detail** (Import next to Add; account fixed to that account — no account picker)
-- Choose adapter, upload file; each adapter exposes a **`samplePath`** (synthetic fixture under web `/samples/`) — the dialog’s download link follows the **selected** adapter
+- Choose adapter, upload file; each adapter exposes a **`samplePath`** (synthetic fixture under web `/samples/`) — the dialog shows a single format-agnostic sample download link for the **selected** adapter (not a CSV-specific field label)
 - Show created / skipped-duplicate counts after success; parent list refreshes on success; legacy `/import` redirects to Activity
 
 ## Acceptance

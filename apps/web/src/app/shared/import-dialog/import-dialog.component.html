@@ -57,8 +57,7 @@
           class="w-full"
         />
       </label>
-      <label>
-        {{ t('importPage.file') }}
+      <div class="file-field">
         @if (selectedAdapter(); as adapter) {
           <a
             class="sample-link"
@@ -72,10 +71,11 @@
           <input
             type="file"
             [accept]="fileAccept()"
+            [attr.aria-label]="t('importPage.file')"
             (change)="onFileChange($event)"
           />
         }
-      </label>
+      </div>
       <div class="dialog-actions">
         <button pButton type="submit" [disabled]="submitting()">
           {{ t('importPage.submit') }}

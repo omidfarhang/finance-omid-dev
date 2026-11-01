@@ -180,7 +180,7 @@ When the user has no accounts: balances empty state with primary CTA “Create a
 
 - Purpose: upload statement; choose adapter (`generic_csv`, `blubank_xlsx`, …); confirm units when ambiguous (never silent rial/toman). Not a primary-nav route — opened from Activity and Account detail ([imports.md](imports.md)).
 - From Activity: account picker shown. From Account detail: account is fixed; picker hidden.
-- Offer a downloadable synthetic sample for the **selected** adapter (`samplePath` from the adapters API; CSV or Excel per adapter; no column-format hint text).
+- Offer a downloadable synthetic sample for the **selected** adapter (`samplePath` from the adapters API; CSV or Excel per adapter). Under the adapter control, show only a single format-agnostic sample download link (e.g. “Download sample”) — no separate “CSV file” field label and no format hardcoded in the link text; no column-format hint text.
 - After upload: show created count and skipped-duplicate count ([mvp.md](mvp.md) acceptance); parent refreshes the ledger.
 - Legacy `/import` redirects to `/activity`.
 
