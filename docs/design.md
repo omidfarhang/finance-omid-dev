@@ -8,6 +8,7 @@ When architecture or stack choices change, update this file in the same change s
 
 ## Shape
 
+- **Runtime:** Node.js 24 (LTS) for local API/tooling and Compose build images ([DEC-002](decisions/DEC-002-stack.md)).
 - **System of record:** NestJS 12 REST API over PostgreSQL (Prisma 7 + `pg` adapter).
 - **First client:** Angular PWA with PrimeNG; installable shell; money data online-only.
 - **Contracts:** Zod 4 schemas in a shared package for HTTP DTOs; do not expose Prisma models to the web app.

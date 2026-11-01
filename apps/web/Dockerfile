@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM node:26-bookworm-slim AS build
-# Node 26+ slim images omit Corepack; install pnpm directly.
+FROM node:24-bookworm-slim AS build
+# Install pnpm directly (avoid Corepack enable in CI/build images).
 RUN npm install -g pnpm@9.15.0
 
 WORKDIR /app
