@@ -53,6 +53,8 @@ export class ImportDialogComponent {
   accountId = '';
   adapterId = signal<string>('generic_csv');
   selectedFile: File | null = null;
+  /** Remounts the file input when the adapter changes so the browser clears the path. */
+  fileInputKey = signal(0);
 
   readonly accountLocked = computed(() => Boolean(this.fixedAccountId()));
 
@@ -72,8 +74,24 @@ export class ImportDialogComponent {
   );
 
   readonly sampleDownloadName = computed(() => {
+    const path = this.selectedAdapter()?.samplePath ?? '';
+    const fromPath = path.split('/').pop();
+    if (fromPath) {
+      return fromPath;
+    }
     const id = this.adapterId();
-    return id ? `${id}-sample.csv` : 'sample.csv';
+    return id ? `${id}-sample` : 'sample';
+  });
+
+  readonly fileAccept = computed(() => {
+    const path = this.selectedAdapter()?.samplePath ?? '';
+    if (path.endsWith('.xlsx')) {
+      return '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+    if (path.endsWith('.csv')) {
+      return '.csv,text/csv';
+    }
+    return '.csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   });
 
   private readonly importsApi = inject(ImportsService);
@@ -88,6 +106,12 @@ export class ImportDialogComponent {
         });
       }
     });
+  }
+
+  onAdapterChange(adapterId: string) {
+    this.adapterId.set(adapterId);
+    this.selectedFile = null;
+    this.fileInputKey.update((n) => n + 1);
   }
 
   onFileChange(event: Event) {

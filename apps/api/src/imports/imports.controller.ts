@@ -11,7 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { z } from 'zod';
-import type { PublicUser } from '@finance/shared';
+import { importAdapterIdSchema, type PublicUser } from '@finance/shared';
 import { CurrentUser } from '../auth/session.decorator';
 import { SessionGuard } from '../auth/session.guard';
 import { ZodValidationPipe } from '../common/zod-validation.pipe';
@@ -19,7 +19,7 @@ import { ImportsService } from './imports.service';
 
 const importBodySchema = z.object({
   accountId: z.uuid(),
-  adapterId: z.enum(['generic_csv']),
+  adapterId: importAdapterIdSchema,
 });
 type ImportBody = z.infer<typeof importBodySchema>;
 
@@ -37,7 +37,7 @@ export class ImportsController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: memoryStorage(),
-      limits: { fileSize: 2 * 1024 * 1024 },
+      limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
   async importFile(
@@ -48,16 +48,12 @@ export class ImportsController {
     if (!file?.buffer?.length) {
       throw new BadRequestException('file is required');
     }
-    const content = file.buffer.toString('utf8');
-    if (!content.trim()) {
-      throw new BadRequestException('file is empty');
-    }
     const result = await this.importsService.importFile({
       userId: user.id,
       accountId: body.accountId,
       adapterId: body.adapterId,
-      originalFilename: file.originalname || 'upload.csv',
-      content,
+      originalFilename: file.originalname || 'upload',
+      content: file.buffer,
     });
     return result;
   }

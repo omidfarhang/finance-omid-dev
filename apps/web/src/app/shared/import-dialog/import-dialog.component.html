@@ -50,7 +50,7 @@
         <p-select
           [options]="adapterOptions()"
           [ngModel]="adapterId()"
-          (ngModelChange)="adapterId.set($event)"
+          (ngModelChange)="onAdapterChange($event)"
           name="adapterId"
           optionLabel="label"
           optionValue="value"
@@ -68,11 +68,13 @@
             {{ t('importPage.sampleDownload') }}
           </a>
         }
-        <input
-          type="file"
-          accept=".csv,text/csv"
-          (change)="onFileChange($event)"
-        />
+        @for (k of [fileInputKey()]; track k) {
+          <input
+            type="file"
+            [accept]="fileAccept()"
+            (change)="onFileChange($event)"
+          />
+        }
       </label>
       <div class="dialog-actions">
         <button pButton type="submit" [disabled]="submitting()">

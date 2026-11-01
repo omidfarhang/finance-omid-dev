@@ -17,9 +17,12 @@ describe('ImportsService', () => {
   const accountId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
   const incomeUncategorizedId = 'cccccccc-cccc-cccc-cccc-cccccccccccc';
   const expenseUncategorizedId = 'dddddddd-dddd-dddd-dddd-dddddddddddd';
-  const csv = `date,amount,type,description,external_id,unit
+  const csv = Buffer.from(
+    `date,amount,type,description,external_id,unit
 2026-01-15,15000,EXPENSE,Coffee,ext-1,minor
-`;
+`,
+    'utf8',
+  );
 
   function categoryTxMocks() {
     return {
@@ -141,6 +144,22 @@ describe('ImportsService', () => {
     });
     expect(second.created).toBe(0);
     expect(second.skippedDuplicate).toBe(1);
+  });
+
+  it('rejects BluBank import into a non-IRR account', async () => {
+    accountsService.requireMemberAccount.mockResolvedValue({
+      id: accountId,
+      currency: 'USD',
+    });
+    await expect(
+      service.importFile({
+        userId,
+        accountId,
+        adapterId: 'blubank_xlsx',
+        originalFilename: 'blu.xlsx',
+        content: Buffer.from('not-used'),
+      }),
+    ).rejects.toThrow(/IRR/);
   });
 
   it('assigns Uncategorized category on imported expenses', async () => {

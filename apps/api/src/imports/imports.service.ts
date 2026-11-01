@@ -1,10 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import type { ImportResult, PublicImportAdapter } from '@finance/shared';
+import type { ImportAdapterId, ImportResult, PublicImportAdapter } from '@finance/shared';
 import { CategoryKind, Prisma } from '../generated/prisma/client';
 import { AccountsService } from '../accounts/accounts.service';
 import { requireUncategorizedId } from '../categories/category-defaults';
 import { PrismaService } from '../prisma/prisma.service';
+import { parseBlubankXlsx } from './blubank-xlsx.adapter';
 import { parseGenericCsv } from './generic-csv.adapter';
+import type { ParsedImportRow } from './import.types';
 import { toPublicImportBatch } from './imports.mapper';
 
 const ADAPTERS: PublicImportAdapter[] = [
@@ -12,6 +14,11 @@ const ADAPTERS: PublicImportAdapter[] = [
     id: 'generic_csv',
     label: 'Generic CSV (synthetic)',
     samplePath: '/samples/generic_csv.csv',
+  },
+  {
+    id: 'blubank_xlsx',
+    label: 'BluBank Excel',
+    samplePath: '/samples/blubank_xlsx.xlsx',
   },
 ];
 
@@ -31,20 +38,21 @@ export class ImportsService {
     accountId: string;
     adapterId: string;
     originalFilename: string;
-    content: string;
+    content: Buffer;
   }): Promise<ImportResult> {
-    if (input.adapterId !== 'generic_csv') {
+    const adapterId = input.adapterId as ImportAdapterId;
+    if (adapterId !== 'generic_csv' && adapterId !== 'blubank_xlsx') {
       throw new BadRequestException('Unknown adapter');
     }
 
-    await this.accountsService.requireMemberAccount(
+    const account = await this.accountsService.requireMemberAccount(
       input.userId,
       input.accountId,
     );
 
-    const rows = parseGenericCsv(input.content);
+    const rows = this.parseRows(adapterId, input.content, account.currency);
     if (rows.length === 0) {
-      throw new BadRequestException('CSV has no data rows');
+      throw new BadRequestException('File has no data rows');
     }
 
     let created = 0;
@@ -66,7 +74,7 @@ export class ImportsService {
         data: {
           userId: input.userId,
           accountId: input.accountId,
-          adapterId: input.adapterId,
+          adapterId,
           originalFilename: input.originalFilename,
           createdCount: 0,
           skippedDuplicateCount: 0,
@@ -117,5 +125,22 @@ export class ImportsService {
       created,
       skippedDuplicate,
     };
+  }
+
+  private parseRows(
+    adapterId: ImportAdapterId,
+    content: Buffer,
+    currency: string,
+  ): ParsedImportRow[] {
+    if (adapterId === 'generic_csv') {
+      return parseGenericCsv(content.toString('utf8'));
+    }
+
+    if (currency !== 'IRR') {
+      throw new BadRequestException(
+        'BluBank Excel amounts are rials; import only into an IRR account',
+      );
+    }
+    return parseBlubankXlsx(content);
   }
 }

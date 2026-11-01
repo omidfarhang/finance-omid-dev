@@ -1,14 +1,9 @@
 import { createHash } from 'node:crypto';
 import { BadRequestException } from '@nestjs/common';
 import { TransactionType } from '../generated/prisma/client';
+import type { ParsedImportRow } from './import.types';
 
-export type ParsedImportRow = {
-  type: typeof TransactionType.INCOME | typeof TransactionType.EXPENSE;
-  amountMinor: bigint;
-  occurredAt: Date;
-  description: string | null;
-  dedupeKey: string;
-};
+export type { ParsedImportRow };
 
 function normalizeDescription(value: string | undefined): string {
   return (value ?? '').trim().replace(/\s+/g, ' ');

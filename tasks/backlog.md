@@ -4,10 +4,10 @@ Potential future work. Nothing here is a commitment.
 
 ## Now / High relevance
 
-- Multi-bank statement import adapters
-  - **Problem:** Each bank uses a different CSV/Excel layout.
-  - **Expected outcome:** Pluggable parsers or mappings per bank; safe re-import.
-  - **Dependencies:** Generic CSV path done ([DEC-012](../docs/decisions/DEC-012-import-adapters.md)); fill [bank-formats.md](../docs/brainstorm/bank-formats.md) with anonymized column notes.
+- Further bank statement import adapters
+  - **Problem:** Banks beyond BluBank use different CSV/Excel layouts.
+  - **Expected outcome:** Additional pluggable parsers per bank; safe re-import.
+  - **Dependencies:** Adapter model + `generic_csv` + `blubank_xlsx` done ([DEC-012](../docs/decisions/DEC-012-import-adapters.md)); extend [bank-formats.md](../docs/brainstorm/bank-formats.md) with anonymized column notes.
 
 ## Later
 

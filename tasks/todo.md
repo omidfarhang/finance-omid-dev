@@ -12,6 +12,7 @@ Work that is ready to be done.
 
 ## Done recently
 
+- BluBank Excel import adapter (`blubank_xlsx`): rial-labeled debit/credit, Jalali datetimes → UTC, IRR-only account ([docs/plans/imports.md](../docs/plans/imports.md), [docs/brainstorm/bank-formats.md](../docs/brainstorm/bank-formats.md), [DEC-012](../docs/decisions/DEC-012-import-adapters.md))
 - Import as dialog (not primary nav): Activity + Account detail entry; account fixed when opened from account ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/imports.md](../docs/plans/imports.md), [DEC-011](../docs/decisions/DEC-011-ui-ia.md))
 - Outlook recurrings UX + schedule model: intervals, first/last/day, category, transfer, single Add, quick-add from Add dialog ([docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md), [docs/plans/ui-ux.md](../docs/plans/ui-ux.md))
 - Outlook UI / UX full pass: surface panels, summary-block forecast, rule cards + ConfirmDialog, skeletons, empty CTAs ([docs/plans/ui-ux.md](../docs/plans/ui-ux.md), [docs/plans/recurrings-forecast.md](../docs/plans/recurrings-forecast.md))

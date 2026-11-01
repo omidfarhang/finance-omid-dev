@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const importAdapterIdSchema = z.enum(['generic_csv']);
+export const importAdapterIdSchema = z.enum(['generic_csv', 'blubank_xlsx']);
 export type ImportAdapterId = z.infer<typeof importAdapterIdSchema>;
 
 export const publicImportAdapterSchema = z.object({

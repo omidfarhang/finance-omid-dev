@@ -2,7 +2,7 @@
 
 Living architecture overview for this project. Product purpose and scope live in [vision.md](vision.md) and [plans/mvp.md](plans/mvp.md). Rationale for expensive choices lives in [decisions/](decisions/).
 
-**Status:** MVP ledger path in place: auth, wallets/accounts, transactions/transfers, generic CSV import + dedupe, recurrings + next-month forecast; UI IA filled for Activity / Import / Outlook / home. Instance admin, i18n, Docker deploy as before. Multi-bank adapters and post-MVP ideas remain backlog.
+**Status:** MVP ledger path in place: auth, wallets/accounts, transactions/transfers, statement import (`generic_csv` + `blubank_xlsx`) + dedupe, recurrings + next-month forecast; UI IA filled for Activity / Import / Outlook / home. Instance admin, i18n, Docker deploy as before. Further bank adapters and post-MVP ideas remain backlog.
 
 When architecture or stack choices change, update this file in the same change set as the related `DEC-NNN` record.
 
@@ -73,7 +73,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | `accounts` | Accounts (personal or shared), per-account currency; balance checkpoints ([plans/balance-checkpoints.md](plans/balance-checkpoints.md), [DEC-017](decisions/DEC-017-balance-checkpoints.md)) |
 | `transactions` | Manual income/expense; same-currency transfers; optional shared mark on personal expenses ([plans/transactions.md](plans/transactions.md)) |
 | `categories` | Per-user income/expense/transfer category lists (system catalog via codes + i18n, icons, palette colors; user CRUD; required on all movements) ([plans/transactions.md](plans/transactions.md), [DEC-016](decisions/DEC-016-category-catalog.md)) |
-| `imports` | Pluggable adapters; generic/synthetic CSV first; deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
+| `imports` | Pluggable adapters (`generic_csv`, `blubank_xlsx`, …); deduplicated re-import ([plans/imports.md](plans/imports.md), [DEC-012](decisions/DEC-012-import-adapters.md)) |
 | `recurrings` | Recurring income/expense/transfer rules (daily–yearly schedules) for forecast only ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)); managed under `/outlook`; optional create-from Add dialog |
 | `forecast` | Next-month outlook from expected income and expense recurrings (transfers excluded from surplus); labeled projections; per currency ([plans/recurrings-forecast.md](plans/recurrings-forecast.md)) |
 
@@ -95,7 +95,7 @@ Aligned with [plans/mvp.md](plans/mvp.md):
 | [plans/mvp.md](plans/mvp.md) | First release scope |
 | [plans/transactions.md](plans/transactions.md) | Manual transactions, transfers, categories ([DEC-016](decisions/DEC-016-category-catalog.md)) |
 | [plans/balance-checkpoints.md](plans/balance-checkpoints.md) | Dated known balances; gaps; replaces opening balance ([DEC-017](decisions/DEC-017-balance-checkpoints.md)) |
-| [plans/imports.md](plans/imports.md) | CSV import adapters and deduplication |
+| [plans/imports.md](plans/imports.md) | Statement import adapters and deduplication |
 | [plans/recurrings-forecast.md](plans/recurrings-forecast.md) | Recurring rules and next-month forecast |
 | [plans/ui-ux.md](plans/ui-ux.md) | UI sitemap, shells, screen patterns |
 | [decisions/](decisions/) | Decision records |
