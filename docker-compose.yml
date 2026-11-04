@@ -20,6 +20,8 @@ services:
   api:
     image: ghcr.io/omidfarhang/finance-omid-dev/api:${IMAGE_TAG:-latest}
     container_name: finance-omid-api
+    # Docker's embedded tini as PID 1 — reaps the orphan Node child prisma migrate can leave.
+    init: true
     restart: unless-stopped
     env_file:
       - .env

@@ -23,7 +23,7 @@ Self-hosted deploy under `finance.omid.dev` previously built `api` and `web` ima
 - **Server deploy:** `git pull && docker compose pull && docker compose up -d` — no `--build`. Compose still defines postgres + api + web; TLS remains at host nginx ([DEC-008](DEC-008-self-hosted-docker.md)).
 - **PrimeNG license:** `PRIMENG_LICENSE` is a GitHub Actions secret (web image build-arg); not required in server `.env` when using GHCR images.
 - **Local Postgres:** `pnpm db:up` unchanged (Compose `postgres` only). Local rebuild of app images is optional (`docker build`); not the production path.
-- **Migrations on boot:** unchanged — API entrypoint still runs `prisma migrate deploy`.
+- **Migrations on boot:** unchanged — API entrypoint still runs `prisma migrate deploy`; Compose uses `init: true` on `api` so Docker’s tini reaps any orphan left by migrate ([DEC-008](DEC-008-self-hosted-docker.md)).
 
 ## Consequences
 

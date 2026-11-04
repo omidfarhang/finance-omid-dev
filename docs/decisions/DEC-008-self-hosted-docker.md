@@ -21,6 +21,7 @@ The app is personal / household, self-hosted under `finance.omid.dev`. Local dev
 - **Local Postgres unchanged:** `pnpm db:up` still starts only the `postgres` service.
 - **App images from CI:** `api` and `web` are built in GitHub Actions and pulled from GHCR at deploy time — not built on the server ([DEC-018](DEC-018-ci-container-images.md)).
 - **Migrations on boot:** the API container runs `prisma migrate deploy` before listening.
+- **API `init: true`:** Compose enables Docker’s embedded tini as PID 1 so the orphan Node child that `prisma migrate deploy` can leave is reaped (no tini baked into the image).
 - **Node base image:** API and web build stages use `node:24-bookworm-slim` (same major as local `engines`; see [DEC-002](DEC-002-stack.md)).
 
 ## Consequences
